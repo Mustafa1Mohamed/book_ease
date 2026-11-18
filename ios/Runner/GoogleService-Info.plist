@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>820639205970-d7j5tbsh26ti1qb8k4kgrnrb5ql7pegn.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.820639205970-d7j5tbsh26ti1qb8k4kgrnrb5ql7pegn</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>820639205970-amfv32oiv8nohbcn3rro33unu9mcrplm.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyC8Rtg4syjeiEYRfMcTahEmc70Zl-XHFrs</string>
+	<key>GCM_SENDER_ID</key>
+	<string>820639205970</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.bookEase</string>
+	<key>PROJECT_ID</key>
+	<string>book-ease-f0346</string>
+	<key>STORAGE_BUCKET</key>
+	<string>book-ease-f0346.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:820639205970:ios:c6649dca0faa83a25d6d8b</string>
+</dict>
+</plist>

@@ -1,11 +1,10 @@
-
 import 'package:material_ui/material_ui.dart';
 
 abstract final class AppColors {
   // Primary
   static const Color primary = Color(0xFF2563EB);
   static const Color primaryDark = Color(0xFF1D4ED8);
-  static const Color primaryLight = Color(0xFFDBEAFE); 
+  static const Color primaryLight = Color(0xFFDBEAFE);
 
   // Secondary
   static const Color secondary = Color(0xFF0F766E);

@@ -12,7 +12,20 @@
           "package_name": "com.example.book_ease"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "820639205970-amfv32oiv8nohbcn3rro33unu9mcrplm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.book_ease",
+            "certificate_hash": "5cbeb478a89a1ab6f264bedef24aa8a1b8605049"
+          }
+        },
+        {
+          "client_id": "820639205970-lqh9tvf31ea7jl9gvpe6vba4gmajui4s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCzpm_r46BEpdm4F2ZJBeFkQsZT0h8go2w"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "820639205970-lqh9tvf31ea7jl9gvpe6vba4gmajui4s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "820639205970-d7j5tbsh26ti1qb8k4kgrnrb5ql7pegn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bookEase"
+              }
+            }
+          ]
         }
       }
     }
