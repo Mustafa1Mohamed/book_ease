@@ -80,142 +80,147 @@ class _RegisterViewState extends State<_RegisterView> {
       },
       builder: (context, state) {
         final loading = state is AuthLoading;
-        return Scaffold(
-          appBar: AppBar(),
-          body: SafeArea(
-            top: false,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Create your account',
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                    SizedBox(height: 8.h),
-                    Text(
-                      'Start booking appointments and managing your care.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    SizedBox(height: 24.h),
-                    AuthTextField(
-                      label: 'Full Name',
-                      controller: _nameController,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.person_outline_rounded,
-                      validator: AuthValidators.validateName,
-                    ),
-                    SizedBox(height: 16.h),
-                    AuthTextField(
-                      label: 'Email',
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.email_outlined,
-                      validator: AuthValidators.validateEmail,
-                    ),
-                    SizedBox(height: 16.h),
-                    AuthTextField(
-                      label: 'Phone Number (optional)',
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.phone_outlined,
-                    ),
-                    SizedBox(height: 16.h),
-                    AuthTextField(
-                      label: 'Password',
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.next,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      validator: AuthValidators.validatePassword,
-                      suffix: IconButton(
-                        onPressed: () => setState(
-                          () => _obscurePassword = !_obscurePassword,
-                        ),
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: Scaffold(
+            appBar: AppBar(),
+            body: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(24.w, 8.h, 24.w, 24.h),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Create your account',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                      SizedBox(height: 8.h),
+                      Text(
+                        'Start booking appointments and managing your care.',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      SizedBox(height: 24.h),
+                      AuthTextField(
+                        label: 'Full Name',
+                        controller: _nameController,
+                        textInputAction: TextInputAction.next,
+                        prefixIcon: Icons.person_outline_rounded,
+                        validator: AuthValidators.validateName,
+                      ),
+                      SizedBox(height: 16.h),
+                      AuthTextField(
+                        label: 'Email',
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        prefixIcon: Icons.email_outlined,
+                        validator: AuthValidators.validateEmail,
+                      ),
+                      SizedBox(height: 16.h),
+                      AuthTextField(
+                        label: 'Phone Number (optional)',
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                        prefixIcon: Icons.phone_outlined,
+                      ),
+                      SizedBox(height: 16.h),
+                      AuthTextField(
+                        label: 'Password',
+                        controller: _passwordController,
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.next,
+                        prefixIcon: Icons.lock_outline_rounded,
+                        validator: AuthValidators.validatePassword,
+                        suffix: IconButton(
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 16.h),
-                    AuthTextField(
-                      label: 'Confirm Password',
-                      controller: _confirmController,
-                      obscureText: _obscureConfirm,
-                      textInputAction: TextInputAction.done,
-                      prefixIcon: Icons.lock_outline_rounded,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Confirm your password.';
-                        }
-                        if (value != _passwordController.text) {
-                          return 'Passwords do not match.';
-                        }
-                        return null;
-                      },
-                      suffix: IconButton(
-                        onPressed: () =>
-                            setState(() => _obscureConfirm = !_obscureConfirm),
-                        icon: Icon(
-                          _obscureConfirm
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
+                      SizedBox(height: 16.h),
+                      AuthTextField(
+                        label: 'Confirm Password',
+                        controller: _confirmController,
+                        obscureText: _obscureConfirm,
+                        textInputAction: TextInputAction.done,
+                        prefixIcon: Icons.lock_outline_rounded,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Confirm your password.';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Passwords do not match.';
+                          }
+                          return null;
+                        },
+                        suffix: IconButton(
+                          onPressed: () => setState(
+                            () => _obscureConfirm = !_obscureConfirm,
+                          ),
+                          icon: Icon(
+                            _obscureConfirm
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(height: 12.h),
-                    CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      value: _acceptedTerms,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      onChanged: loading
-                          ? null
-                          : (value) =>
-                                setState(() => _acceptedTerms = value ?? false),
-                      title: const Text('I accept the Terms and Conditions'),
-                    ),
-                    SizedBox(height: 12.h),
-                    ElevatedButton(
-                      onPressed: loading ? null : _submit,
-                      child: loading
-                          ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
+                      SizedBox(height: 12.h),
+                      CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        value: _acceptedTerms,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        onChanged: loading
+                            ? null
+                            : (value) => setState(
+                                () => _acceptedTerms = value ?? false,
                               ),
-                            )
-                          : const Text('Create Account'),
-                    ),
-                    SizedBox(height: 16.h),
-                    SocialAuthButton(
-                      loading: loading,
-                      onPressed: loading
-                          ? null
-                          : context.read<AuthCubit>().signInWithGoogle,
-                    ),
-                    SizedBox(height: 16.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('Already have an account?'),
-                        TextButton(
-                          onPressed: loading
-                              ? null
-                              : () => context.goNamed(AppRouter.login),
-                          child: const Text('Sign In'),
-                        ),
-                      ],
-                    ),
-                  ],
+                        title: const Text('I accept the Terms and Conditions'),
+                      ),
+                      SizedBox(height: 12.h),
+                      ElevatedButton(
+                        onPressed: loading ? null : _submit,
+                        child: loading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text('Create Account'),
+                      ),
+                      SizedBox(height: 16.h),
+                      SocialAuthButton(
+                        loading: loading,
+                        onPressed: loading
+                            ? null
+                            : context.read<AuthCubit>().signInWithGoogle,
+                      ),
+                      SizedBox(height: 16.h),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text('Already have an account?'),
+                          TextButton(
+                            onPressed: loading
+                                ? null
+                                : () => context.goNamed(AppRouter.login),
+                            child: const Text('Sign In'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

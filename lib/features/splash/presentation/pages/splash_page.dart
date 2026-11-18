@@ -27,7 +27,7 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _initialize() async {
     setState(() => _hasError = false);
-    await Future<void>.delayed(const Duration(milliseconds: 700));
+    await Future<void>.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
     try {

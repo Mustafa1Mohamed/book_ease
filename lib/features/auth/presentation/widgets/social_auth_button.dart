@@ -30,9 +30,9 @@ class SocialAuthButton extends StatelessWidget {
           :  Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Continue with Google'),
-                SizedBox(width: 8),
                 Icon(Icons.g_mobiledata_rounded, size: 28,color:AppColors.error),
+                SizedBox(width: 8),
+                Text('Continue with Google'),
               ],
             ),
     );

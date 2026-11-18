@@ -56,6 +56,8 @@ class MyApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
+            builder: (context, child) =>
+                Directionality(textDirection: TextDirection.ltr, child: child!),
             routerConfig: AppRouter.router,
           ),
         );

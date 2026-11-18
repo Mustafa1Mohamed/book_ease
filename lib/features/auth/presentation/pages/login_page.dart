@@ -63,136 +63,140 @@ class _LoginViewState extends State<_LoginView> {
       },
       builder: (context, state) {
         final loading = state is AuthLoading;
-        return Scaffold(
-          body: SafeArea(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: MediaQuery.sizeOf(context).height - 40.h,
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 44.w,
-                            height: 44.w,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(12.r),
+        return Directionality(
+          textDirection: TextDirection.ltr,
+          child: Scaffold(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(24.w, 16.h, 24.w, 24.h),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.sizeOf(context).height - 40.h,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: 44.w,
+                              height: 44.w,
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: const Icon(
+                                Icons.local_hospital_rounded,
+                                color: Colors.white,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.local_hospital_rounded,
-                              color: Colors.white,
+                            SizedBox(width: 10.w),
+                            Text(
+                              'BookEase',
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Text(
-                            'BookEase',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 36.h),
-                      Text(
-                        'Welcome back',
-                        style: Theme.of(context).textTheme.headlineLarge,
-                      ),
-                      SizedBox(height: 8.h),
-                      Text(
-                        'Sign in to manage your healthcare appointments.',
-                        style: Theme.of(context).textTheme.bodyLarge
-                            ?.copyWith(color: AppColors.textSecondary),
-                      ),
-                      SizedBox(height: 28.h),
-                      AuthTextField(
-                        label: 'Email',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        textInputAction: TextInputAction.next,
-                        prefixIcon: Icons.email_outlined,
-                        validator: AuthValidators.validateEmail,
-                      ),
-                      SizedBox(height: 16.h),
-                      AuthTextField(
-                        label: 'Password',
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        textInputAction: TextInputAction.done,
-                        prefixIcon: Icons.lock_outline_rounded,
-                        validator: AuthValidators.validateLoginPassword,
-                        suffix: IconButton(
-                          onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword,
-                          ),
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
+                          ],
+                        ),
+                        SizedBox(height: 36.h),
+                        Text(
+                          'Welcome back',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                        ),
+                        SizedBox(height: 8.h),
+                        Text(
+                          'Sign in to manage your healthcare appointments.',
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(color: AppColors.textSecondary),
+                        ),
+                        SizedBox(height: 28.h),
+                        AuthTextField(
+                          label: 'Email',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          prefixIcon: Icons.email_outlined,
+                          validator: AuthValidators.validateEmail,
+                        ),
+                        SizedBox(height: 16.h),
+                        AuthTextField(
+                          label: 'Password',
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          textInputAction: TextInputAction.done,
+                          prefixIcon: Icons.lock_outline_rounded,
+                          validator: AuthValidators.validateLoginPassword,
+                          suffix: IconButton(
+                            onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_outlined
+                                  : Icons.visibility_off_outlined,
+                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 8.h),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: TextButton(
-                          onPressed: loading
-                              ? null
-                              : () =>
-                                    context.pushNamed(AppRouter.forgotPassword),
-                          child: const Text('Forgot Password?'),
-                        ),
-                      ),
-                      SizedBox(height: 12.h),
-                      ElevatedButton(
-                        onPressed: loading ? null : _submit,
-                        child: loading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text('Sign In'),
-                      ),
-                      SizedBox(height: 20.h),
-                      Row(
-                        children: [
-                          const Expanded(child: Divider()),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12.w),
-                            child: const Text('or'),
-                          ),
-                          const Expanded(child: Divider()),
-                        ],
-                      ),
-                      SizedBox(height: 20.h),
-                      SocialAuthButton(
-                        loading: loading,
-                        onPressed: loading
-                            ? null
-                            : context.read<AuthCubit>().signInWithGoogle,
-                      ),
-                      SizedBox(height: 24.h),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('New to BookEase?'),
-                          TextButton(
+                        SizedBox(height: 8.h),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
                             onPressed: loading
                                 ? null
-                                : () => context.pushNamed(AppRouter.register),
-                            child: const Text('Create account'),
+                                : () => context.pushNamed(
+                                    AppRouter.forgotPassword,
+                                  ),
+                            child: const Text('Forgot Password?'),
                           ),
-                        ],
-                      ),
-                    ],
+                        ),
+                        SizedBox(height: 12.h),
+                        ElevatedButton(
+                          onPressed: loading ? null : _submit,
+                          child: loading
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text('Sign In'),
+                        ),
+                        SizedBox(height: 20.h),
+                        Row(
+                          children: [
+                            const Expanded(child: Divider()),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 12.w),
+                              child: const Text('or'),
+                            ),
+                            const Expanded(child: Divider()),
+                          ],
+                        ),
+                        SizedBox(height: 20.h),
+                        SocialAuthButton(
+                          loading: loading,
+                          onPressed: loading
+                              ? null
+                              : context.read<AuthCubit>().signInWithGoogle,
+                        ),
+                        SizedBox(height: 24.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('New to BookEase?'),
+                            TextButton(
+                              onPressed: loading
+                                  ? null
+                                  : () => context.pushNamed(AppRouter.register),
+                              child: const Text('Create account'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
