@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
@@ -10,7 +12,10 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_completion_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
-import '../../features/home/presentation/pages/home_placeholder_page.dart';
+import '../../features/home/presentation/cubit/patient_home_cubit.dart';
+import '../../features/home/presentation/pages/patient_home_page.dart';
+import '../../features/home/presentation/pages/patient_home_shell_page.dart';
+import '../../features/home/presentation/widgets/home_tab_placeholder.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
@@ -37,6 +42,9 @@ abstract final class AppRouter {
   static const forgotPassword = 'forgot-password';
   static const profileComplete = 'profile-complete';
   static const home = 'home';
+  static const explore = 'explore';
+  static const appointments = 'appointments';
+  static const profile = 'profile';
 
   static final router = GoRouter(
     initialLocation: '/splash',
@@ -55,6 +63,11 @@ abstract final class AppRouter {
           location == '/register' ||
           location == '/forgot-password';
       final isProfileComplete = location == '/profile-complete';
+      final isPatientArea =
+          location == '/home' ||
+          location == '/explore' ||
+          location == '/appointments' ||
+          location == '/profile';
 
       if (isSplash || isOnboarding) return null;
 
@@ -65,7 +78,7 @@ abstract final class AppRouter {
 
       if (authState is AuthProfileIncomplete) {
         if (isProfileComplete) return null;
-        if (isPublicAuth) return '/profile-complete';
+        if (isPublicAuth || isPatientArea) return '/profile-complete';
         return null;
       }
 
@@ -77,7 +90,7 @@ abstract final class AppRouter {
         }
       }
 
-      if (location == '/home' || isProfileComplete) {
+      if (isPatientArea || isProfileComplete) {
         return '/login';
       }
       return null;
@@ -113,10 +126,63 @@ abstract final class AppRouter {
         name: profileComplete,
         builder: (_, _) => const ProfileCompletionPage(),
       ),
-      GoRoute(
-        path: '/home',
-        name: home,
-        builder: (_, _) => const HomePlaceholderPage(),
+      StatefulShellRoute.indexedStack(
+        builder: (_, _, navigationShell) =>
+            PatientHomeShellPage(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                name: home,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<PatientHomeCubit>()..load(),
+                  child: const PatientHomePage(),
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/explore',
+                name: explore,
+                builder: (_, _) => const HomeTabPlaceholder(
+                  title: 'Explore',
+                  message:
+                      'Doctor and specialty browsing will be available here.',
+                  icon: Icons.explore_rounded,
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/appointments',
+                name: appointments,
+                builder: (_, _) => const HomeTabPlaceholder(
+                  title: 'Appointments',
+                  message: 'Your appointment management tools will be available here.',
+                  icon: Icons.calendar_month_rounded,
+                ),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: profile,
+                builder: (_, _) => const HomeTabPlaceholder(
+                  title: 'Profile',
+                  message: 'Patient profile settings will be available here.',
+                  icon: Icons.person_rounded,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );
