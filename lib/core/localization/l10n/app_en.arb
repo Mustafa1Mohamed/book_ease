@@ -1,0 +1,25 @@
+
+{
+  "@@locale": "en",
+  "appName": "BookEase",
+  "welcome": "Welcome to BookEase",
+  "welcomeSubtitle": "Book your healthcare appointments with ease.",
+  "home": "Home",
+  "appointments": "Appointments",
+  "profile": "Profile",
+  "settings": "Settings",
+  "language": "Language",
+  "english": "English",
+  "arabic": "Arabic",
+  "changeLanguage": "Change Language",
+  "continueText": "Continue",
+  "login": "Login",
+  "register": "Create Account",
+  "email": "Email Address",
+  "password": "Password",
+  "forgotPassword": "Forgot Password?",
+  "searchDoctors": "Search doctors or specialties",
+  "specialties": "Specialties",
+  "featuredDoctors": "Featured Doctors",
+  "seeAll": "See All"
+}

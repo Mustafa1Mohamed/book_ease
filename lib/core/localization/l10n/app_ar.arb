@@ -1,0 +1,25 @@
+
+{
+  "@@locale": "ar",
+  "appName": "BookEase",
+  "welcome": "أهلاً بك في BookEase",
+  "welcomeSubtitle": "احجز مواعيدك الطبية بسهولة.",
+  "home": "الرئيسية",
+  "appointments": "مواعيدي",
+  "profile": "الملف الشخصي",
+  "settings": "الإعدادات",
+  "language": "اللغة",
+  "english": "الإنجليزية",
+  "arabic": "العربية",
+  "changeLanguage": "تغيير اللغة",
+  "continueText": "متابعة",
+  "login": "تسجيل الدخول",
+  "register": "إنشاء حساب",
+  "email": "البريد الإلكتروني",
+  "password": "كلمة المرور",
+  "forgotPassword": "هل نسيت كلمة المرور؟",
+  "searchDoctors": "ابحث عن طبيب أو تخصص",
+  "specialties": "التخصصات",
+  "featuredDoctors": "أطباء مميزون",
+  "seeAll": "عرض الكل"
+}
