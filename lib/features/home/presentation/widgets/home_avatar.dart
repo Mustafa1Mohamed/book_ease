@@ -30,6 +30,14 @@ class HomeAvatar extends StatelessWidget {
                 width: size,
                 height: size,
                 fit: BoxFit.cover,
+                frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                  if (wasSynchronouslyLoaded || frame != null) return child;
+                  return Icon(
+                    fallbackIcon,
+                    size: radius,
+                    color: Theme.of(context).colorScheme.primary,
+                  );
+                },
                 errorBuilder: (_, _, _) => Icon(
                   fallbackIcon,
                   size: radius,

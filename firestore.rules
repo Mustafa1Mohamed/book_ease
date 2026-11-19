@@ -1,0 +1,160 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isPatient() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.get('role', '') == 'patient';
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'fullName', 'email', 'phoneNumber', 'role',
+          'profileImageUrl', 'createdAt', 'updatedAt'
+        ])
+        && request.resource.data.get('uid', '') == uid
+        && request.resource.data.get('role', '') == 'patient'
+        && request.resource.data.get('email', '') == request.auth.token.email;
+      allow update: if isOwner(uid)
+        && resource.data.get('role', '') == 'patient'
+        && request.resource.data.get('uid', '') == resource.data.get('uid', '')
+        && request.resource.data.get('role', '') == resource.data.get('role', '')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'fullName', 'phoneNumber', 'profileImageUrl', 'updatedAt', 'email'
+        ])
+        && request.resource.data.get('email', '')
+          == resource.data.get('email', '')
+        && request.resource.data.get('fullName', '') is string
+        && request.resource.data.get('fullName', '').size() > 0
+        && request.resource.data.get('phoneNumber', '') is string;
+      allow delete: if false;
+    }
+
+    match /specialties/{specialtyId} {
+      allow read: if isPatient();
+      allow write: if false;
+    }
+
+    match /doctors/{doctorId} {
+      allow read: if isPatient();
+      allow write: if false;
+
+      match /availabilitySlots/{slotId} {
+        allow read: if isPatient();
+        allow create, delete: if false;
+        allow update: if isPatient()
+          && resource.data.get('isAvailable', false) == true
+          && resource.data.get('startAt', request.time) > request.time
+          && request.resource.data.get('isAvailable', true) == false
+          && request.resource.data.get('appointmentId', '') is string
+          && request.resource.data.get('reservedAt', null) == request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'isAvailable', 'appointmentId', 'reservedAt'
+          ])
+          && existsAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          )
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('patientId', '') == request.auth.uid
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('doctorId', '') == doctorId
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('slotId', '') == slotId
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('status', '') == 'confirmed'
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('appointmentAt', null) == resource.data.get('startAt', null)
+          && getAfter(
+            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+          ).data.get('appointmentEndAt', null) == resource.data.get('endAt', null);
+      }
+    }
+
+    match /appointments/{appointmentId} {
+      allow read: if isPatient()
+        && resource.data.get('patientId', '') == request.auth.uid;
+      allow create: if isPatient()
+        && request.resource.data.keys().hasOnly([
+          'patientId', 'doctorId', 'doctorName', 'doctorImageUrl',
+          'specialtyId', 'specialtyName', 'slotId', 'appointmentAt',
+          'appointmentEndAt', 'appointmentDate', 'appointmentTime',
+          'consultationFee', 'status', 'createdAt'
+        ])
+        && request.resource.data.keys().hasAll([
+          'patientId', 'doctorId', 'doctorName', 'specialtyId', 'slotId',
+          'appointmentAt', 'appointmentEndAt', 'appointmentDate',
+          'appointmentTime', 'consultationFee', 'status', 'createdAt'
+        ])
+        && request.resource.data.patientId == request.auth.uid
+        && request.resource.data.status == 'confirmed'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.appointmentDate
+          == request.resource.data.appointmentAt
+        && request.resource.data.appointmentAt is timestamp
+        && request.resource.data.appointmentEndAt is timestamp
+        && request.resource.data.appointmentTime is string
+        && request.resource.data.consultationFee is number
+        && request.resource.data.doctorId is string
+        && request.resource.data.slotId is string
+        && request.resource.data.doctorName == (
+          get(
+            /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+          ).data.get('fullName', '') != ''
+            ? get(
+                /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+              ).data.get('fullName', '')
+            : get(
+                /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+              ).data.get('name', '')
+        )
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+        ).data.get('profileImageUrl', '')
+          == request.resource.data.get('doctorImageUrl', '')
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+        ).data.get('specialtyId', '')
+          == request.resource.data.get('specialtyId', '')
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+        ).data.get('specialtyName', '')
+          == request.resource.data.get('specialtyName', '')
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
+        ).data.get('consultationFee', 0)
+          == request.resource.data.consultationFee
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
+        ).data.get('isAvailable', false) == true
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
+        ).data.get('startAt', null) == request.resource.data.appointmentAt
+        && get(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
+        ).data.get('endAt', null) == request.resource.data.appointmentEndAt
+        && getAfter(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
+        ).data.get('isAvailable', true) == false
+        && getAfter(
+          /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
+        ).data.get('appointmentId', '') == appointmentId;
+      allow update, delete: if false;
+    }
+  }
+}

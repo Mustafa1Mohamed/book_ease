@@ -9,6 +9,7 @@ class AppUserModel extends AppUser {
     required super.email,
     required super.phoneNumber,
     required super.role,
+    super.profileImageUrl = '',
   });
 
   factory AppUserModel.fromFirestore(
@@ -21,6 +22,7 @@ class AppUserModel extends AppUser {
       email: (data['email'] as String?)?.trim() ?? '',
       phoneNumber: (data['phoneNumber'] as String?)?.trim() ?? '',
       role: (data['role'] as String?) ?? 'patient',
+      profileImageUrl: (data['profileImageUrl'] as String?)?.trim() ?? '',
     );
   }
 
@@ -30,5 +32,6 @@ class AppUserModel extends AppUser {
     'email': email,
     'phoneNumber': phoneNumber,
     'role': 'patient',
+    if (profileImageUrl.isNotEmpty) 'profileImageUrl': profileImageUrl,
   };
 }

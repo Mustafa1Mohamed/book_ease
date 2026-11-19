@@ -7,6 +7,7 @@ class AppUser extends Equatable {
     required this.email,
     required this.phoneNumber,
     required this.role,
+    this.profileImageUrl = '',
   });
 
   final String uid;
@@ -14,10 +15,18 @@ class AppUser extends Equatable {
   final String email;
   final String phoneNumber;
   final String role;
+  final String profileImageUrl;
 
   bool get isComplete =>
       uid.isNotEmpty && fullName.trim().isNotEmpty && email.isNotEmpty;
 
   @override
-  List<Object?> get props => [uid, fullName, email, phoneNumber, role];
+  List<Object?> get props => [
+    uid,
+    fullName,
+    email,
+    phoneNumber,
+    role,
+    profileImageUrl,
+  ];
 }

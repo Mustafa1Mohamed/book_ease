@@ -155,11 +155,16 @@ class AuthRemoteDataSource {
       phoneNumber: phoneNumber.trim(),
       role: 'patient',
     );
-    await _firestore.collection('users').doc(user.uid).set(<String, dynamic>{
+    final profileRef = _firestore.collection('users').doc(user.uid);
+    final existing = await profileRef.get();
+    final data = <String, dynamic>{
       ...profile.toFirestore(),
-      'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    };
+    if (!existing.exists) {
+      data['createdAt'] = FieldValue.serverTimestamp();
+    }
+    await profileRef.set(data, SetOptions(merge: true));
     return profile;
   }
 

@@ -4,10 +4,12 @@ import 'appointment_schedule_parser.dart';
 
 abstract final class UpcomingAppointmentModel {
   static UpcomingAppointment? fromMap(String id, Map<String, dynamic> data) {
-    final scheduledAt = AppointmentScheduleParser.parse(
-      data['appointmentDate'],
-      data['appointmentTime'],
-    );
+    final scheduledAt =
+        AppointmentScheduleParser.parse(data['appointmentAt'], null) ??
+        AppointmentScheduleParser.parse(
+          data['appointmentDate'],
+          data['appointmentTime'],
+        );
     if (scheduledAt == null) return null;
 
     return UpcomingAppointment(

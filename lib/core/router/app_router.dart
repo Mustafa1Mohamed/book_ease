@@ -12,6 +12,14 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_completion_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/explore/presentation/cubit/explore_cubit.dart';
+import '../../features/explore/presentation/pages/explore_page.dart';
+import '../../features/doctors/presentation/cubit/doctor_details_cubit.dart';
+import '../../features/doctors/presentation/pages/doctor_details_page.dart';
+import '../../features/booking/presentation/cubit/booking_cubit.dart';
+import '../../features/booking/presentation/pages/booking_page.dart';
+import '../../features/profile/presentation/cubit/profile_cubit.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/home/presentation/cubit/patient_home_cubit.dart';
 import '../../features/home/presentation/pages/patient_home_page.dart';
 import '../../features/home/presentation/pages/patient_home_shell_page.dart';
@@ -45,6 +53,8 @@ abstract final class AppRouter {
   static const explore = 'explore';
   static const appointments = 'appointments';
   static const profile = 'profile';
+  static const doctorDetails = 'doctor-details';
+  static const booking = 'booking';
 
   static final router = GoRouter(
     initialLocation: '/splash',
@@ -64,10 +74,10 @@ abstract final class AppRouter {
           location == '/forgot-password';
       final isProfileComplete = location == '/profile-complete';
       final isPatientArea =
-          location == '/home' ||
-          location == '/explore' ||
-          location == '/appointments' ||
-          location == '/profile';
+          location.startsWith('/home') ||
+          location.startsWith('/explore') ||
+          location.startsWith('/appointments') ||
+          location.startsWith('/profile');
 
       if (isSplash || isOnboarding) return null;
 
@@ -147,12 +157,40 @@ abstract final class AppRouter {
               GoRoute(
                 path: '/explore',
                 name: explore,
-                builder: (_, _) => const HomeTabPlaceholder(
-                  title: 'Explore',
-                  message:
-                      'Doctor and specialty browsing will be available here.',
-                  icon: Icons.explore_rounded,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<ExploreCubit>()..load(),
+                  child: const ExplorePage(),
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'doctor/:doctorId',
+                    name: doctorDetails,
+                    builder: (_, state) {
+                      final doctorId = state.pathParameters['doctorId'] ?? '';
+                      return BlocProvider(
+                        create: (_) =>
+                            GetIt.instance<DoctorDetailsCubit>()
+                              ..load(doctorId),
+                        child: DoctorDetailsPage(doctorId: doctorId),
+                      );
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'book',
+                        name: booking,
+                        builder: (_, state) {
+                          final doctorId =
+                              state.pathParameters['doctorId'] ?? '';
+                          return BlocProvider(
+                            create: (_) =>
+                                GetIt.instance<BookingCubit>()..load(doctorId),
+                            child: BookingPage(doctorId: doctorId),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),
@@ -174,10 +212,9 @@ abstract final class AppRouter {
               GoRoute(
                 path: '/profile',
                 name: profile,
-                builder: (_, _) => const HomeTabPlaceholder(
-                  title: 'Profile',
-                  message: 'Patient profile settings will be available here.',
-                  icon: Icons.person_rounded,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<ProfileCubit>()..load(),
+                  child: const ProfilePage(),
                 ),
               ),
             ],

@@ -10,6 +10,14 @@ class FeaturedDoctor extends Equatable {
     required this.rating,
     required this.consultationFee,
     required this.isAvailable,
+    this.reviewCount,
+    this.biography = '',
+    this.qualifications = const [],
+    this.yearsExperience,
+    this.languages = const [],
+    this.clinicName = '',
+    this.clinicAddress = '',
+    this.consultationDurationMinutes,
   });
 
   final String id;
@@ -20,6 +28,14 @@ class FeaturedDoctor extends Equatable {
   final double? rating;
   final double? consultationFee;
   final bool? isAvailable;
+  final int? reviewCount;
+  final String biography;
+  final List<String> qualifications;
+  final int? yearsExperience;
+  final List<String> languages;
+  final String clinicName;
+  final String clinicAddress;
+  final int? consultationDurationMinutes;
 
   @override
   List<Object?> get props => [
@@ -31,5 +47,13 @@ class FeaturedDoctor extends Equatable {
     rating,
     consultationFee,
     isAvailable,
+    reviewCount,
+    biography,
+    qualifications,
+    yearsExperience,
+    languages,
+    clinicName,
+    clinicAddress,
+    consultationDurationMinutes,
   ];
 }

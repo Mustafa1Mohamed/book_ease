@@ -1,1 +1,29 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"book-ease-f0346","appId":"1:820639205970:android:09d7956ffa3eb5b15d6d8b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"book-ease-f0346","configurations":{"android":"1:820639205970:android:09d7956ffa3eb5b15d6d8b","ios":"1:820639205970:ios:c6649dca0faa83a25d6d8b","web":"1:820639205970:web:f11d7156db64c2085d6d8b"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "book-ease-f0346",
+          "appId": "1:820639205970:android:09d7956ffa3eb5b15d6d8b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "book-ease-f0346",
+          "configurations": {
+            "android": "1:820639205970:android:09d7956ffa3eb5b15d6d8b",
+            "ios": "1:820639205970:ios:c6649dca0faa83a25d6d8b",
+            "web": "1:820639205970:web:f11d7156db64c2085d6d8b"
+          }
+        }
+      }
+    }
+  }
+}

@@ -5,43 +5,71 @@ import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/medical_specialty.dart';
 
 class MedicalSpecialtyCard extends StatelessWidget {
-  const MedicalSpecialtyCard({super.key, required this.specialty});
+  const MedicalSpecialtyCard({
+    super.key,
+    required this.specialty,
+    this.isSelected = false,
+    this.onTap,
+  });
 
   final MedicalSpecialty specialty;
+  final bool isSelected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final icon = _iconFor(specialty.iconName, specialty.name);
-    return SizedBox(
-      width: 92.w,
-      child: Column(
-        children: [
-          Container(
-            width: 64.w,
-            height: 64.w,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(20.r),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20.r),
+      child: SizedBox(
+        width: 92.w,
+        child: Column(
+          children: [
+            Container(
+              width: 64.r,
+              height: 64.r,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.circular(20.r),
+                border: isSelected
+                    ? Border.all(color: AppColors.primary)
+                    : null,
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: specialty.imageUrl.isEmpty
+                  ? Icon(icon, color: AppColors.primary, size: 30.r)
+                  : Image.network(
+                      specialty.imageUrl,
+                      fit: BoxFit.cover,
+                      frameBuilder:
+                          (context, child, frame, wasSynchronouslyLoaded) {
+                            if (wasSynchronouslyLoaded || frame != null) {
+                              return child;
+                            }
+                            return Icon(
+                              icon,
+                              color: AppColors.primary,
+                              size: 30.r,
+                            );
+                          },
+                      errorBuilder: (_, _, _) =>
+                          Icon(icon, color: AppColors.primary, size: 30.r),
+                    ),
             ),
-            clipBehavior: Clip.antiAlias,
-            child: specialty.imageUrl.isEmpty
-                ? Icon(icon, color: AppColors.primary, size: 30.w)
-                : Image.network(
-                    specialty.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        Icon(icon, color: AppColors.primary, size: 30.w),
-                  ),
-          ),
-          SizedBox(height: 8.h),
-          Text(
-            specialty.name,
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
+            SizedBox(height: 8.h),
+            Text(
+              specialty.name,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: isSelected ? AppColors.primary : null,
+                fontWeight: isSelected ? FontWeight.w600 : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

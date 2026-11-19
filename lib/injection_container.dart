@@ -12,6 +12,32 @@ import 'package:book_ease/features/home/data/repositories/patient_home_repositor
 import 'package:book_ease/features/home/domain/repositories/patient_home_repository.dart';
 import 'package:book_ease/features/home/domain/usecases/get_patient_home_data.dart';
 import 'package:book_ease/features/home/presentation/cubit/patient_home_cubit.dart';
+import 'package:book_ease/features/explore/data/datasources/explore_remote_data_source.dart';
+import 'package:book_ease/features/explore/data/datasources/explore_data_source.dart';
+import 'package:book_ease/features/explore/data/repositories/explore_repository_impl.dart';
+import 'package:book_ease/features/explore/domain/repositories/explore_repository.dart';
+import 'package:book_ease/features/explore/domain/usecases/get_explore_catalog.dart';
+import 'package:book_ease/features/explore/presentation/cubit/explore_cubit.dart';
+import 'package:book_ease/features/doctors/data/datasources/doctor_remote_data_source.dart';
+import 'package:book_ease/features/doctors/data/repositories/doctor_repository_impl.dart';
+import 'package:book_ease/features/doctors/domain/repositories/doctor_repository.dart';
+import 'package:book_ease/features/doctors/domain/usecases/get_doctor_details.dart';
+import 'package:book_ease/features/doctors/presentation/cubit/doctor_details_cubit.dart';
+import 'package:book_ease/features/booking/data/datasources/booking_remote_data_source.dart';
+import 'package:book_ease/features/booking/data/repositories/booking_repository_impl.dart';
+import 'package:book_ease/features/booking/domain/repositories/booking_repository.dart';
+import 'package:book_ease/features/booking/domain/usecases/book_appointment.dart';
+import 'package:book_ease/features/booking/domain/usecases/get_available_dates.dart';
+import 'package:book_ease/features/booking/domain/usecases/get_available_slots.dart';
+import 'package:book_ease/features/booking/presentation/cubit/booking_cubit.dart';
+import 'package:book_ease/features/profile/data/datasources/profile_image_picker_data_source.dart';
+import 'package:book_ease/features/profile/data/datasources/profile_remote_data_source.dart';
+import 'package:book_ease/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:book_ease/features/profile/domain/repositories/profile_repository.dart';
+import 'package:book_ease/features/profile/domain/usecases/get_current_profile.dart';
+import 'package:book_ease/features/profile/domain/usecases/pick_and_upload_profile_image.dart';
+import 'package:book_ease/features/profile/domain/usecases/update_profile.dart';
+import 'package:book_ease/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -24,7 +50,11 @@ final GetIt getIt = GetIt.instance;
 Future<void> setupDependencies() async {
   if (getIt.isRegistered<FirebaseAuth>() &&
       getIt.isRegistered<AuthCubit>() &&
-      getIt.isRegistered<PatientHomeCubit>()) {
+      getIt.isRegistered<PatientHomeCubit>() &&
+      getIt.isRegistered<ExploreCubit>() &&
+      getIt.isRegistered<DoctorDetailsCubit>() &&
+      getIt.isRegistered<BookingCubit>() &&
+      getIt.isRegistered<ProfileCubit>()) {
     return;
   }
 
@@ -111,9 +141,8 @@ Future<void> setupDependencies() async {
 
   if (!getIt.isRegistered<PatientAppointmentDetailsRemoteDataSource>()) {
     getIt.registerLazySingleton<PatientAppointmentDetailsRemoteDataSource>(
-      () => PatientAppointmentDetailsRemoteDataSource(
-        getIt<FirebaseFirestore>(),
-      ),
+      () =>
+          PatientAppointmentDetailsRemoteDataSource(getIt<FirebaseFirestore>()),
     );
   }
 
@@ -138,6 +167,157 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<PatientHomeCubit>()) {
     getIt.registerFactory<PatientHomeCubit>(
       () => PatientHomeCubit(getIt<GetPatientHomeData>()),
+    );
+  }
+
+  if (!getIt.isRegistered<ExploreRemoteDataSource>()) {
+    getIt.registerLazySingleton<ExploreRemoteDataSource>(
+      () => ExploreRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+
+  if (!getIt.isRegistered<ExploreDataSource>()) {
+    getIt.registerLazySingleton<ExploreDataSource>(
+      () => getIt<ExploreRemoteDataSource>(),
+    );
+  }
+
+  if (!getIt.isRegistered<ExploreRepository>()) {
+    getIt.registerLazySingleton<ExploreRepository>(
+      () => ExploreRepositoryImpl(getIt<ExploreDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetExploreCatalog>()) {
+    getIt.registerLazySingleton<GetExploreCatalog>(
+      () => GetExploreCatalog(getIt<ExploreRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<ExploreCubit>()) {
+    getIt.registerFactory<ExploreCubit>(
+      () => ExploreCubit(getIt<GetExploreCatalog>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorRemoteDataSource>()) {
+    getIt.registerLazySingleton<DoctorRemoteDataSource>(
+      () => DoctorRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorRepository>()) {
+    getIt.registerLazySingleton<DoctorRepository>(
+      () => DoctorRepositoryImpl(getIt<DoctorRemoteDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetDoctorDetails>()) {
+    getIt.registerLazySingleton<GetDoctorDetails>(
+      () => GetDoctorDetails(getIt<DoctorRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorDetailsCubit>()) {
+    getIt.registerFactory<DoctorDetailsCubit>(
+      () => DoctorDetailsCubit(getIt<GetDoctorDetails>()),
+    );
+  }
+
+  if (!getIt.isRegistered<BookingRemoteDataSource>()) {
+    getIt.registerLazySingleton<BookingRemoteDataSource>(
+      () => BookingRemoteDataSource(
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseAuth>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<BookingRepository>()) {
+    getIt.registerLazySingleton<BookingRepository>(
+      () => BookingRepositoryImpl(getIt<BookingRemoteDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetAvailableDates>()) {
+    getIt.registerLazySingleton<GetAvailableDates>(
+      () => GetAvailableDates(getIt<BookingRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetAvailableSlots>()) {
+    getIt.registerLazySingleton<GetAvailableSlots>(
+      () => GetAvailableSlots(getIt<BookingRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<BookAppointment>()) {
+    getIt.registerLazySingleton<BookAppointment>(
+      () => BookAppointment(getIt<BookingRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<BookingCubit>()) {
+    getIt.registerFactory<BookingCubit>(
+      () => BookingCubit(
+        getIt<GetDoctorDetails>(),
+        getIt<GetAvailableDates>(),
+        getIt<GetAvailableSlots>(),
+        getIt<BookAppointment>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<ProfileRemoteDataSource>()) {
+    getIt.registerLazySingleton<ProfileRemoteDataSource>(
+      () => ProfileRemoteDataSource(
+        getIt<FirebaseAuth>(),
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseStorage>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<ProfileImagePickerDataSource>()) {
+    getIt.registerLazySingleton<ProfileImagePickerDataSource>(
+      () => ProfileImagePickerDataSource(),
+    );
+  }
+
+  if (!getIt.isRegistered<ProfileRepository>()) {
+    getIt.registerLazySingleton<ProfileRepository>(
+      () => ProfileRepositoryImpl(
+        getIt<ProfileRemoteDataSource>(),
+        getIt<ProfileImagePickerDataSource>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<GetCurrentProfile>()) {
+    getIt.registerLazySingleton<GetCurrentProfile>(
+      () => GetCurrentProfile(getIt<ProfileRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<UpdateProfile>()) {
+    getIt.registerLazySingleton<UpdateProfile>(
+      () => UpdateProfile(getIt<ProfileRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<PickAndUploadProfileImage>()) {
+    getIt.registerLazySingleton<PickAndUploadProfileImage>(
+      () => PickAndUploadProfileImage(getIt<ProfileRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<ProfileCubit>()) {
+    getIt.registerFactory<ProfileCubit>(
+      () => ProfileCubit(
+        getIt<GetCurrentProfile>(),
+        getIt<UpdateProfile>(),
+        getIt<PickAndUploadProfileImage>(),
+      ),
     );
   }
 }
