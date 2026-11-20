@@ -99,7 +99,9 @@ class BookingRemoteDataSource {
         final doctor = doctorSnapshot.data();
         final slotData = slotSnapshot.data();
 
-        if (!patientSnapshot.exists || patient?['role'] != 'patient') {
+        if (!patientSnapshot.exists ||
+            patient == null ||
+            patient['role'] != 'patient') {
           throw const BookingException(
             'Only patient accounts can book appointments.',
           );
@@ -144,6 +146,9 @@ class BookingRemoteDataSource {
         });
         transaction.set(appointmentRef, {
           'patientId': user.uid,
+          'patientName': _string(patient['fullName']),
+          'patientImageUrl': _string(patient['profileImageUrl']),
+          'patientPhoneNumber': _string(patient['phoneNumber']),
           'doctorId': doctorId,
           'doctorName': doctorName,
           'doctorImageUrl': _string(doctor['profileImageUrl']),

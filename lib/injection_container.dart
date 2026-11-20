@@ -38,6 +38,25 @@ import 'package:book_ease/features/profile/domain/usecases/get_current_profile.d
 import 'package:book_ease/features/profile/domain/usecases/pick_and_upload_profile_image.dart';
 import 'package:book_ease/features/profile/domain/usecases/update_profile.dart';
 import 'package:book_ease/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:book_ease/features/my_appointments/data/datasources/my_appointments_remote_data_source.dart';
+import 'package:book_ease/features/my_appointments/data/repositories/my_appointments_repository_impl.dart';
+import 'package:book_ease/features/my_appointments/domain/repositories/my_appointments_repository.dart';
+import 'package:book_ease/features/my_appointments/domain/services/appointment_cancellation_policy.dart';
+import 'package:book_ease/features/my_appointments/domain/services/appointment_category_policy.dart';
+import 'package:book_ease/features/my_appointments/domain/usecases/cancel_appointment.dart';
+import 'package:book_ease/features/my_appointments/domain/usecases/get_my_appointment.dart';
+import 'package:book_ease/features/my_appointments/domain/usecases/get_my_appointments.dart';
+import 'package:book_ease/features/my_appointments/presentation/cubit/appointment_details_cubit.dart';
+import 'package:book_ease/features/my_appointments/presentation/cubit/my_appointments_cubit.dart';
+import 'package:book_ease/features/doctor_dashboard/data/datasources/doctor_dashboard_remote_data_source.dart';
+import 'package:book_ease/features/doctor_dashboard/data/repositories/doctor_dashboard_repository_impl.dart';
+import 'package:book_ease/features/doctor_dashboard/domain/repositories/doctor_dashboard_repository.dart';
+import 'package:book_ease/features/doctor_dashboard/domain/services/doctor_appointment_policy.dart';
+import 'package:book_ease/features/doctor_dashboard/domain/usecases/complete_doctor_appointment.dart';
+import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_appointment.dart';
+import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_dashboard.dart';
+import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_appointment_details_cubit.dart';
+import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -54,7 +73,11 @@ Future<void> setupDependencies() async {
       getIt.isRegistered<ExploreCubit>() &&
       getIt.isRegistered<DoctorDetailsCubit>() &&
       getIt.isRegistered<BookingCubit>() &&
-      getIt.isRegistered<ProfileCubit>()) {
+      getIt.isRegistered<ProfileCubit>() &&
+      getIt.isRegistered<MyAppointmentsCubit>() &&
+      getIt.isRegistered<AppointmentDetailsCubit>() &&
+      getIt.isRegistered<DoctorDashboardCubit>() &&
+      getIt.isRegistered<DoctorAppointmentDetailsCubit>()) {
     return;
   }
 
@@ -317,6 +340,130 @@ Future<void> setupDependencies() async {
         getIt<GetCurrentProfile>(),
         getIt<UpdateProfile>(),
         getIt<PickAndUploadProfileImage>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<AppointmentCategoryPolicy>()) {
+    getIt.registerLazySingleton<AppointmentCategoryPolicy>(
+      () => const AppointmentCategoryPolicy(),
+    );
+  }
+
+  if (!getIt.isRegistered<AppointmentCancellationPolicy>()) {
+    getIt.registerLazySingleton<AppointmentCancellationPolicy>(
+      () => AppointmentCancellationPolicy(),
+    );
+  }
+
+  if (!getIt.isRegistered<MyAppointmentsRemoteDataSource>()) {
+    getIt.registerLazySingleton<MyAppointmentsRemoteDataSource>(
+      () => MyAppointmentsRemoteDataSource(
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseAuth>(),
+        getIt<AppointmentCancellationPolicy>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<MyAppointmentsRepository>()) {
+    getIt.registerLazySingleton<MyAppointmentsRepository>(
+      () =>
+          MyAppointmentsRepositoryImpl(getIt<MyAppointmentsRemoteDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetMyAppointments>()) {
+    getIt.registerLazySingleton<GetMyAppointments>(
+      () => GetMyAppointments(getIt<MyAppointmentsRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetMyAppointment>()) {
+    getIt.registerLazySingleton<GetMyAppointment>(
+      () => GetMyAppointment(getIt<MyAppointmentsRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<CancelAppointment>()) {
+    getIt.registerLazySingleton<CancelAppointment>(
+      () => CancelAppointment(getIt<MyAppointmentsRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<MyAppointmentsCubit>()) {
+    getIt.registerFactory<MyAppointmentsCubit>(
+      () => MyAppointmentsCubit(
+        getIt<GetMyAppointments>(),
+        getIt<AppointmentCategoryPolicy>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<AppointmentDetailsCubit>()) {
+    getIt.registerFactory<AppointmentDetailsCubit>(
+      () => AppointmentDetailsCubit(
+        getIt<GetMyAppointment>(),
+        getIt<CancelAppointment>(),
+        getIt<AppointmentCancellationPolicy>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorAppointmentPolicy>()) {
+    getIt.registerLazySingleton<DoctorAppointmentPolicy>(
+      () => const DoctorAppointmentPolicy(),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorDashboardRemoteDataSource>()) {
+    getIt.registerLazySingleton<DoctorDashboardRemoteDataSource>(
+      () => DoctorDashboardRemoteDataSource(
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseAuth>(),
+        getIt<DoctorAppointmentPolicy>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorDashboardRepository>()) {
+    getIt.registerLazySingleton<DoctorDashboardRepository>(
+      () => DoctorDashboardRepositoryImpl(
+        getIt<DoctorDashboardRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<GetDoctorDashboard>()) {
+    getIt.registerLazySingleton<GetDoctorDashboard>(
+      () => GetDoctorDashboard(getIt<DoctorDashboardRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetDoctorAppointment>()) {
+    getIt.registerLazySingleton<GetDoctorAppointment>(
+      () => GetDoctorAppointment(getIt<DoctorDashboardRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<CompleteDoctorAppointment>()) {
+    getIt.registerLazySingleton<CompleteDoctorAppointment>(
+      () => CompleteDoctorAppointment(getIt<DoctorDashboardRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorDashboardCubit>()) {
+    getIt.registerFactory<DoctorDashboardCubit>(
+      () => DoctorDashboardCubit(getIt<GetDoctorDashboard>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorAppointmentDetailsCubit>()) {
+    getIt.registerFactory<DoctorAppointmentDetailsCubit>(
+      () => DoctorAppointmentDetailsCubit(
+        getIt<GetDoctorAppointment>(),
+        getIt<CompleteDoctorAppointment>(),
+        getIt<DoctorAppointmentPolicy>(),
       ),
     );
   }

@@ -16,6 +16,74 @@ service cloud.firestore {
           .data.get('role', '') == 'patient';
     }
 
+    function isDoctor() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.get('role', '') == 'doctor';
+    }
+
+    function isDoctorOwner(doctorId) {
+      let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
+      return isDoctor()
+        && doctorId is string
+        && (
+          doctorId == request.auth.uid
+          || (
+            exists(doctorPath)
+            && get(doctorPath).data.get('uid', '') == request.auth.uid
+          )
+        );
+    }
+
+    function isCancellationSlotRelease(doctorId, slotId) {
+      let appointmentId = resource.data.get('appointmentId', '');
+      let appointmentPath =
+        /databases/$(database)/documents/appointments/$(appointmentId);
+      return isPatient()
+        && appointmentId is string
+        && resource.data.get('isAvailable', true) == false
+        && resource.data.get('startAt', request.time) > request.time
+        && request.resource.data.get('isAvailable', false) == true
+        && !request.resource.data.keys().hasAny([
+          'appointmentId', 'reservedAt'
+        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasAll([
+          'isAvailable', 'appointmentId', 'reservedAt'
+        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'isAvailable', 'appointmentId', 'reservedAt'
+        ])
+        && exists(appointmentPath)
+        && get(appointmentPath).data.get('patientId', '') == request.auth.uid
+        && get(appointmentPath).data.get('doctorId', '') == doctorId
+        && get(appointmentPath).data.get('slotId', '') == slotId
+        && get(appointmentPath).data.get('status', '')
+          in ['confirmed', 'pending', 'scheduled', 'booked']
+        && get(appointmentPath).data.get('appointmentAt', request.time)
+          > request.time
+        && get(appointmentPath).data.get('appointmentAt', null)
+          == resource.data.get('startAt', null)
+        && getAfter(appointmentPath).data.get('status', '') == 'cancelled'
+        && getAfter(appointmentPath).data.get('cancelledAt', null)
+          == request.time;
+    }
+
+    function isDoctorCompletion() {
+      return isDoctorOwner(resource.data.get('doctorId', ''))
+        && resource.data.get('status', '') == 'confirmed'
+        && resource.data.get('appointmentAt', null) is timestamp
+        && resource.data.get('appointmentEndAt', null) is timestamp
+        && resource.data.get('appointmentEndAt', request.time)
+          > resource.data.get('appointmentAt', request.time)
+        && resource.data.get('appointmentEndAt', request.time) <= request.time
+        && request.resource.data.get('status', '') == 'completed'
+        && request.resource.data.get('completedAt', null) == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'completedAt'
+        ]);
+    }
+
     match /users/{uid} {
       allow read: if isOwner(uid);
       allow create: if isOwner(uid)
@@ -47,51 +115,67 @@ service cloud.firestore {
     }
 
     match /doctors/{doctorId} {
-      allow read: if isPatient();
+      allow read: if isPatient()
+        || (
+          isDoctor()
+          && resource.data.get('uid', '') == request.auth.uid
+        )
+        || (
+          isDoctor()
+          && doctorId == request.auth.uid
+          && resource.data.get('uid', '') == ''
+        );
       allow write: if false;
 
       match /availabilitySlots/{slotId} {
-        allow read: if isPatient();
+        allow read: if isPatient() || isDoctorOwner(doctorId);
         allow create, delete: if false;
         allow update: if isPatient()
-          && resource.data.get('isAvailable', false) == true
-          && resource.data.get('startAt', request.time) > request.time
-          && request.resource.data.get('isAvailable', true) == false
-          && request.resource.data.get('appointmentId', '') is string
-          && request.resource.data.get('reservedAt', null) == request.time
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'isAvailable', 'appointmentId', 'reservedAt'
-          ])
-          && existsAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          )
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('patientId', '') == request.auth.uid
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('doctorId', '') == doctorId
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('slotId', '') == slotId
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('status', '') == 'confirmed'
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('appointmentAt', null) == resource.data.get('startAt', null)
-          && getAfter(
-            /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
-          ).data.get('appointmentEndAt', null) == resource.data.get('endAt', null);
+          && (
+            (
+              resource.data.get('isAvailable', false) == true
+              && resource.data.get('startAt', request.time) > request.time
+              && request.resource.data.get('isAvailable', true) == false
+              && request.resource.data.get('appointmentId', '') is string
+              && request.resource.data.get('reservedAt', null) == request.time
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                'isAvailable', 'appointmentId', 'reservedAt'
+              ])
+              && existsAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              )
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('patientId', '') == request.auth.uid
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('doctorId', '') == doctorId
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('slotId', '') == slotId
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('status', '') == 'confirmed'
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('appointmentAt', null) == resource.data.get('startAt', null)
+              && getAfter(
+                /databases/$(database)/documents/appointments/$(request.resource.data.appointmentId)
+              ).data.get('appointmentEndAt', null) == resource.data.get('endAt', null)
+            )
+            || isCancellationSlotRelease(doctorId, slotId)
+          );
       }
     }
 
     match /appointments/{appointmentId} {
-      allow read: if isPatient()
-        && resource.data.get('patientId', '') == request.auth.uid;
+      allow read: if (
+        isPatient() && resource.data.get('patientId', '') == request.auth.uid
+      ) || isDoctorOwner(resource.data.get('doctorId', ''));
       allow create: if isPatient()
         && request.resource.data.keys().hasOnly([
-          'patientId', 'doctorId', 'doctorName', 'doctorImageUrl',
+          'patientId', 'patientName', 'patientImageUrl', 'patientPhoneNumber',
+          'doctorId', 'doctorName', 'doctorImageUrl',
           'specialtyId', 'specialtyName', 'slotId', 'appointmentAt',
           'appointmentEndAt', 'appointmentDate', 'appointmentTime',
           'consultationFee', 'status', 'createdAt'
@@ -104,6 +188,28 @@ service cloud.firestore {
         && request.resource.data.patientId == request.auth.uid
         && request.resource.data.status == 'confirmed'
         && request.resource.data.createdAt == request.time
+        && (
+          !request.resource.data.keys().hasAny([
+            'patientName', 'patientImageUrl', 'patientPhoneNumber'
+          ])
+          || (
+            request.resource.data.keys().hasAll([
+              'patientName', 'patientImageUrl', 'patientPhoneNumber'
+            ])
+            && request.resource.data.get('patientName', '')
+              == get(
+                /databases/$(database)/documents/users/$(request.auth.uid)
+              ).data.get('fullName', '')
+            && request.resource.data.get('patientImageUrl', '')
+              == get(
+                /databases/$(database)/documents/users/$(request.auth.uid)
+              ).data.get('profileImageUrl', '')
+            && request.resource.data.get('patientPhoneNumber', '')
+              == get(
+                /databases/$(database)/documents/users/$(request.auth.uid)
+              ).data.get('phoneNumber', '')
+          )
+        )
         && request.resource.data.appointmentDate
           == request.resource.data.appointmentAt
         && request.resource.data.appointmentAt is timestamp
@@ -154,7 +260,40 @@ service cloud.firestore {
         && getAfter(
           /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)/availabilitySlots/$(request.resource.data.slotId)
         ).data.get('appointmentId', '') == appointmentId;
-      allow update, delete: if false;
+      allow update: if (
+          isPatient()
+          && resource.data.get('patientId', '') == request.auth.uid
+          && resource.data.get('status', '')
+            in ['confirmed', 'pending', 'scheduled', 'booked']
+          && request.resource.data.get('status', '') == 'cancelled'
+          && request.resource.data.get('cancelledAt', null) == request.time
+          && resource.data.get('appointmentAt', request.time) > request.time
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'status', 'cancelledAt'
+          ])
+          && (
+            !exists(
+              /databases/$(database)/documents/doctors/$(resource.data.doctorId)/availabilitySlots/$(resource.data.slotId)
+            )
+            || get(
+              /databases/$(database)/documents/doctors/$(resource.data.doctorId)/availabilitySlots/$(resource.data.slotId)
+            ).data.get('appointmentId', '') != appointmentId
+            || (
+              get(
+                /databases/$(database)/documents/doctors/$(resource.data.doctorId)/availabilitySlots/$(resource.data.slotId)
+              ).data.get('startAt', null)
+                == resource.data.get('appointmentAt', null)
+              && getAfter(
+                /databases/$(database)/documents/doctors/$(resource.data.doctorId)/availabilitySlots/$(resource.data.slotId)
+              ).data.get('isAvailable', false) == true
+              && !getAfter(
+                /databases/$(database)/documents/doctors/$(resource.data.doctorId)/availabilitySlots/$(resource.data.slotId)
+              ).data.keys().hasAny(['appointmentId', 'reservedAt'])
+            )
+          )
+        )
+        || isDoctorCompletion();
+      allow delete: if false;
     }
   }
 }

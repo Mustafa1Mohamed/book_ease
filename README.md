@@ -49,6 +49,50 @@ read published slots but cannot create or edit them. A booking transaction
 marks the chosen slot unavailable and creates the patient appointment together;
 the deployed Firestore rules require both writes to match.
 
+## My Appointments
+
+The appointments screen queries only `appointments` documents whose
+`patientId` matches the authenticated Firebase UID. It groups the existing
+appointment records into Upcoming, Completed, and Cancelled; it does not add a
+new appointment collection or schema. Doctor and specialty documents are read
+only when optional appointment-card details are missing.
+
+Patients can cancel `confirmed`, `pending`, `scheduled`, or `booked`
+appointments before their scheduled start time. The cancellation policy is
+centralized in `AppointmentCancellationPolicy` and defaults to no minimum
+notice beyond cancelling before the start time. Keep that policy aligned with
+the corresponding time condition in `firestore.rules` if it is changed. The
+cancellation transaction updates the appointment status and releases its
+availability slot only when the slot still names that exact appointment.
+Missing slots or slots linked to a different appointment are left untouched.
+The rules permit patient-owned cancellation and the matching slot release;
+they must be deployed through the normal reviewed rules release process before
+this behavior is available in production.
+
+## Doctor dashboard
+
+Doctor access is provisioned outside patient registration. A trusted
+administrator must set `users/{uid}.role` to `doctor` and link exactly one
+`doctors/{doctorId}` profile with `uid: {uid}`. For legacy profiles without a
+`uid` field, the doctor document ID must equal the Firebase Auth UID. Dashboard
+appointment queries are scoped to that doctor document ID; Firestore rules
+restrict appointment reads and updates to the linked doctor.
+
+New bookings copy the patient's name, image URL, and phone number into the
+appointment as booking-time display snapshots. The dashboard does not read
+other patients' profile documents. Older appointment records without those
+optional fields display a safe fallback.
+
+The current booking flow creates appointments directly as `confirmed`, so
+there is no pending-confirmation or rejection workflow. Doctors may mark a
+confirmed appointment completed only after its `appointmentEndAt`; the
+transition updates only its status and `completedAt`. Doctor-side slot
+creation and editing are not enabled: slot publishing remains a trusted
+backend responsibility because current client rules prohibit doctors from
+changing availability. Deploy the updated Firestore rules through the reviewed
+release process before enabling the dashboard in production. No rules were
+deployed as part of this change.
+
 Patient profile edits update only `fullName` and `phoneNumber`; `email` and
 `role` are read-only to the patient. Profile images are uploaded under
 `users/{uid}/profile/`; authenticated Storage reads and writes are restricted

@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:material_ui/material_ui.dart';
 
 import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/auth/presentation/cubit/auth_state.dart';
@@ -23,7 +22,14 @@ import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/home/presentation/cubit/patient_home_cubit.dart';
 import '../../features/home/presentation/pages/patient_home_page.dart';
 import '../../features/home/presentation/pages/patient_home_shell_page.dart';
-import '../../features/home/presentation/widgets/home_tab_placeholder.dart';
+import '../../features/my_appointments/presentation/cubit/appointment_details_cubit.dart';
+import '../../features/my_appointments/presentation/cubit/my_appointments_cubit.dart';
+import '../../features/my_appointments/presentation/pages/appointment_details_page.dart';
+import '../../features/my_appointments/presentation/pages/my_appointments_page.dart';
+import '../../features/doctor_dashboard/presentation/cubit/doctor_appointment_details_cubit.dart';
+import '../../features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
+import '../../features/doctor_dashboard/presentation/pages/doctor_appointment_details_page.dart';
+import '../../features/doctor_dashboard/presentation/pages/doctor_dashboard_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
@@ -52,6 +58,9 @@ abstract final class AppRouter {
   static const home = 'home';
   static const explore = 'explore';
   static const appointments = 'appointments';
+  static const appointmentDetails = 'appointmentDetails';
+  static const doctorDashboard = 'doctor-dashboard';
+  static const doctorAppointmentDetails = 'doctor-appointment-details';
   static const profile = 'profile';
   static const doctorDetails = 'doctor-details';
   static const booking = 'booking';
@@ -73,6 +82,7 @@ abstract final class AppRouter {
           location == '/register' ||
           location == '/forgot-password';
       final isProfileComplete = location == '/profile-complete';
+      final isDoctorArea = location.startsWith('/doctor-dashboard');
       final isPatientArea =
           location.startsWith('/home') ||
           location.startsWith('/explore') ||
@@ -82,12 +92,30 @@ abstract final class AppRouter {
       if (isSplash || isOnboarding) return null;
 
       if (authState is AuthAuthenticated) {
-        if (isPublicAuth || isProfileComplete) return '/home';
+        final role = authState.user.role.trim().toLowerCase();
+        if (role == 'doctor') {
+          if (isPublicAuth ||
+              isProfileComplete ||
+              isPatientArea) {
+            return '/doctor-dashboard';
+          }
+          return null;
+        }
+        if (role == 'patient') {
+          if (isPublicAuth || isProfileComplete || isDoctorArea) {
+            return '/home';
+          }
+          return null;
+        }
+        if (isDoctorArea || isPatientArea || isProfileComplete) {
+          return '/login';
+        }
         return null;
       }
 
       if (authState is AuthProfileIncomplete) {
         if (isProfileComplete) return null;
+        if (isDoctorArea) return null;
         if (isPublicAuth || isPatientArea) return '/profile-complete';
         return null;
       }
@@ -100,7 +128,7 @@ abstract final class AppRouter {
         }
       }
 
-      if (isPatientArea || isProfileComplete) {
+      if (isPatientArea || isDoctorArea || isProfileComplete) {
         return '/login';
       }
       return null;
@@ -149,6 +177,32 @@ abstract final class AppRouter {
                   create: (_) => GetIt.instance<PatientHomeCubit>()..load(),
                   child: const PatientHomePage(),
                 ),
+              ),
+              GoRoute(
+                path: '/doctor-dashboard',
+                name: doctorDashboard,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<DoctorDashboardCubit>()..load(),
+                  child: const DoctorDashboardPage(),
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'appointments/:appointmentId',
+                    name: doctorAppointmentDetails,
+                    builder: (_, state) {
+                      final appointmentId =
+                          state.pathParameters['appointmentId'] ?? '';
+                      return BlocProvider(
+                        create: (_) =>
+                            GetIt.instance<DoctorAppointmentDetailsCubit>()
+                              ..load(appointmentId),
+                        child: DoctorAppointmentDetailsPage(
+                          appointmentId: appointmentId,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -199,11 +253,28 @@ abstract final class AppRouter {
               GoRoute(
                 path: '/appointments',
                 name: appointments,
-                builder: (_, _) => const HomeTabPlaceholder(
-                  title: 'Appointments',
-                  message: 'Your appointment management tools will be available here.',
-                  icon: Icons.calendar_month_rounded,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<MyAppointmentsCubit>()..load(),
+                  child: const MyAppointmentsPage(),
                 ),
+                routes: [
+                  GoRoute(
+                    path: ':appointmentId',
+                    name: appointmentDetails,
+                    builder: (_, state) {
+                      final appointmentId =
+                          state.pathParameters['appointmentId'] ?? '';
+                      return BlocProvider(
+                        create: (_) =>
+                            GetIt.instance<AppointmentDetailsCubit>()
+                              ..load(appointmentId),
+                        child: AppointmentDetailsPage(
+                          appointmentId: appointmentId,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
