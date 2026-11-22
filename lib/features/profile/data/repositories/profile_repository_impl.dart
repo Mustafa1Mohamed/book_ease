@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../auth/domain/entities/app_user.dart';
 import '../../domain/errors/profile_exception.dart';
@@ -23,6 +23,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return await _remoteDataSource.getCurrentProfile();
     } on ProfileException {
       rethrow;
+    } on StorageException catch (error) {
+      throw ProfileException(
+        error.statusCode == '404'
+            ? 'Profile photo storage is not configured.'
+            : 'Your profile photo could not be uploaded.',
+      );
     } on FirebaseException {
       throw const ProfileException(
         'Your profile could not be loaded. Please try again.',
@@ -57,7 +63,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
       final image = await _imagePickerDataSource.pickImage();
       if (image == null) return null;
       final bytes = await image.readAsBytes();
-      if (bytes.isEmpty || bytes.lengthInBytes >= _maxImageBytes) {
+      if (bytes.isEmpty) {
+        throw const ProfileException('Choose a valid image.');
+      }
+      if (bytes.lengthInBytes > _maxImageBytes) {
         throw const ProfileException(
           'Choose an image smaller than 5 MB.',
         );

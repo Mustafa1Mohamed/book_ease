@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/app_user.dart';
+import '../../domain/entities/user_role.dart';
 
 class AppUserModel extends AppUser {
   const AppUserModel({
@@ -9,6 +10,7 @@ class AppUserModel extends AppUser {
     required super.email,
     required super.phoneNumber,
     required super.role,
+    super.doctorApprovalStatus,
     super.profileImageUrl = '',
   });
 
@@ -21,17 +23,31 @@ class AppUserModel extends AppUser {
       fullName: (data['fullName'] as String?)?.trim() ?? '',
       email: (data['email'] as String?)?.trim() ?? '',
       phoneNumber: (data['phoneNumber'] as String?)?.trim() ?? '',
-      role: (data['role'] as String?) ?? 'patient',
+      role: UserRole.fromFirestore(data['role']),
+      doctorApprovalStatus: DoctorApprovalStatus.fromFirestore(
+        data['approvalStatus'],
+      ),
       profileImageUrl: (data['profileImageUrl'] as String?)?.trim() ?? '',
     );
   }
+
+  AppUserModel withDoctorApprovalStatus(DoctorApprovalStatus status) =>
+      AppUserModel(
+        uid: uid,
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        role: role,
+        doctorApprovalStatus: status,
+        profileImageUrl: profileImageUrl,
+      );
 
   Map<String, dynamic> toFirestore() => <String, dynamic>{
     'uid': uid,
     'fullName': fullName,
     'email': email,
     'phoneNumber': phoneNumber,
-    'role': 'patient',
+    'role': UserRole.patient.firestoreValue,
     if (profileImageUrl.isNotEmpty) 'profileImageUrl': profileImageUrl,
   };
 }

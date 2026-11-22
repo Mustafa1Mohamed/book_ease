@@ -1,5 +1,7 @@
 import 'package:book_ease/features/auth/domain/entities/app_user.dart';
+import 'package:book_ease/features/auth/domain/entities/user_role.dart';
 import 'package:book_ease/features/profile/domain/repositories/profile_repository.dart';
+import 'package:book_ease/features/profile/domain/errors/profile_exception.dart';
 import 'package:book_ease/features/profile/domain/usecases/get_current_profile.dart';
 import 'package:book_ease/features/profile/domain/usecases/pick_and_upload_profile_image.dart';
 import 'package:book_ease/features/profile/domain/usecases/update_profile.dart';
@@ -11,6 +13,7 @@ class _FakeProfileRepository implements ProfileRepository {
   AppUser user = _profile;
   String? savedName;
   String? savedPhone;
+  ProfileException? uploadError;
 
   @override
   Future<AppUser> getCurrentProfile() async => user;
@@ -37,6 +40,7 @@ class _FakeProfileRepository implements ProfileRepository {
   Future<AppUser?> pickAndUploadProfileImage({
     required void Function(double progress) onProgress,
   }) async {
+    if (uploadError != null) throw uploadError!;
     onProgress(0.6);
     user = AppUser(
       uid: user.uid,
@@ -55,7 +59,7 @@ const _profile = AppUser(
   fullName: 'Taylor Patient',
   email: 'taylor@example.test',
   phoneNumber: '5550100',
-  role: 'patient',
+  role: UserRole.patient,
 );
 
 void main() {
@@ -102,5 +106,41 @@ void main() {
     expect(observedProgress, contains(0.6));
     expect(state.user.profileImageUrl, 'https://example.test/profile.jpg');
     expect(state.isUploadingImage, isFalse);
+  });
+
+  test('loads every supported account role', () async {
+    for (final role in const [
+      UserRole.patient,
+      UserRole.doctor,
+      UserRole.admin,
+    ]) {
+      repository.user = AppUser(
+        uid: '${role.name}-1',
+        fullName: '${role.name} account',
+        email: '${role.name}@example.test',
+        phoneNumber: '',
+        role: role,
+      );
+      await cubit.load();
+
+      final state = cubit.state as ProfileLoaded;
+      expect(state.user.role, role);
+    }
+  });
+
+  test('shows an upload failure and clears uploading state', () async {
+    await cubit.load();
+    repository.uploadError = const ProfileException(
+      'You do not have permission to upload a profile photo.',
+    );
+
+    await cubit.uploadProfileImage();
+
+    final state = cubit.state as ProfileLoaded;
+    expect(state.isUploadingImage, isFalse);
+    expect(
+      state.errorMessage,
+      'You do not have permission to upload a profile photo.',
+    );
   });
 }

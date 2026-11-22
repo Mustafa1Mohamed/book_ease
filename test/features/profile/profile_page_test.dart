@@ -1,4 +1,5 @@
 import 'package:book_ease/features/auth/domain/entities/app_user.dart';
+import 'package:book_ease/features/auth/domain/entities/user_role.dart';
 import 'package:book_ease/features/profile/domain/repositories/profile_repository.dart';
 import 'package:book_ease/features/profile/domain/usecases/get_current_profile.dart';
 import 'package:book_ease/features/profile/domain/usecases/pick_and_upload_profile_image.dart';
@@ -31,7 +32,7 @@ const _profile = AppUser(
   fullName: 'Taylor Patient',
   email: 'taylor@example.test',
   phoneNumber: '',
-  role: 'patient',
+  role: UserRole.patient,
 );
 
 void main() {

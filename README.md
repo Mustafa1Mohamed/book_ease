@@ -69,14 +69,54 @@ The rules permit patient-owned cancellation and the matching slot release;
 they must be deployed through the normal reviewed rules release process before
 this behavior is available in production.
 
+## Authentication roles and provisioning
+
+The authentication layer resolves `patient`, `doctor`, and `admin` to a
+centralized role enum. Missing role data safely falls back to `patient` for
+legacy patient accounts; the auth repository upgrades only still-missing role
+fields to `patient` in a transaction, and an unrecognized role is restricted.
+Public email and Google registration create patients only. Google sign-in
+preserves an existing Firestore role and never infers a privileged role from
+Google profile data.
+
+Doctor accounts must be created or linked by trusted server-side tooling, such
+as an Admin SDK Cloud Function or a controlled administrative provisioning
+process. Set `users/{uid}.role` to `doctor`, link exactly one
+`doctors/{doctorId}` document with `uid: {uid}`, and set its
+`approvalStatus` to `pending`, `approved`, or `rejected`. `doctorProfileId` on
+the user document may be used when the profile ID is not discoverable by UID.
+Missing approval status is treated as pending; missing or ambiguous doctor
+profiles do not grant dashboard access. Existing doctors must be explicitly
+reviewed and marked approved by a trusted operator before their dashboard is
+available.
+
+Admin accounts must likewise be provisioned by trusted server-side tooling by
+setting `users/{uid}.role` to `admin`; there is no public admin registration.
+The `/admin` route is currently a protected placeholder. Admin-specific
+Firestore and Storage permissions must be designed and reviewed separately
+before an admin dashboard performs privileged data operations. Never grant
+roles by trusting client input or local state.
+
+The router enforces role-specific destinations and blocks direct navigation
+between patient, doctor, and admin areas. This is a UI authorization layer,
+not a replacement for Firebase Security Rules. The rules source permits only
+the non-elevating migration from a missing role to `patient`; no rules were
+deployed. Doctor appointment/availability ownership checks in the rules also
+require an `approved` doctor profile; the doctor can still read its own profile
+to display pending/rejected status. Admin-specific Firestore and Storage
+permissions must be designed and reviewed separately before the admin
+dashboard performs privileged operations. Role and approval changes are
+watched while the user is signed in and are re-resolved when the session is
+restored.
+
 ## Doctor dashboard
 
-Doctor access is provisioned outside patient registration. A trusted
-administrator must set `users/{uid}.role` to `doctor` and link exactly one
-`doctors/{doctorId}` profile with `uid: {uid}`. For legacy profiles without a
-`uid` field, the doctor document ID must equal the Firebase Auth UID. Dashboard
-appointment queries are scoped to that doctor document ID; Firestore rules
-restrict appointment reads and updates to the linked doctor.
+Doctor dashboard appointment queries are scoped to the linked doctor document
+ID; Firestore rules restrict appointment reads and updates to the linked
+doctor. New bookings copy the patient's name, image URL, and phone number into
+the appointment as booking-time display snapshots. The dashboard does not read
+other patients' profile documents. Older appointment records without those
+optional fields display a safe fallback.
 
 New bookings copy the patient's name, image URL, and phone number into the
 appointment as booking-time display snapshots. The dashboard does not read

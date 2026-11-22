@@ -11,6 +11,10 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_completion_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/account_status_page.dart';
+import '../../features/auth/presentation/pages/admin_dashboard_placeholder_page.dart';
+import '../../features/auth/domain/entities/app_user.dart';
+import '../../features/auth/domain/entities/user_role.dart';
 import '../../features/explore/presentation/cubit/explore_cubit.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/doctors/presentation/cubit/doctor_details_cubit.dart';
@@ -55,6 +59,8 @@ abstract final class AppRouter {
   static const register = 'register';
   static const forgotPassword = 'forgot-password';
   static const profileComplete = 'profile-complete';
+  static const accountStatus = 'account-status';
+  static const adminDashboard = 'admin-dashboard';
   static const home = 'home';
   static const explore = 'explore';
   static const appointments = 'appointments';
@@ -65,6 +71,93 @@ abstract final class AppRouter {
   static const doctorDetails = 'doctor-details';
   static const booking = 'booking';
 
+  static String? redirectFor(AuthState authState, String location) {
+    final isSplash = location == '/splash';
+    final isOnboarding = location == '/onboarding';
+    final isPublicAuth =
+        location == '/login' ||
+        location == '/register' ||
+        location == '/forgot-password';
+    final isProfileComplete = location == '/profile-complete';
+    final isAccountStatus = location == '/account-status';
+    final isAdminArea = location.startsWith('/admin');
+    final isDoctorArea = location.startsWith('/doctor-dashboard');
+    final isPatientArea =
+        location.startsWith('/home') ||
+        location.startsWith('/explore') ||
+        location.startsWith('/appointments') ||
+        location.startsWith('/profile');
+
+    if (isSplash || isOnboarding) return null;
+
+    if (authState is AuthAuthenticated) {
+      final user = authState.user;
+      return _authenticatedRedirect(
+        user,
+        isPublicAuth: isPublicAuth,
+        isProfileComplete: isProfileComplete,
+        isAccountStatus: isAccountStatus,
+        isAdminArea: isAdminArea,
+        isDoctorArea: isDoctorArea,
+        isPatientArea: isPatientArea,
+      );
+    }
+
+    if (authState is AuthProfileIncomplete) {
+      return isProfileComplete ? null : '/profile-complete';
+    }
+
+    if (authState is AuthInitial || authState is AuthLoading) {
+      return isPublicAuth ? null : '/login';
+    }
+
+    if (isPublicAuth) return null;
+    return '/login';
+  }
+
+  static String _defaultLocationFor(AppUser user) {
+    return switch (user.role) {
+      UserRole.patient => '/home',
+      UserRole.doctor =>
+        user.doctorApprovalStatus == DoctorApprovalStatus.approved
+            ? '/doctor-dashboard'
+            : '/account-status',
+      UserRole.admin => '/admin',
+      UserRole.unknown => '/account-status',
+    };
+  }
+
+  static String? _authenticatedRedirect(
+    AppUser user, {
+    required bool isPublicAuth,
+    required bool isProfileComplete,
+    required bool isAccountStatus,
+    required bool isAdminArea,
+    required bool isDoctorArea,
+    required bool isPatientArea,
+  }) {
+    switch (user.role) {
+      case UserRole.patient:
+        if (isPublicAuth ||
+            isProfileComplete ||
+            isAccountStatus ||
+            isAdminArea ||
+            isDoctorArea) {
+          return _defaultLocationFor(user);
+        }
+        return isPatientArea ? null : _defaultLocationFor(user);
+      case UserRole.doctor:
+        if (user.doctorApprovalStatus != DoctorApprovalStatus.approved) {
+          return isAccountStatus ? null : _defaultLocationFor(user);
+        }
+        return isDoctorArea ? null : _defaultLocationFor(user);
+      case UserRole.admin:
+        return isAdminArea ? null : _defaultLocationFor(user);
+      case UserRole.unknown:
+        return isAccountStatus ? null : _defaultLocationFor(user);
+    }
+  }
+
   static final router = GoRouter(
     initialLocation: '/splash',
     debugLogDiagnostics: kDebugMode,
@@ -73,65 +166,7 @@ abstract final class AppRouter {
     ),
     redirect: (context, state) {
       final authState = GetIt.instance<AuthCubit>().state;
-      final location = state.matchedLocation;
-
-      final isSplash = location == '/splash';
-      final isOnboarding = location == '/onboarding';
-      final isPublicAuth =
-          location == '/login' ||
-          location == '/register' ||
-          location == '/forgot-password';
-      final isProfileComplete = location == '/profile-complete';
-      final isDoctorArea = location.startsWith('/doctor-dashboard');
-      final isPatientArea =
-          location.startsWith('/home') ||
-          location.startsWith('/explore') ||
-          location.startsWith('/appointments') ||
-          location.startsWith('/profile');
-
-      if (isSplash || isOnboarding) return null;
-
-      if (authState is AuthAuthenticated) {
-        final role = authState.user.role.trim().toLowerCase();
-        if (role == 'doctor') {
-          if (isPublicAuth ||
-              isProfileComplete ||
-              isPatientArea) {
-            return '/doctor-dashboard';
-          }
-          return null;
-        }
-        if (role == 'patient') {
-          if (isPublicAuth || isProfileComplete || isDoctorArea) {
-            return '/home';
-          }
-          return null;
-        }
-        if (isDoctorArea || isPatientArea || isProfileComplete) {
-          return '/login';
-        }
-        return null;
-      }
-
-      if (authState is AuthProfileIncomplete) {
-        if (isProfileComplete) return null;
-        if (isDoctorArea) return null;
-        if (isPublicAuth || isPatientArea) return '/profile-complete';
-        return null;
-      }
-
-      if (authState is AuthLoading || authState is AuthInitial) {
-        if (location == '/login' ||
-            location == '/register' ||
-            location == '/forgot-password') {
-          return null;
-        }
-      }
-
-      if (isPatientArea || isDoctorArea || isProfileComplete) {
-        return '/login';
-      }
-      return null;
+      return redirectFor(authState, state.matchedLocation);
     },
     routes: [
       GoRoute(
@@ -164,6 +199,41 @@ abstract final class AppRouter {
         name: profileComplete,
         builder: (_, _) => const ProfileCompletionPage(),
       ),
+      GoRoute(
+        path: '/account-status',
+        name: accountStatus,
+        builder: (_, _) => const AccountStatusPage(),
+      ),
+      GoRoute(
+        path: '/admin',
+        name: adminDashboard,
+        builder: (_, _) => const AdminDashboardPlaceholderPage(),
+      ),
+      GoRoute(
+        path: '/doctor-dashboard',
+        name: doctorDashboard,
+        builder: (_, _) => BlocProvider(
+          create: (_) => GetIt.instance<DoctorDashboardCubit>()..load(),
+          child: const DoctorDashboardPage(),
+        ),
+        routes: [
+          GoRoute(
+            path: 'appointments/:appointmentId',
+            name: doctorAppointmentDetails,
+            builder: (_, state) {
+              final appointmentId = state.pathParameters['appointmentId'] ?? '';
+              return BlocProvider(
+                create: (_) =>
+                    GetIt.instance<DoctorAppointmentDetailsCubit>()
+                      ..load(appointmentId),
+                child: DoctorAppointmentDetailsPage(
+                  appointmentId: appointmentId,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       StatefulShellRoute.indexedStack(
         builder: (_, _, navigationShell) =>
             PatientHomeShellPage(navigationShell: navigationShell),
@@ -177,32 +247,6 @@ abstract final class AppRouter {
                   create: (_) => GetIt.instance<PatientHomeCubit>()..load(),
                   child: const PatientHomePage(),
                 ),
-              ),
-              GoRoute(
-                path: '/doctor-dashboard',
-                name: doctorDashboard,
-                builder: (_, _) => BlocProvider(
-                  create: (_) => GetIt.instance<DoctorDashboardCubit>()..load(),
-                  child: const DoctorDashboardPage(),
-                ),
-                routes: [
-                  GoRoute(
-                    path: 'appointments/:appointmentId',
-                    name: doctorAppointmentDetails,
-                    builder: (_, state) {
-                      final appointmentId =
-                          state.pathParameters['appointmentId'] ?? '';
-                      return BlocProvider(
-                        create: (_) =>
-                            GetIt.instance<DoctorAppointmentDetailsCubit>()
-                              ..load(appointmentId),
-                        child: DoctorAppointmentDetailsPage(
-                          appointmentId: appointmentId,
-                        ),
-                      );
-                    },
-                  ),
-                ],
               ),
             ],
           ),

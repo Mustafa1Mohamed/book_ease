@@ -1,13 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/router/app_router.dart';
-import '../../../auth/data/datasources/auth_remote_data_source.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
+import '../../../auth/presentation/cubit/auth_state.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -39,21 +40,28 @@ class _SplashPageState extends State<SplashPage> {
         return;
       }
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
+      final authCubit = context.read<AuthCubit>();
+      await authCubit.checkSession();
+      if (!mounted) return;
+
+      final authState = authCubit.state;
+      if (authState is AuthUnauthenticated) {
         context.goNamed(AppRouter.login);
         return;
       }
-
-      final profile = await GetIt.instance<AuthRemoteDataSource>().getProfile(
-        currentUser.uid,
-      );
-      if (!mounted) return;
-      if (profile == null || !profile.isComplete) {
+      if (authState is AuthProfileIncomplete) {
         context.goNamed(AppRouter.profileComplete);
-      } else {
-        context.goNamed(AppRouter.home);
+        return;
       }
+      if (authState is AuthAuthenticated) {
+        context.goNamed(AppRouter.home);
+        return;
+      }
+      throw StateError(
+        authState is AuthError
+            ? authState.message
+            : 'Authentication state could not be restored.',
+      );
     } catch (_) {
       if (mounted) setState(() => _hasError = true);
     }

@@ -5,14 +5,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../domain/entities/app_user.dart';
+import '../../domain/entities/user_role.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit({
-    required this._repository,
-    required this._firebaseAuth,
-  }) : super(const AuthInitial()) {
+  AuthCubit({required this._repository, required this._firebaseAuth})
+    : super(const AuthInitial()) {
     _authSubscription = _repository.authStateChanges().listen(
       _handleAuthChange,
       onError: (Object _) {
@@ -27,17 +26,23 @@ class AuthCubit extends Cubit<AuthState> {
   bool _isSubmitting = false;
 
   Future<void> checkSession() async {
-    final firebaseUser = _firebaseAuth.currentUser;
-    if (firebaseUser == null) {
-      emit(const AuthUnauthenticated());
-      return;
-    }
+    try {
+      final firebaseUser = _firebaseAuth.currentUser;
+      if (firebaseUser == null) {
+        emit(const AuthUnauthenticated());
+        return;
+      }
 
-    final profile = await _repository.getProfile(firebaseUser.uid);
-    if (profile == null) {
-      emit(AuthProfileIncomplete(firebaseUser.email ?? ''));
-    } else {
-      emit(AuthAuthenticated(profile));
+      final profile = await _repository.getProfile(firebaseUser.uid);
+      if (profile == null) {
+        emit(AuthProfileIncomplete(firebaseUser.email ?? ''));
+      } else {
+        _emitProfile(profile);
+      }
+    } on FirebaseException catch (error) {
+      emit(AuthError(_firebaseAuthMessage(error)));
+    } catch (_) {
+      emit(const AuthError('We could not restore your session.'));
     }
   }
 
@@ -48,6 +53,14 @@ class AuthCubit extends Cubit<AuthState> {
       } else {
         emit(AuthProfileIncomplete(_firebaseAuth.currentUser?.email ?? ''));
       }
+    } else {
+      _emitProfile(profile);
+    }
+  }
+
+  void _emitProfile(AppUser profile) {
+    if (profile.role == UserRole.patient && !profile.isComplete) {
+      emit(AuthProfileIncomplete(profile.email));
     } else {
       emit(AuthAuthenticated(profile));
     }
@@ -62,7 +75,7 @@ class AuthCubit extends Cubit<AuthState> {
         email: email,
         password: password,
       );
-      emit(AuthAuthenticated(user));
+      _emitProfile(user);
     } on FirebaseAuthException catch (error) {
       emit(AuthError(_firebaseAuthMessage(error)));
     } on FirebaseException catch (error) {
@@ -94,13 +107,15 @@ class AuthCubit extends Cubit<AuthState> {
         phoneNumber: phoneNumber,
         password: password,
       );
-      emit(AuthAuthenticated(user));
+      _emitProfile(user);
     } on FirebaseAuthException catch (error) {
       emit(AuthError(_firebaseAuthMessage(error)));
-    } on FirebaseException catch (_) {
+    } on FirebaseException catch (error) {
       emit(
-        const AuthError(
-          'Your account was created, but profile setup failed. Please sign in and retry.',
+        AuthError(
+          error.code == 'supabase-role-claim-pending'
+              ? 'Your account was created, but secure storage access is still being set up. Please sign out and sign in again shortly.'
+              : 'Your account was created, but profile setup failed. Please sign in and retry.',
         ),
       );
     } catch (_) {
@@ -116,7 +131,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(const AuthLoading());
     try {
       final user = await _repository.signInWithGoogle();
-      emit(AuthAuthenticated(user));
+      _emitProfile(user);
     } on GoogleSignInException catch (error) {
       if (error.code == GoogleSignInExceptionCode.canceled) {
         emit(const AuthUnauthenticated());
@@ -129,6 +144,14 @@ class AuthCubit extends Cubit<AuthState> {
       }
     } on FirebaseAuthException catch (error) {
       emit(AuthError(_firebaseAuthMessage(error)));
+    } on FirebaseException catch (error) {
+      emit(
+        AuthError(
+          error.code == 'supabase-role-claim-pending'
+              ? 'Your account was created, but secure storage access is still being set up. Please sign out and sign in again shortly.'
+              : 'Google Sign-In could not be completed. Please try again.',
+        ),
+      );
     } catch (_) {
       emit(
         const AuthError(
@@ -170,7 +193,7 @@ class AuthCubit extends Cubit<AuthState> {
         fullName: fullName,
         phoneNumber: phoneNumber,
       );
-      emit(AuthAuthenticated(user));
+      _emitProfile(user);
     } catch (_) {
       emit(
         const AuthError('Unable to complete your profile. Please try again.'),

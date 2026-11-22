@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/router/app_router.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../auth/domain/entities/user_role.dart';
 import '../cubit/patient_home_cubit.dart';
 import '../widgets/home_error_view.dart';
 import '../widgets/patient_home_tab_content.dart';
@@ -31,7 +32,7 @@ class _PatientHomePageState extends State<PatientHomePage> {
     final authState = context.watch<AuthCubit>().state;
     final isPatient =
         authState is AuthAuthenticated &&
-        authState.user.role.trim().toLowerCase() == 'patient';
+        authState.user.role == UserRole.patient;
     if (!isPatient) {
       final signOut = context.read<AuthCubit>().signOut;
       return HomeErrorView(

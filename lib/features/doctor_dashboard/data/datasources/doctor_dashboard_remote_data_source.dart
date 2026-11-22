@@ -23,8 +23,7 @@ class DoctorDashboardRemoteDataSource {
   Future<DoctorDashboardData> getDashboard() async {
     final uid = _currentUid();
     try {
-      await _requireDoctorRole(uid);
-      final doctorSnapshot = await _resolveDoctor(uid);
+      final doctorSnapshot = await _requireApprovedDoctor(uid);
       final doctorData = doctorSnapshot.data();
       if (doctorData == null) {
         throw const DoctorDashboardException(
@@ -86,8 +85,7 @@ class DoctorDashboardRemoteDataSource {
     if (appointmentId.trim().isEmpty) return null;
     final uid = _currentUid();
     try {
-      await _requireDoctorRole(uid);
-      final doctor = await _resolveDoctor(uid);
+      final doctor = await _requireApprovedDoctor(uid);
       final snapshot = await _firestore
           .collection('appointments')
           .doc(appointmentId)
@@ -114,8 +112,7 @@ class DoctorDashboardRemoteDataSource {
       throw const DoctorDashboardException('Appointment was not found.');
     }
     try {
-      await _requireDoctorRole(uid);
-      final doctor = await _resolveDoctor(uid);
+      final doctor = await _requireApprovedDoctor(uid);
       final userRef = _firestore.collection('users').doc(uid);
       final doctorRef = _firestore.collection('doctors').doc(doctor.id);
       final appointmentRef = _firestore
@@ -129,6 +126,7 @@ class DoctorDashboardRemoteDataSource {
         final data = appointmentSnapshot.data();
         if (userSnapshot.data()?['role'] != 'doctor' ||
             !_ownsDoctorProfile(doctorSnapshot, uid) ||
+            doctorSnapshot.data()?['approvalStatus'] != 'approved' ||
             data == null ||
             (data['doctorId'] != doctor.id && data['doctorId'] != uid)) {
           throw const DoctorDashboardException('Appointment was not found.');
@@ -168,13 +166,22 @@ class DoctorDashboardRemoteDataSource {
     return user.uid;
   }
 
-  Future<void> _requireDoctorRole(String uid) async {
+  Future<DocumentSnapshot<Map<String, dynamic>>> _requireApprovedDoctor(
+    String uid,
+  ) async {
     final user = await _firestore.collection('users').doc(uid).get();
     if (user.data()?['role'] != 'doctor') {
       throw const DoctorDashboardException(
         'This dashboard is only available to doctor accounts.',
       );
     }
+    final doctor = await _resolveDoctor(uid);
+    if (doctor.data()?['approvalStatus'] != 'approved') {
+      throw const DoctorDashboardException(
+        'This doctor account is not approved to access the dashboard.',
+      );
+    }
+    return doctor;
   }
 
   Future<DocumentSnapshot<Map<String, dynamic>>> _resolveDoctor(

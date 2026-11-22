@@ -59,10 +59,10 @@ import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_ap
 import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -89,12 +89,6 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<FirebaseFirestore>()) {
     getIt.registerLazySingleton<FirebaseFirestore>(
       () => FirebaseFirestore.instance,
-    );
-  }
-
-  if (!getIt.isRegistered<FirebaseStorage>()) {
-    getIt.registerLazySingleton<FirebaseStorage>(
-      () => FirebaseStorage.instance,
     );
   }
 
@@ -296,7 +290,7 @@ Future<void> setupDependencies() async {
       () => ProfileRemoteDataSource(
         getIt<FirebaseAuth>(),
         getIt<FirebaseFirestore>(),
-        getIt<FirebaseStorage>(),
+        Supabase.instance.client,
       ),
     );
   }

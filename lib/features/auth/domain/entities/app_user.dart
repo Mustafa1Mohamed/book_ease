@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'user_role.dart';
+
 class AppUser extends Equatable {
   const AppUser({
     required this.uid,
@@ -7,6 +9,7 @@ class AppUser extends Equatable {
     required this.email,
     required this.phoneNumber,
     required this.role,
+    this.doctorApprovalStatus = DoctorApprovalStatus.pending,
     this.profileImageUrl = '',
   });
 
@@ -14,7 +17,8 @@ class AppUser extends Equatable {
   final String fullName;
   final String email;
   final String phoneNumber;
-  final String role;
+  final UserRole role;
+  final DoctorApprovalStatus doctorApprovalStatus;
   final String profileImageUrl;
 
   bool get isComplete =>
@@ -27,6 +31,7 @@ class AppUser extends Equatable {
     email,
     phoneNumber,
     role,
+    doctorApprovalStatus,
     profileImageUrl,
   ];
 }

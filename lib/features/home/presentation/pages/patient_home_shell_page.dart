@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
+import '../../../auth/domain/entities/user_role.dart';
 import '../widgets/home_error_view.dart';
 
 class PatientHomeShellPage extends StatelessWidget {
@@ -16,7 +17,7 @@ class PatientHomeShellPage extends StatelessWidget {
     final authState = context.watch<AuthCubit>().state;
     final isPatient =
         authState is AuthAuthenticated &&
-        authState.user.role.trim().toLowerCase() == 'patient';
+        authState.user.role == UserRole.patient;
     final signOut = context.read<AuthCubit>().signOut;
 
     return Scaffold(
