@@ -9,17 +9,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  String url = const String.fromEnvironment('URL');
+  String publishableKey = const String.fromEnvironment('PUBLISHABLE_KEY');
   await Supabase.initialize(
-    url: 'https://bqswbjdgdjgcxczzbvlj.supabase.co',
-    publishableKey: 'sb_publishable_Tlwi1YUUThgoGX7ZN41yHg_MWet8Cq5',
+    url: url,
+    publishableKey: publishableKey,
     accessToken: _getFirebaseAccessToken,
   );
   await setupDependencies();

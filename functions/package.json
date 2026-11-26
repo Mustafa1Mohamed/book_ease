@@ -6,7 +6,8 @@
     "node": "22"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/custom-claims.test.js test/doctor-admin-callable.test.js test/doctor-admin-identity.test.js test/doctor-admin-service.test.js test/doctor-admin-status-policy.test.js",
+    "test:rules": "npm --prefix test/rules test",
     "migrate:claims": "node scripts/migrate-auth-claims.js",
     "verify:claim": "node scripts/verify-auth-claim.js"
   },

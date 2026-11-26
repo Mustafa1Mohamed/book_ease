@@ -35,6 +35,7 @@ migrate_working_dir/
 .env
 !.env.example
 /functions/node_modules/
+/functions/test/rules/node_modules/
 /functions/.runtimeconfig.json
 
 # Symbolication related
@@ -51,3 +52,4 @@ app.*.map.json
 # Widget Preview related
 .widget_preview/
 book-ease-f0346-firebase-adminsdk-fbsvc-f26d0499ce.json
+env.json

@@ -1,13 +1,14 @@
 import 'package:book_ease/core/router/app_router.dart';
 import 'package:book_ease/features/auth/data/models/app_user_model.dart';
 import 'package:book_ease/features/auth/domain/entities/app_user.dart';
+import 'package:book_ease/features/auth/domain/entities/doctor_lifecycle_status.dart';
 import 'package:book_ease/features/auth/domain/entities/user_role.dart';
 import 'package:book_ease/features/auth/presentation/cubit/auth_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 AppUser _user(
   UserRole role, {
-  DoctorApprovalStatus approvalStatus = DoctorApprovalStatus.pending,
+  DoctorLifecycleStatus lifecycleStatus = DoctorLifecycleStatus.pending,
 }) {
   return AppUser(
     uid: 'user-1',
@@ -15,7 +16,7 @@ AppUser _user(
     email: 'test@example.com',
     phoneNumber: '',
     role: role,
-    doctorApprovalStatus: approvalStatus,
+    doctorLifecycleStatus: lifecycleStatus,
   );
 }
 
@@ -32,14 +33,46 @@ void main() {
       },
     );
 
-    test('missing doctor approval is pending and invalid is not approved', () {
+    test('doctor status parsing distinguishes missing and invalid fields', () {
       expect(
         DoctorApprovalStatus.fromFirestore(null),
-        DoctorApprovalStatus.pending,
+        DoctorApprovalStatus.unknown,
       );
       expect(
         DoctorApprovalStatus.fromFirestore('approved'),
         DoctorApprovalStatus.approved,
+      );
+      expect(
+        DoctorLifecycleStatus.fromDoctorData({}),
+        DoctorLifecycleStatus.pending,
+      );
+      expect(
+        DoctorLifecycleStatus.fromDoctorData({'approvalStatus': 'approved'})
+            .canOperate,
+        isTrue,
+      );
+      for (final value in [null, '', 'unknown', 4]) {
+        expect(
+          DoctorLifecycleStatus.fromDoctorData({
+            'approvalStatus': 'approved',
+            'administrativeStatus': value,
+          }).canOperate,
+          isFalse,
+        );
+      }
+      expect(
+        DoctorLifecycleStatus.fromDoctorData({
+          'approvalStatus': 'pending',
+          'administrativeStatus': 'suspended',
+        }).isValid,
+        isFalse,
+      );
+      expect(
+        DoctorLifecycleStatus.fromDoctorData({
+          'approvalStatus': 'approved',
+          'administrativeStatus': 'suspended',
+        }).isSuspended,
+        isTrue,
       );
       expect(
         DoctorApprovalStatus.fromFirestore('anything-else'),
@@ -67,6 +100,10 @@ void main() {
         '/login',
       );
       expect(
+        AppRouter.redirectFor(const AuthUnauthenticated(), '/admin'),
+        '/login',
+      );
+      expect(
         AppRouter.redirectFor(const AuthUnauthenticated(), '/register'),
         isNull,
       );
@@ -88,16 +125,46 @@ void main() {
         expect(AppRouter.redirectFor(state, '/appointments'), isNull);
         expect(AppRouter.redirectFor(state, '/doctor-dashboard'), '/home');
         expect(AppRouter.redirectFor(state, '/admin'), '/home');
+        expect(AppRouter.redirectFor(state, '/admin/appointments'), '/home');
+        expect(AppRouter.redirectFor(state, '/admin/doctors'), '/home');
       },
     );
 
     test('doctors are gated by approval and isolated from patient routes', () {
       final pending = AuthAuthenticated(_user(UserRole.doctor));
       final approved = AuthAuthenticated(
-        _user(UserRole.doctor, approvalStatus: DoctorApprovalStatus.approved),
+        _user(
+          UserRole.doctor,
+          lifecycleStatus: DoctorLifecycleStatus.fromDoctorData({
+            'approvalStatus': 'approved',
+          }),
+        ),
       );
       final rejected = AuthAuthenticated(
-        _user(UserRole.doctor, approvalStatus: DoctorApprovalStatus.rejected),
+        _user(
+          UserRole.doctor,
+          lifecycleStatus: DoctorLifecycleStatus.fromDoctorData({
+            'approvalStatus': 'rejected',
+          }),
+        ),
+      );
+      final suspended = AuthAuthenticated(
+        _user(
+          UserRole.doctor,
+          lifecycleStatus: DoctorLifecycleStatus.fromDoctorData({
+            'approvalStatus': 'approved',
+            'administrativeStatus': 'suspended',
+          }),
+        ),
+      );
+      final invalid = AuthAuthenticated(
+        _user(
+          UserRole.doctor,
+          lifecycleStatus: DoctorLifecycleStatus.fromDoctorData({
+            'approvalStatus': 'approved',
+            'administrativeStatus': null,
+          }),
+        ),
       );
 
       expect(
@@ -110,9 +177,19 @@ void main() {
         '/account-status',
       );
       expect(
+        AppRouter.redirectFor(suspended, '/doctor-dashboard'),
+        '/account-status',
+      );
+      expect(AppRouter.redirectFor(suspended, '/account-status'), isNull);
+      expect(
+        AppRouter.redirectFor(invalid, '/doctor-dashboard'),
+        '/account-status',
+      );
+      expect(
         AppRouter.redirectFor(approved, '/appointments'),
         '/doctor-dashboard',
       );
+      expect(AppRouter.redirectFor(approved, '/admin'), '/doctor-dashboard');
       expect(AppRouter.redirectFor(approved, '/doctor-dashboard'), isNull);
     });
 
@@ -124,7 +201,14 @@ void main() {
 
         expect(AppRouter.redirectFor(admin, '/home'), '/admin');
         expect(AppRouter.redirectFor(admin, '/admin'), isNull);
+        expect(AppRouter.redirectFor(admin, '/admin/dashboard'), isNull);
+        expect(AppRouter.redirectFor(admin, '/admin/doctors'), isNull);
+        expect(
+          AppRouter.redirectFor(admin, '/admin/doctors/profile-1'),
+          isNull,
+        );
         expect(AppRouter.redirectFor(unknown, '/home'), '/account-status');
+        expect(AppRouter.redirectFor(unknown, '/admin'), '/account-status');
       },
     );
   });

@@ -90,24 +90,61 @@ profiles do not grant dashboard access. Existing doctors must be explicitly
 reviewed and marked approved by a trusted operator before their dashboard is
 available.
 
+### Lifecycle rollout impact (code-only dry run)
+
+Doctor approval and administrative restriction are separate fields.
+`administrativeStatus` is `active` or `suspended`; a missing field is treated
+as active for legacy records, while an explicitly invalid value fails closed.
+Only approved, active doctors can receive new bookings or use operational
+dashboard and availability features. Home and Explore queries require explicit
+`approvalStatus: "approved"` and `administrativeStatus: "active"` values, so
+legacy profiles missing `administrativeStatus` are omitted from discovery even
+though direct lifecycle checks treat that missing field as active. A trusted
+operator must review and repair such records before they appear in discovery.
+Suspension does not cancel existing appointments or release reserved slots;
+patients retain the existing cancellation flow. No production inventory,
+backfill, or migration was run for this lifecycle change.
+Firestore Rules can validate a profile's direct user link but cannot query the
+doctors collection to prove UID uniqueness. The trusted lifecycle callables
+reject ambiguous identities; legacy booking records without an explicit
+`doctorProfileId` still require a reviewed identity audit before production
+use, because Rules cannot independently detect duplicate UID-linked profiles.
+
 Admin accounts must likewise be provisioned by trusted server-side tooling by
 setting `users/{uid}.role` to `admin`; there is no public admin registration.
-The `/admin` route is currently a protected placeholder. Admin-specific
-Firestore and Storage permissions must be designed and reviewed separately
-before an admin dashboard performs privileged data operations. Never grant
+The `/admin` route is a role-protected, read-only dashboard. It uses Firestore
+count aggregation for patient, doctor, specialty, and appointment totals rather
+than downloading collection documents. Pending/approved doctor counts use
+explicit `approvalStatus` values; upcoming appointments use future
+`appointmentAt` timestamps and statuses `confirmed`, `pending`, `scheduled`,
+or `booked`. The appointment composite index is defined in
+`firestore.indexes.json`.
+Patient counts include explicit `role: "patient"` records; pending-doctor
+counts include explicit `approvalStatus: "pending"` records. Future appointment
+counts use the canonical `appointmentAt` timestamp and do not include legacy
+records that only have `appointmentDate`.
+
+The rules source grants admin reads only on `users`, `doctors`, `specialties`,
+and `appointments` for those metrics; no admin-specific write operations are
+allowed. Existing owner-only self-profile updates remain unchanged. Firestore
+Security Rules cannot grant aggregate-count-only access or hide document
+fields, so these grants also allow an authenticated admin client to query and
+read those documents. Admin role provisioning is therefore a trust boundary.
+If admins must not read those records, use a trusted backend aggregation
+endpoint before enabling the dashboard against production data. Never grant
 roles by trusting client input or local state.
 
 The router enforces role-specific destinations and blocks direct navigation
 between patient, doctor, and admin areas. This is a UI authorization layer,
 not a replacement for Firebase Security Rules. The rules source permits only
-the non-elevating migration from a missing role to `patient`; no rules were
-deployed. Doctor appointment/availability ownership checks in the rules also
-require an `approved` doctor profile; the doctor can still read its own profile
-to display pending/rejected status. Admin-specific Firestore and Storage
-permissions must be designed and reviewed separately before the admin
-dashboard performs privileged operations. Role and approval changes are
-watched while the user is signed in and are re-resolved when the session is
-restored.
+the non-elevating migration from a missing role to `patient`; it does not
+permit client role elevation. The admin read grants and appointment index are
+source changes only and must be reviewed and deployed separately; they were
+not deployed with this change. Doctor appointment/availability ownership
+checks in the rules also require an `approved` doctor profile; the doctor can
+still read its own profile to display pending/rejected status. Role and
+approval changes are watched while the user is signed in and are re-resolved
+when the session is restored.
 
 ## Doctor dashboard
 

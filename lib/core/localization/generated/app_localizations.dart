@@ -223,6 +223,642 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'See All'**
   String get seeAll;
+
+  /// No description provided for @adminDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin dashboard'**
+  String get adminDashboardTitle;
+
+  /// No description provided for @adminDashboardOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform overview'**
+  String get adminDashboardOverview;
+
+  /// No description provided for @adminDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A live snapshot of activity across BookEase.'**
+  String get adminDashboardSubtitle;
+
+  /// No description provided for @adminTotalPatients.
+  ///
+  /// In en, this message translates to:
+  /// **'Total patients'**
+  String get adminTotalPatients;
+
+  /// No description provided for @adminTotalDoctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Total doctors'**
+  String get adminTotalDoctors;
+
+  /// No description provided for @adminPendingDoctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending doctors'**
+  String get adminPendingDoctors;
+
+  /// No description provided for @adminApprovedDoctors.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved doctors'**
+  String get adminApprovedDoctors;
+
+  /// No description provided for @adminTotalSpecialties.
+  ///
+  /// In en, this message translates to:
+  /// **'Total specialties'**
+  String get adminTotalSpecialties;
+
+  /// No description provided for @adminTotalAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Total appointments'**
+  String get adminTotalAppointments;
+
+  /// No description provided for @adminUpcomingAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming appointments'**
+  String get adminUpcomingAppointments;
+
+  /// No description provided for @adminCompletedAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed appointments'**
+  String get adminCompletedAppointments;
+
+  /// No description provided for @adminMetricUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get adminMetricUnavailable;
+
+  /// No description provided for @adminDashboardUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard unavailable'**
+  String get adminDashboardUnavailable;
+
+  /// No description provided for @adminDashboardLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard statistics could not be loaded. Check your connection and admin access, then try again.'**
+  String get adminDashboardLoadError;
+
+  /// No description provided for @adminDashboardRefreshError.
+  ///
+  /// In en, this message translates to:
+  /// **'The latest statistics could not be refreshed. Showing the last available data.'**
+  String get adminDashboardRefreshError;
+
+  /// No description provided for @adminDashboardPartialError.
+  ///
+  /// In en, this message translates to:
+  /// **'Some statistics are unavailable. Check your access and try again.'**
+  String get adminDashboardPartialError;
+
+  /// No description provided for @adminDoctorsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor management'**
+  String get adminDoctorsTitle;
+
+  /// No description provided for @adminDoctorsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review doctor profiles and manage their access.'**
+  String get adminDoctorsSubtitle;
+
+  /// No description provided for @adminDoctorsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or email'**
+  String get adminDoctorsSearch;
+
+  /// No description provided for @adminDoctorsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminDoctorsAll;
+
+  /// No description provided for @adminDoctorsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminDoctorsPending;
+
+  /// No description provided for @adminDoctorsApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminDoctorsApproved;
+
+  /// No description provided for @adminDoctorsRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminDoctorsRejected;
+
+  /// No description provided for @adminDoctorsSuspended.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspended'**
+  String get adminDoctorsSuspended;
+
+  /// No description provided for @adminDoctorsSpecialty.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty'**
+  String get adminDoctorsSpecialty;
+
+  /// No description provided for @adminDoctorsAllSpecialties.
+  ///
+  /// In en, this message translates to:
+  /// **'All specialties'**
+  String get adminDoctorsAllSpecialties;
+
+  /// No description provided for @adminDoctorsNeedsReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get adminDoctorsNeedsReview;
+
+  /// No description provided for @adminDoctorsLegacyNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'All includes legacy or malformed profiles. Status filters require a stored approval status; approved includes legacy active defaults. Search by email to find doctor users without a linked profile.'**
+  String get adminDoctorsLegacyNotice;
+
+  /// No description provided for @adminDoctorsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No doctors match these filters.'**
+  String get adminDoctorsEmpty;
+
+  /// No description provided for @adminDoctorsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctors could not be loaded. Check access and connection, then retry.'**
+  String get adminDoctorsLoadError;
+
+  /// No description provided for @adminDoctorsSpecialtiesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty filtering is unavailable.'**
+  String get adminDoctorsSpecialtiesUnavailable;
+
+  /// No description provided for @adminDoctorsLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Load more'**
+  String get adminDoctorsLoadMore;
+
+  /// No description provided for @adminDoctorDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor details'**
+  String get adminDoctorDetailsTitle;
+
+  /// No description provided for @adminDoctorProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile information'**
+  String get adminDoctorProfile;
+
+  /// No description provided for @adminDoctorIdentity.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity'**
+  String get adminDoctorIdentity;
+
+  /// No description provided for @adminDoctorProfileId.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile ID'**
+  String get adminDoctorProfileId;
+
+  /// No description provided for @adminDoctorUid.
+  ///
+  /// In en, this message translates to:
+  /// **'User UID'**
+  String get adminDoctorUid;
+
+  /// No description provided for @adminDoctorEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get adminDoctorEmail;
+
+  /// No description provided for @adminDoctorPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get adminDoctorPhone;
+
+  /// No description provided for @adminDoctorSpecialty.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty'**
+  String get adminDoctorSpecialty;
+
+  /// No description provided for @adminDoctorFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation fee'**
+  String get adminDoctorFee;
+
+  /// No description provided for @adminDoctorBiography.
+  ///
+  /// In en, this message translates to:
+  /// **'Biography'**
+  String get adminDoctorBiography;
+
+  /// No description provided for @adminDoctorQualifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Qualifications'**
+  String get adminDoctorQualifications;
+
+  /// No description provided for @adminDoctorExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Years of experience'**
+  String get adminDoctorExperience;
+
+  /// No description provided for @adminDoctorClinic.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic'**
+  String get adminDoctorClinic;
+
+  /// No description provided for @adminDoctorAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic address'**
+  String get adminDoctorAddress;
+
+  /// No description provided for @adminDoctorApprovalStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval status'**
+  String get adminDoctorApprovalStatus;
+
+  /// No description provided for @adminDoctorAdministrativeStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrative status'**
+  String get adminDoctorAdministrativeStatus;
+
+  /// No description provided for @adminDoctorActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminDoctorActive;
+
+  /// No description provided for @adminDoctorNeedsReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This record needs manual review. Lifecycle actions are disabled until its identity and status are valid.'**
+  String get adminDoctorNeedsReviewMessage;
+
+  /// No description provided for @adminDoctorMissingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked user record is missing.'**
+  String get adminDoctorMissingUser;
+
+  /// No description provided for @adminDoctorMissingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'No doctor profile is linked to this doctor user.'**
+  String get adminDoctorMissingProfile;
+
+  /// No description provided for @adminDoctorRoleMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked user is not registered with the doctor role.'**
+  String get adminDoctorRoleMismatch;
+
+  /// No description provided for @adminDoctorIdentityMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'A unique doctor identity could not be resolved.'**
+  String get adminDoctorIdentityMissing;
+
+  /// No description provided for @adminDoctorIdentityLegacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy profile link is in use.'**
+  String get adminDoctorIdentityLegacy;
+
+  /// No description provided for @adminDoctorIdentityMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor profile and user links conflict.'**
+  String get adminDoctorIdentityMismatch;
+
+  /// No description provided for @adminDoctorIdentityAmbiguous.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple doctor profiles are linked to this user.'**
+  String get adminDoctorIdentityAmbiguous;
+
+  /// No description provided for @adminDoctorStatusMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'A lifecycle status is missing; the compatibility default is shown.'**
+  String get adminDoctorStatusMissing;
+
+  /// No description provided for @adminDoctorInvalidStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifecycle status is invalid or internally inconsistent.'**
+  String get adminDoctorInvalidStatus;
+
+  /// No description provided for @adminDoctorIncompleteProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Some profile information is missing.'**
+  String get adminDoctorIncompleteProfile;
+
+  /// No description provided for @adminDoctorAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming appointments'**
+  String get adminDoctorAppointments;
+
+  /// No description provided for @adminDoctorNoAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming appointments were found.'**
+  String get adminDoctorNoAppointments;
+
+  /// No description provided for @adminDoctorAppointmentsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming appointments could not be loaded.'**
+  String get adminDoctorAppointmentsUnavailable;
+
+  /// No description provided for @adminAppointmentStatusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get adminAppointmentStatusConfirmed;
+
+  /// No description provided for @adminAppointmentStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminAppointmentStatusPending;
+
+  /// No description provided for @adminAppointmentStatusScheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get adminAppointmentStatusScheduled;
+
+  /// No description provided for @adminAppointmentStatusBooked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked'**
+  String get adminAppointmentStatusBooked;
+
+  /// No description provided for @adminDoctorSuspendedAppointmentsWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspension does not change existing appointments or reserved slots. Follow up operationally with affected patients.'**
+  String get adminDoctorSuspendedAppointmentsWarning;
+
+  /// No description provided for @adminDoctorAuditHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrative history'**
+  String get adminDoctorAuditHistory;
+
+  /// No description provided for @adminDoctorAuditEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No administrative actions have been recorded.'**
+  String get adminDoctorAuditEmpty;
+
+  /// No description provided for @adminDoctorAuditUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrative history could not be loaded.'**
+  String get adminDoctorAuditUnavailable;
+
+  /// No description provided for @adminDoctorActor.
+  ///
+  /// In en, this message translates to:
+  /// **'Actor UID'**
+  String get adminDoctorActor;
+
+  /// No description provided for @adminDoctorReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get adminDoctorReason;
+
+  /// No description provided for @adminDoctorPreviousStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous status'**
+  String get adminDoctorPreviousStatus;
+
+  /// No description provided for @adminDoctorNewStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'New status'**
+  String get adminDoctorNewStatus;
+
+  /// No description provided for @adminDoctorApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminDoctorApprove;
+
+  /// No description provided for @adminDoctorReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminDoctorReject;
+
+  /// No description provided for @adminDoctorSuspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get adminDoctorSuspend;
+
+  /// No description provided for @adminDoctorRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get adminDoctorRestore;
+
+  /// No description provided for @adminDoctorActionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get adminDoctorActionReason;
+
+  /// No description provided for @adminDoctorReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a reason to continue.'**
+  String get adminDoctorReasonRequired;
+
+  /// No description provided for @adminDoctorConfirmApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve this doctor? They can provide services after approval.'**
+  String get adminDoctorConfirmApprove;
+
+  /// No description provided for @adminDoctorConfirmReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject this doctor? They will not be able to receive bookings.'**
+  String get adminDoctorConfirmReject;
+
+  /// No description provided for @adminDoctorConfirmSuspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend this doctor? Existing appointments and slots will remain unchanged.'**
+  String get adminDoctorConfirmSuspend;
+
+  /// No description provided for @adminDoctorConfirmRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this doctor? Their approved status will remain unchanged.'**
+  String get adminDoctorConfirmRestore;
+
+  /// No description provided for @adminDoctorActionSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor status updated successfully.'**
+  String get adminDoctorActionSuccess;
+
+  /// No description provided for @adminDoctorActionError.
+  ///
+  /// In en, this message translates to:
+  /// **'The action could not be completed. Refresh the record and retry.'**
+  String get adminDoctorActionError;
+
+  /// No description provided for @adminDoctorDetailsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor details could not be loaded.'**
+  String get adminDoctorDetailsError;
+
+  /// No description provided for @adminDoctorActionApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get adminDoctorActionApprove;
+
+  /// No description provided for @adminDoctorActionReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get adminDoctorActionReject;
+
+  /// No description provided for @adminDoctorActionSuspend.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspend'**
+  String get adminDoctorActionSuspend;
+
+  /// No description provided for @adminDoctorActionRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get adminDoctorActionRestore;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @accountStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account status'**
+  String get accountStatusTitle;
+
+  /// No description provided for @doctorApprovalPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Approval pending'**
+  String get doctorApprovalPendingTitle;
+
+  /// No description provided for @doctorApprovalPendingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your doctor account is awaiting approval. You can sign in again later.'**
+  String get doctorApprovalPendingMessage;
+
+  /// No description provided for @doctorRejectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account not approved'**
+  String get doctorRejectedTitle;
+
+  /// No description provided for @doctorRejectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your doctor account was not approved. Contact support if you believe this is an error.'**
+  String get doctorRejectedMessage;
+
+  /// No description provided for @doctorSuspendedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor account suspended'**
+  String get doctorSuspendedTitle;
+
+  /// No description provided for @doctorSuspendedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Your doctor account is temporarily restricted. Contact support for more information.'**
+  String get doctorSuspendedMessage;
+
+  /// No description provided for @doctorProfileMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account setup incomplete'**
+  String get doctorProfileMissingTitle;
+
+  /// No description provided for @doctorProfileMissingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not verify a doctor profile for your account. Please contact support.'**
+  String get doctorProfileMissingMessage;
+
+  /// No description provided for @doctorAccessUnavailableTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account access unavailable'**
+  String get doctorAccessUnavailableTitle;
+
+  /// No description provided for @doctorAccessUnavailableMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'We could not verify your account access. Please contact support.'**
+  String get doctorAccessUnavailableMessage;
 }
 
 class _AppLocalizationsDelegate

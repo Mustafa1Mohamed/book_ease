@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:book_ease/core/localization/generated/app_localizations.dart';
 
+import '../../domain/entities/doctor_lifecycle_status.dart';
 import '../../domain/entities/user_role.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -12,38 +14,41 @@ class AccountStatusPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AuthCubit>().state;
     final user = state is AuthAuthenticated ? state.user : null;
-    final status = user?.role == UserRole.doctor
-        ? user!.doctorApprovalStatus
-        : DoctorApprovalStatus.unknown;
-    final (title, message) = switch (status) {
-      DoctorApprovalStatus.pending => (
-        'Approval pending',
-        'Your doctor account is awaiting approval. You can sign in again later.',
-      ),
-      DoctorApprovalStatus.rejected => (
-        'Account not approved',
-        'Your doctor account was not approved. Contact support if you believe this is an error.',
-      ),
-      DoctorApprovalStatus.profileMissing => (
-        'Account setup incomplete',
-        'We could not verify a doctor profile for your account. Please contact support.',
-      ),
-      DoctorApprovalStatus.approved => (
-        'Account access unavailable',
-        'We could not verify access to this area. Please sign in again.',
-      ),
-      DoctorApprovalStatus.unknown => (
-        'Account access unavailable',
-        'We could not verify your account access. Please contact support.',
-      ),
-    };
+    final lifecycle = user?.role == UserRole.doctor
+        ? user!.doctorLifecycleStatus
+        : DoctorLifecycleStatus.unknown;
+    final l10n = AppLocalizations.of(context);
+    final (title, message) = lifecycle.isSuspended
+        ? (l10n.doctorSuspendedTitle, l10n.doctorSuspendedMessage)
+        : switch (lifecycle.accountApprovalStatus) {
+            DoctorApprovalStatus.pending => (
+              l10n.doctorApprovalPendingTitle,
+              l10n.doctorApprovalPendingMessage,
+            ),
+            DoctorApprovalStatus.rejected => (
+              l10n.doctorRejectedTitle,
+              l10n.doctorRejectedMessage,
+            ),
+            DoctorApprovalStatus.profileMissing => (
+              l10n.doctorProfileMissingTitle,
+              l10n.doctorProfileMissingMessage,
+            ),
+            DoctorApprovalStatus.approved => (
+              l10n.doctorAccessUnavailableTitle,
+              l10n.doctorAccessUnavailableMessage,
+            ),
+            DoctorApprovalStatus.unknown => (
+              l10n.doctorAccessUnavailableTitle,
+              l10n.doctorAccessUnavailableMessage,
+            ),
+          };
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Account status'),
+        title: Text(l10n.accountStatusTitle),
         actions: [
           IconButton(
-            tooltip: 'Sign out',
+            tooltip: l10n.signOut,
             onPressed: context.read<AuthCubit>().signOut,
             icon: const Icon(Icons.logout_rounded),
           ),

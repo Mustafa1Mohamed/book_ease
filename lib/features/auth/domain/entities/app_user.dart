@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import 'doctor_lifecycle_status.dart';
 import 'user_role.dart';
 
 class AppUser extends Equatable {
@@ -9,7 +10,7 @@ class AppUser extends Equatable {
     required this.email,
     required this.phoneNumber,
     required this.role,
-    this.doctorApprovalStatus = DoctorApprovalStatus.pending,
+    this.doctorLifecycleStatus = DoctorLifecycleStatus.pending,
     this.profileImageUrl = '',
   });
 
@@ -18,7 +19,7 @@ class AppUser extends Equatable {
   final String email;
   final String phoneNumber;
   final UserRole role;
-  final DoctorApprovalStatus doctorApprovalStatus;
+  final DoctorLifecycleStatus doctorLifecycleStatus;
   final String profileImageUrl;
 
   bool get isComplete =>
@@ -31,7 +32,7 @@ class AppUser extends Equatable {
     email,
     phoneNumber,
     role,
-    doctorApprovalStatus,
+    doctorLifecycleStatus,
     profileImageUrl,
   ];
 }

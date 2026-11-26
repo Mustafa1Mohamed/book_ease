@@ -1,4 +1,5 @@
 import '../../domain/entities/featured_doctor.dart';
+import '../../../auth/domain/entities/doctor_lifecycle_status.dart';
 
 abstract final class FeaturedDoctorModel {
   static FeaturedDoctor? fromMap(
@@ -6,6 +7,8 @@ abstract final class FeaturedDoctorModel {
     Map<String, dynamic> data, {
     required Map<String, String> specialtyNamesById,
   }) {
+    if (!DoctorLifecycleStatus.fromDoctorData(data).canOperate) return null;
+
     final fullName = _string(data['fullName']).trim().isNotEmpty
         ? _string(data['fullName']).trim()
         : _string(data['name']).trim();
@@ -34,7 +37,9 @@ abstract final class FeaturedDoctorModel {
       languages: _stringList(data['languages']),
       clinicName: _string(data['clinicName']).trim(),
       clinicAddress: _string(data['clinicAddress']).trim(),
-      consultationDurationMinutes: _integer(data['consultationDurationMinutes']),
+      consultationDurationMinutes: _integer(
+        data['consultationDurationMinutes'],
+      ),
     );
   }
 
@@ -43,9 +48,10 @@ abstract final class FeaturedDoctorModel {
   static List<String> _stringList(Object? value) {
     if (value is! Iterable) return const [];
     return List.unmodifiable(
-      value.whereType<String>().map((item) => item.trim()).where(
-        (item) => item.isNotEmpty,
-      ),
+      value
+          .whereType<String>()
+          .map((item) => item.trim())
+          .where((item) => item.isNotEmpty),
     );
   }
 

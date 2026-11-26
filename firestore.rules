@@ -23,16 +23,146 @@ service cloud.firestore {
           .data.get('role', '') == 'doctor';
     }
 
-    function isDoctorOwner(doctorId) {
+    function isDoctorCheckingOwnMissingProfile(doctorId) {
       let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
       return isDoctor()
-        && doctorId is string
+        && doctorId == request.auth.uid
+        && !exists(doctorPath);
+    }
+
+    function isDoctorReadingOwnLegacyProfile(doctorId) {
+      let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
+      return isDoctor()
+        && doctorId == request.auth.uid
         && exists(doctorPath)
-        && get(doctorPath).data.get('approvalStatus', 'pending') == 'approved'
+        && get(doctorPath).data.get('uid', null) in [null, ''];
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.get('role', '') == 'admin';
+    }
+
+    function isDoctorStatusValid(doctorId) {
+      let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
+      let approvalStatus =
+        get(doctorPath).data.get('approvalStatus', 'pending');
+      let administrativeStatus =
+        get(doctorPath).data.get('administrativeStatus', 'active');
+      return doctorId is string
+        && doctorId.size() > 0
+        && exists(doctorPath)
+        && approvalStatus in ['pending', 'approved', 'rejected']
+        && administrativeStatus in ['active', 'suspended']
         && (
-          doctorId == request.auth.uid
-          || get(doctorPath).data.get('uid', '') == request.auth.uid
+          administrativeStatus != 'suspended'
+          || approvalStatus == 'approved'
         );
+    }
+
+    // Rules can validate the direct link, but cannot query doctors to prove UID uniqueness.
+    function isDoctorProfileIdentityValid(doctorId) {
+      let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
+      let doctorUid = get(doctorPath).data.get('uid', null);
+      let ownerUid =
+        doctorUid is string && doctorUid.size() > 0 ? doctorUid : doctorId;
+      let ownerPath = /databases/$(database)/documents/users/$(ownerUid);
+      let owner = get(ownerPath).data;
+      return doctorId is string
+        && doctorId.size() > 0
+        && exists(doctorPath)
+        && exists(ownerPath)
+        && owner.get('role', '') == 'doctor'
+        && (
+          (
+            doctorUid is string
+            && doctorUid.size() > 0
+            && doctorUid == ownerUid
+            && owner.get('doctorProfileId', doctorId) == doctorId
+          )
+          || (
+            (doctorUid == null || doctorUid == '')
+            && doctorId == ownerUid
+            && !owner.keys().hasAny(['doctorProfileId'])
+          )
+        );
+    }
+
+    function isDoctorProfileOwner(doctorId) {
+      let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
+      let doctorUid = get(doctorPath).data.get('uid', null);
+      let ownerPath =
+        /databases/$(database)/documents/users/$(request.auth.uid);
+      let owner = get(ownerPath).data;
+      return isDoctor()
+        && doctorId is string
+        && doctorId.size() > 0
+        && exists(doctorPath)
+        && exists(ownerPath)
+        && owner.get('role', '') == 'doctor'
+        && (
+          (
+            doctorUid == request.auth.uid
+            && owner.get('doctorProfileId', doctorId) == doctorId
+          )
+          || (
+            (doctorUid == null || doctorUid == '')
+            && doctorId == request.auth.uid
+            && !owner.keys().hasAny(['doctorProfileId'])
+          )
+        );
+    }
+
+    function isApprovedDoctorStatus(doctorId) {
+      return isDoctorStatusValid(doctorId)
+        && get(
+          /databases/$(database)/documents/doctors/$(doctorId)
+        ).data.get('approvalStatus', 'pending') == 'approved';
+    }
+
+    function isActiveApprovedDoctorStatus(doctorId) {
+      return isApprovedDoctorStatus(doctorId)
+        && get(
+          /databases/$(database)/documents/doctors/$(doctorId)
+        ).data.get('administrativeStatus', 'active') == 'active';
+    }
+
+    function isBookableDoctor(doctorId) {
+      return isDoctorProfileIdentityValid(doctorId)
+        && isActiveApprovedDoctorStatus(doctorId);
+    }
+
+    function isApprovedDoctorOwner(doctorId) {
+      return isDoctorProfileOwner(doctorId)
+        && isApprovedDoctorStatus(doctorId);
+    }
+
+    function isOperationalDoctorOwner(doctorId) {
+      return isDoctorProfileOwner(doctorId)
+        && isActiveApprovedDoctorStatus(doctorId);
+    }
+
+    function isPatientCancellationSlotRead(doctorId, slotId) {
+      let appointmentId = resource.data.get('appointmentId', '');
+      let appointmentPath =
+        /databases/$(database)/documents/appointments/$(appointmentId);
+      return isPatient()
+        && appointmentId is string
+        && appointmentId.size() > 0
+        && resource.data.get('isAvailable', true) == false
+        && resource.data.get('startAt', request.time) > request.time
+        && exists(appointmentPath)
+        && get(appointmentPath).data.get('patientId', '') == request.auth.uid
+        && get(appointmentPath).data.get('doctorId', '') == doctorId
+        && get(appointmentPath).data.get('slotId', '') == slotId
+        && get(appointmentPath).data.get('status', '')
+          in ['confirmed', 'pending', 'scheduled', 'booked']
+        && get(appointmentPath).data.get('appointmentAt', request.time)
+          > request.time
+        && get(appointmentPath).data.get('appointmentAt', null)
+          == resource.data.get('startAt', null);
     }
 
     function isCancellationSlotRelease(doctorId, slotId) {
@@ -69,7 +199,7 @@ service cloud.firestore {
     }
 
     function isDoctorCompletion() {
-      return isDoctorOwner(resource.data.get('doctorId', ''))
+      return isOperationalDoctorOwner(resource.data.get('doctorId', ''))
         && resource.data.get('status', '') == 'confirmed'
         && resource.data.get('appointmentAt', null) is timestamp
         && resource.data.get('appointmentEndAt', null) is timestamp
@@ -84,7 +214,7 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if isOwner(uid);
+      allow read: if isOwner(uid) || isAdmin();
       allow create: if isOwner(uid)
         && request.resource.data.keys().hasOnly([
           'uid', 'fullName', 'email', 'phoneNumber', 'role',
@@ -140,12 +270,22 @@ service cloud.firestore {
     }
 
     match /specialties/{specialtyId} {
-      allow read: if isPatient();
+      allow read: if isPatient() || isAdmin();
       allow write: if false;
     }
 
     match /doctors/{doctorId} {
-      allow read: if isPatient()
+      allow get: if isAdmin()
+        || isDoctorCheckingOwnMissingProfile(doctorId)
+        || isDoctorReadingOwnLegacyProfile(doctorId)
+        || isDoctorProfileOwner(doctorId)
+        || (isPatient() && isBookableDoctor(doctorId));
+      allow list: if isAdmin()
+        || (
+          isPatient()
+          && resource.data.get('approvalStatus', 'pending') == 'approved'
+          && resource.data.get('administrativeStatus', 'active') == 'active'
+        )
         || (
           isDoctor()
           && resource.data.get('uid', '') == request.auth.uid
@@ -153,14 +293,19 @@ service cloud.firestore {
         || (
           isDoctor()
           && doctorId == request.auth.uid
-          && resource.data.get('uid', '') == ''
+          && (
+            resource.data.get('uid', null) == null
+            || resource.data.get('uid', '') == ''
+          )
         );
       allow create, delete: if false;
-      allow update: if isDoctorOwner(doctorId)
+      allow update: if isApprovedDoctorOwner(doctorId)
         && request.resource.data.get('uid', '')
           == resource.data.get('uid', '')
         && request.resource.data.get('approvalStatus', '')
           == resource.data.get('approvalStatus', '')
+        && request.resource.data.get('administrativeStatus', '')
+          == resource.data.get('administrativeStatus', '')
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'profileImageUrl', 'updatedAt'
         ])
@@ -168,11 +313,20 @@ service cloud.firestore {
         && request.resource.data.get('updatedAt', null) == request.time;
 
       match /availabilitySlots/{slotId} {
-        allow read: if isPatient() || isDoctorOwner(doctorId);
+        allow get: if isBookableDoctor(doctorId)
+          || isOperationalDoctorOwner(doctorId)
+          || isPatientCancellationSlotRead(doctorId, slotId)
+          || (isPatient() && !exists(
+            /databases/$(database)/documents/doctors/$(doctorId)/availabilitySlots/$(slotId)
+          ));
+        allow list: if isBookableDoctor(doctorId)
+          || isOperationalDoctorOwner(doctorId);
         allow create, delete: if false;
         allow update: if isPatient()
           && (
             (
+              isBookableDoctor(doctorId)
+              &&
               resource.data.get('isAvailable', false) == true
               && resource.data.get('startAt', request.time) > request.time
               && request.resource.data.get('isAvailable', true) == false
@@ -209,9 +363,9 @@ service cloud.firestore {
     }
 
     match /appointments/{appointmentId} {
-      allow read: if (
+      allow read: if isAdmin() || (
         isPatient() && resource.data.get('patientId', '') == request.auth.uid
-      ) || isDoctorOwner(resource.data.get('doctorId', ''));
+      ) || isOperationalDoctorOwner(resource.data.get('doctorId', ''));
       allow create: if isPatient()
         && request.resource.data.keys().hasOnly([
           'patientId', 'patientName', 'patientImageUrl', 'patientPhoneNumber',
@@ -258,6 +412,7 @@ service cloud.firestore {
         && request.resource.data.consultationFee is number
         && request.resource.data.doctorId is string
         && request.resource.data.slotId is string
+        && isBookableDoctor(request.resource.data.doctorId)
         && request.resource.data.doctorName == (
           get(
             /databases/$(database)/documents/doctors/$(request.resource.data.doctorId)
@@ -334,6 +489,11 @@ service cloud.firestore {
         )
         || isDoctorCompletion();
       allow delete: if false;
+    }
+
+    match /doctor_admin_audit/{operationId} {
+      allow read: if isAdmin();
+      allow write: if false;
     }
   }
 }

@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/firebase/doctor_profile_resolver.dart';
+import '../../../auth/domain/entities/doctor_lifecycle_status.dart';
 import '../../../home/data/models/featured_doctor_model.dart';
 import '../../../my_appointments/data/models/my_appointment_model.dart';
 import '../../../my_appointments/domain/entities/my_appointment.dart';
@@ -41,7 +43,7 @@ class DoctorDashboardRemoteDataSource {
         );
       }
 
-      final appointments = await _loadAppointments(doctor.id, uid);
+      final appointments = await _loadAppointments(doctor.id);
       return DoctorDashboardData(doctor: doctor, appointments: appointments);
     } on DoctorDashboardException {
       rethrow;
@@ -53,22 +55,13 @@ class DoctorDashboardRemoteDataSource {
     }
   }
 
-  Future<List<MyAppointment>> _loadAppointments(
-    String doctorId,
-    String uid,
-  ) async {
+  Future<List<MyAppointment>> _loadAppointments(String doctorId) async {
     final collection = _firestore.collection('appointments');
-    final queries = <Future<QuerySnapshot<Map<String, dynamic>>>>[
-      collection.where('doctorId', isEqualTo: doctorId).get(),
-      if (doctorId != uid) collection.where('doctorId', isEqualTo: uid).get(),
-    ];
-    final snapshots = await Future.wait(queries);
-    final documents = {
-      for (final snapshot in snapshots)
-        for (final document in snapshot.docs) document.id: document,
-    }.values;
+    final snapshot = await collection
+        .where('doctorId', isEqualTo: doctorId)
+        .get();
     final appointments =
-        documents
+        snapshot.docs
             .map(
               (document) =>
                   MyAppointmentModel.fromMap(document.id, document.data()),
@@ -91,8 +84,7 @@ class DoctorDashboardRemoteDataSource {
           .doc(appointmentId)
           .get();
       final data = snapshot.data();
-      if (data == null ||
-          (data['doctorId'] != doctor.id && data['doctorId'] != uid)) {
+      if (data == null || data['doctorId'] != doctor.id) {
         return null;
       }
       return MyAppointmentModel.fromMap(snapshot.id, data);
@@ -123,12 +115,20 @@ class DoctorDashboardRemoteDataSource {
         final userSnapshot = await transaction.get(userRef);
         final doctorSnapshot = await transaction.get(doctorRef);
         final appointmentSnapshot = await transaction.get(appointmentRef);
+        final userData = userSnapshot.data();
+        final doctorData = doctorSnapshot.data();
         final data = appointmentSnapshot.data();
-        if (userSnapshot.data()?['role'] != 'doctor' ||
-            !_ownsDoctorProfile(doctorSnapshot, uid) ||
-            doctorSnapshot.data()?['approvalStatus'] != 'approved' ||
+        if (userData == null ||
+            doctorData == null ||
+            !DoctorProfileResolver.isLinkedProfile(
+              uid: uid,
+              doctorId: doctor.id,
+              userData: userData,
+              doctorData: doctorData,
+            ) ||
+            !DoctorLifecycleStatus.fromDoctorData(doctorData).canOperate ||
             data == null ||
-            (data['doctorId'] != doctor.id && data['doctorId'] != uid)) {
+            data['doctorId'] != doctor.id) {
           throw const DoctorDashboardException('Appointment was not found.');
         }
         final appointment = MyAppointmentModel.fromMap(
@@ -170,15 +170,17 @@ class DoctorDashboardRemoteDataSource {
     String uid,
   ) async {
     final user = await _firestore.collection('users').doc(uid).get();
-    if (user.data()?['role'] != 'doctor') {
+    final userData = user.data();
+    if (userData?['role'] != 'doctor') {
       throw const DoctorDashboardException(
         'This dashboard is only available to doctor accounts.',
       );
     }
-    final doctor = await _resolveDoctor(uid);
-    if (doctor.data()?['approvalStatus'] != 'approved') {
+    final doctor = await _resolveDoctor(uid, userData);
+    final lifecycle = DoctorLifecycleStatus.fromDoctorData(doctor.data());
+    if (!lifecycle.canOperate) {
       throw const DoctorDashboardException(
-        'This doctor account is not approved to access the dashboard.',
+        'This doctor account is not active and approved to access the dashboard.',
       );
     }
     return doctor;
@@ -186,35 +188,15 @@ class DoctorDashboardRemoteDataSource {
 
   Future<DocumentSnapshot<Map<String, dynamic>>> _resolveDoctor(
     String uid,
+    Map<String, dynamic>? userData,
   ) async {
-    final matches = await _firestore
-        .collection('doctors')
-        .where('uid', isEqualTo: uid)
-        .limit(2)
-        .get();
-    if (matches.docs.length > 1) {
+    final doctor = await DoctorProfileResolver(_firestore)
+        .resolve(uid: uid, userData: userData);
+    if (doctor == null) {
       throw const DoctorDashboardException(
-        'More than one doctor profile is linked to this account.',
+        'A unique doctor profile is not linked to this account.',
       );
     }
-    if (matches.docs case [final doctor]) return doctor;
-
-    final direct = await _firestore.collection('doctors').doc(uid).get();
-    if (_ownsDoctorProfile(direct, uid)) return direct;
-    throw const DoctorDashboardException(
-      'A doctor profile is not linked to this account.',
-    );
+    return doctor;
   }
-
-  bool _ownsDoctorProfile(
-    DocumentSnapshot<Map<String, dynamic>> snapshot,
-    String uid,
-  ) {
-    final data = snapshot.data();
-    if (data == null) return false;
-    final ownerUid = _string(data['uid']);
-    return ownerUid.isEmpty ? snapshot.id == uid : ownerUid == uid;
-  }
-
-  String _string(Object? value) => value is String ? value.trim() : '';
 }

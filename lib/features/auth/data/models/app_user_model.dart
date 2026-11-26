@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../domain/entities/app_user.dart';
+import '../../domain/entities/doctor_lifecycle_status.dart';
 import '../../domain/entities/user_role.dart';
 
 class AppUserModel extends AppUser {
@@ -10,7 +11,7 @@ class AppUserModel extends AppUser {
     required super.email,
     required super.phoneNumber,
     required super.role,
-    super.doctorApprovalStatus,
+    super.doctorLifecycleStatus = DoctorLifecycleStatus.pending,
     super.profileImageUrl = '',
   });
 
@@ -24,21 +25,18 @@ class AppUserModel extends AppUser {
       email: (data['email'] as String?)?.trim() ?? '',
       phoneNumber: (data['phoneNumber'] as String?)?.trim() ?? '',
       role: UserRole.fromFirestore(data['role']),
-      doctorApprovalStatus: DoctorApprovalStatus.fromFirestore(
-        data['approvalStatus'],
-      ),
       profileImageUrl: (data['profileImageUrl'] as String?)?.trim() ?? '',
     );
   }
 
-  AppUserModel withDoctorApprovalStatus(DoctorApprovalStatus status) =>
+  AppUserModel withDoctorLifecycleStatus(DoctorLifecycleStatus status) =>
       AppUserModel(
         uid: uid,
         fullName: fullName,
         email: email,
         phoneNumber: phoneNumber,
         role: role,
-        doctorApprovalStatus: status,
+        doctorLifecycleStatus: status,
         profileImageUrl: profileImageUrl,
       );
 

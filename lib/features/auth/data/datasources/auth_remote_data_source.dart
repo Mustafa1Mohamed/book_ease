@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../../core/firebase/doctor_profile_resolver.dart';
+import '../../domain/entities/doctor_lifecycle_status.dart';
 import '../../domain/entities/user_role.dart';
 import '../models/app_user_model.dart';
 
@@ -72,12 +74,20 @@ class AuthRemoteDataSource {
                 currentProfile != profileVersion) {
               return;
             }
-            final status = _isLinkedDoctor(doctorSnapshot, user.uid)
-                ? DoctorApprovalStatus.fromFirestore(
-                    doctorSnapshot.data()?['approvalStatus'],
-                  )
-                : DoctorApprovalStatus.profileMissing;
-            controller.add(profile.withDoctorApprovalStatus(status));
+            final doctorData = doctorSnapshot.data();
+            final userData = result.userData;
+            final status =
+                doctorData != null &&
+                    userData != null &&
+                    DoctorProfileResolver.isLinkedProfile(
+                      uid: user.uid,
+                      doctorId: doctorSnapshot.id,
+                      userData: userData,
+                      doctorData: doctorData,
+                    )
+                ? DoctorLifecycleStatus.fromDoctorData(doctorData)
+                : DoctorLifecycleStatus.profileMissing;
+            controller.add(profile.withDoctorLifecycleStatus(status));
           }, onError: controller.addError);
         } catch (error, stackTrace) {
           if (currentSession == sessionVersion &&
@@ -223,7 +233,11 @@ class AuthRemoteDataSource {
   }
 
   Future<
-    ({AppUserModel? profile, DocumentSnapshot<Map<String, dynamic>>? doctor})
+    ({
+      AppUserModel? profile,
+      DocumentSnapshot<Map<String, dynamic>>? doctor,
+      Map<String, dynamic>? userData,
+    })
   >
   _resolveProfile(
     String uid, [
@@ -231,7 +245,9 @@ class AuthRemoteDataSource {
   ]) async {
     final profileRef = _firestore.collection('users').doc(uid);
     final snapshot = initialSnapshot ?? await profileRef.get();
-    if (!snapshot.exists) return (profile: null, doctor: null);
+    if (!snapshot.exists) {
+      return (profile: null, doctor: null, userData: null);
+    }
     final rawRole = snapshot.data()?['role'];
     var currentSnapshot = snapshot;
     if (rawRole == null || (rawRole is String && rawRole.trim().isEmpty)) {
@@ -249,64 +265,33 @@ class AuthRemoteDataSource {
       });
       currentSnapshot = await profileRef.get();
     }
-    if (!currentSnapshot.exists) return (profile: null, doctor: null);
+    if (!currentSnapshot.exists) {
+      return (profile: null, doctor: null, userData: null);
+    }
+    final userData = currentSnapshot.data();
     final profile = AppUserModel.fromFirestore(currentSnapshot);
     if (profile.role != UserRole.doctor) {
-      return (profile: profile, doctor: null);
+      return (profile: profile, doctor: null, userData: userData);
     }
 
-    final doctor = await _findDoctorProfile(uid, currentSnapshot.data());
+    final doctor = await DoctorProfileResolver(_firestore)
+        .resolve(uid: uid, userData: userData);
     if (doctor == null) {
       return (
-        profile: profile.withDoctorApprovalStatus(
-          DoctorApprovalStatus.profileMissing,
+        profile: profile.withDoctorLifecycleStatus(
+          DoctorLifecycleStatus.profileMissing,
         ),
         doctor: null,
+        userData: userData,
       );
     }
     return (
-      profile: profile.withDoctorApprovalStatus(
-        DoctorApprovalStatus.fromFirestore(doctor.data()?['approvalStatus']),
+      profile: profile.withDoctorLifecycleStatus(
+        DoctorLifecycleStatus.fromDoctorData(doctor.data()),
       ),
       doctor: doctor,
+      userData: userData,
     );
-  }
-
-  Future<DocumentSnapshot<Map<String, dynamic>>?> _findDoctorProfile(
-    String uid,
-    Map<String, dynamic>? userData,
-  ) async {
-    final linkedId = userData?['doctorProfileId'];
-    if (linkedId is String && linkedId.trim().isNotEmpty) {
-      final linked = await _firestore
-          .collection('doctors')
-          .doc(linkedId.trim())
-          .get();
-      if (_isLinkedDoctor(linked, uid)) return linked;
-      return null;
-    }
-
-    final matches = await _firestore
-        .collection('doctors')
-        .where('uid', isEqualTo: uid)
-        .limit(2)
-        .get();
-    if (matches.docs.length > 1) return null;
-    if (matches.docs case [final doctor]) return doctor;
-
-    final legacy = await _firestore.collection('doctors').doc(uid).get();
-    return _isLinkedDoctor(legacy, uid) ? legacy : null;
-  }
-
-  bool _isLinkedDoctor(
-    DocumentSnapshot<Map<String, dynamic>> doctor,
-    String uid,
-  ) {
-    final data = doctor.data();
-    if (data == null) return false;
-    final linkedUid = data['uid'];
-    return (linkedUid is String && linkedUid == uid) ||
-        ((linkedUid == null || linkedUid == '') && doctor.id == uid);
   }
 
   Future<AppUserModel> completeProfile({

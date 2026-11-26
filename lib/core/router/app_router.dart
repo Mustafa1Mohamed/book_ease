@@ -12,9 +12,14 @@ import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/profile_completion_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/pages/account_status_page.dart';
-import '../../features/auth/presentation/pages/admin_dashboard_placeholder_page.dart';
 import '../../features/auth/domain/entities/app_user.dart';
 import '../../features/auth/domain/entities/user_role.dart';
+import '../../features/admin/presentation/cubit/admin_dashboard_cubit.dart';
+import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
+import '../../features/admin/presentation/cubit/admin_doctor_list_cubit.dart';
+import '../../features/admin/presentation/cubit/admin_doctor_details_cubit.dart';
+import '../../features/admin/presentation/pages/admin_doctor_list_page.dart';
+import '../../features/admin/presentation/pages/admin_doctor_details_page.dart';
 import '../../features/explore/presentation/cubit/explore_cubit.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/doctors/presentation/cubit/doctor_details_cubit.dart';
@@ -61,6 +66,8 @@ abstract final class AppRouter {
   static const profileComplete = 'profile-complete';
   static const accountStatus = 'account-status';
   static const adminDashboard = 'admin-dashboard';
+  static const adminDoctors = 'admin-doctors';
+  static const adminDoctorDetails = 'admin-doctor-details';
   static const home = 'home';
   static const explore = 'explore';
   static const appointments = 'appointments';
@@ -119,7 +126,7 @@ abstract final class AppRouter {
     return switch (user.role) {
       UserRole.patient => '/home',
       UserRole.doctor =>
-        user.doctorApprovalStatus == DoctorApprovalStatus.approved
+        user.doctorLifecycleStatus.canOperate
             ? '/doctor-dashboard'
             : '/account-status',
       UserRole.admin => '/admin',
@@ -147,7 +154,7 @@ abstract final class AppRouter {
         }
         return isPatientArea ? null : _defaultLocationFor(user);
       case UserRole.doctor:
-        if (user.doctorApprovalStatus != DoctorApprovalStatus.approved) {
+        if (!user.doctorLifecycleStatus.canOperate) {
           return isAccountStatus ? null : _defaultLocationFor(user);
         }
         return isDoctorArea ? null : _defaultLocationFor(user);
@@ -207,7 +214,35 @@ abstract final class AppRouter {
       GoRoute(
         path: '/admin',
         name: adminDashboard,
-        builder: (_, _) => const AdminDashboardPlaceholderPage(),
+        builder: (_, _) => BlocProvider(
+          create: (_) => GetIt.instance<AdminDashboardCubit>()..load(),
+          child: const AdminDashboardPage(),
+        ),
+        routes: [
+          GoRoute(
+            path: 'doctors',
+            name: adminDoctors,
+            builder: (_, _) => BlocProvider(
+              create: (_) => GetIt.instance<AdminDoctorListCubit>()..load(),
+              child: const AdminDoctorListPage(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':doctorId',
+                name: adminDoctorDetails,
+                builder: (_, state) {
+                  final doctorId = state.pathParameters['doctorId'] ?? '';
+                  return BlocProvider(
+                    create: (_) =>
+                        GetIt.instance<AdminDoctorDetailsCubit>()
+                          ..load(doctorId),
+                    child: AdminDoctorDetailsPage(doctorId: doctorId),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/doctor-dashboard',

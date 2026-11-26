@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
+import '../../../auth/domain/entities/doctor_lifecycle_status.dart';
 import '../../domain/entities/appointment_slot.dart';
 import '../../domain/entities/booking_confirmation.dart';
 import '../../domain/errors/booking_exception.dart';
@@ -52,10 +53,7 @@ class BookingRemoteDataSource {
             'startAt',
             isGreaterThanOrEqualTo: Timestamp.fromDate(startOfDay),
           )
-          .where(
-            'startAt',
-            isLessThan: Timestamp.fromDate(startOfNextDay),
-          )
+          .where('startAt', isLessThan: Timestamp.fromDate(startOfNextDay))
           .orderBy('startAt')
           .get();
       final now = DateTime.now();
@@ -108,6 +106,11 @@ class BookingRemoteDataSource {
         }
         if (!doctorSnapshot.exists || doctor == null) {
           throw const BookingException('This doctor is no longer available.');
+        }
+        if (!DoctorLifecycleStatus.fromDoctorData(doctor).canOperate) {
+          throw const BookingException(
+            'This doctor is not available for new appointments.',
+          );
         }
         if (!slotSnapshot.exists || slotData == null) {
           throw const BookingException(

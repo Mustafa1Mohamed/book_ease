@@ -32,10 +32,7 @@ enum DoctorApprovalStatus {
   unknown;
 
   static DoctorApprovalStatus fromFirestore(Object? value) {
-    if (value == null) return DoctorApprovalStatus.pending;
-    if (value is! String) return DoctorApprovalStatus.unknown;
-    if (value.trim().isEmpty) return DoctorApprovalStatus.pending;
-    return switch (value.trim().toLowerCase()) {
+    return switch (value) {
       'pending' => DoctorApprovalStatus.pending,
       'approved' => DoctorApprovalStatus.approved,
       'rejected' => DoctorApprovalStatus.rejected,

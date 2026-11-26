@@ -1,12 +1,35 @@
 const { getAuth } = require('firebase-admin/auth');
 const { initializeApp, getApps } = require('firebase-admin/app');
+const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 const { logger } = require('firebase-functions');
 const { onUserCreated } = require('firebase-functions/v2/identity');
+const { HttpsError, onCall } = require('firebase-functions/v2/https');
 
 const { withSupabaseAuthenticatedRole } = require('./src/custom-claims');
+const { createDoctorAdminCallable } = require('./src/doctor-admin/callable');
+const {
+  createDoctorAdminService,
+} = require('./src/doctor-admin/doctor-admin-service');
 
 if (getApps().length === 0) {
   initializeApp();
+}
+
+const doctorAdminService = createDoctorAdminService({
+  db: getFirestore(),
+  serverTimestamp: () => FieldValue.serverTimestamp(),
+});
+
+for (const action of ['approve', 'reject', 'suspend', 'restore']) {
+  exports[`${action}Doctor`] = onCall(
+    { region: 'us-central1' },
+    createDoctorAdminCallable({
+      service: doctorAdminService,
+      action,
+      HttpsError,
+      logger,
+    }),
+  );
 }
 
 exports.assignSupabaseAuthenticatedRole = onUserCreated(

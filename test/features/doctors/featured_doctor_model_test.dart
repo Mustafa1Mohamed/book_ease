@@ -3,18 +3,24 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('maps optional doctor details without inventing missing content', () {
-    final doctor = FeaturedDoctorModel.fromMap('doctor-1', {
-      'fullName': 'Dr. Morgan Lee',
-      'specialtyId': 'cardiology',
-      'biography': 'Cardiologist with a patient-first approach.',
-      'qualifications': ['MD', 'Board certified'],
-      'yearsExperience': 12,
-      'languages': ['English', 'French'],
-      'clinicName': 'North Clinic',
-      'clinicAddress': '12 Main Street',
-      'consultationDurationMinutes': 30,
-      'reviewCount': 42,
-    }, specialtyNamesById: const {'cardiology': 'Cardiology'});
+    final doctor = FeaturedDoctorModel.fromMap(
+      'doctor-1',
+      {
+        'approvalStatus': 'approved',
+        'administrativeStatus': 'active',
+        'fullName': 'Dr. Morgan Lee',
+        'specialtyId': 'cardiology',
+        'biography': 'Cardiologist with a patient-first approach.',
+        'qualifications': ['MD', 'Board certified'],
+        'yearsExperience': 12,
+        'languages': ['English', 'French'],
+        'clinicName': 'North Clinic',
+        'clinicAddress': '12 Main Street',
+        'consultationDurationMinutes': 30,
+        'reviewCount': 42,
+      },
+      specialtyNamesById: const {'cardiology': 'Cardiology'},
+    );
 
     expect(doctor, isNotNull);
     expect(doctor!.specialtyName, 'Cardiology');
@@ -27,6 +33,8 @@ void main() {
 
   test('rejects malformed optional detail values safely', () {
     final doctor = FeaturedDoctorModel.fromMap('doctor-2', {
+      'approvalStatus': 'approved',
+      'administrativeStatus': 'active',
       'name': 'Dr. Avery',
       'qualifications': 'not a list',
       'yearsExperience': -3,

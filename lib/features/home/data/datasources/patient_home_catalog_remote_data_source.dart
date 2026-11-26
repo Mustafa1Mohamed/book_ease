@@ -20,6 +20,8 @@ class PatientHomeCatalogRemoteDataSource {
             _firestore
                 .collection('doctors')
                 .where('isFeatured', isEqualTo: true)
+                .where('approvalStatus', isEqualTo: 'approved')
+                .where('administrativeStatus', isEqualTo: 'active')
                 .get(),
           ),
         ]);

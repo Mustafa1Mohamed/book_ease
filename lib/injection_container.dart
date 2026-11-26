@@ -57,6 +57,21 @@ import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_a
 import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_dashboard.dart';
 import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_appointment_details_cubit.dart';
 import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_dashboard_remote_data_source.dart';
+import 'package:book_ease/features/admin/data/repositories/admin_dashboard_repository_impl.dart';
+import 'package:book_ease/features/admin/domain/repositories/admin_dashboard_repository.dart';
+import 'package:book_ease/features/admin/domain/usecases/get_admin_dashboard_stats.dart';
+import 'package:book_ease/features/admin/presentation/cubit/admin_dashboard_cubit.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_actions_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_actions_remote_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_details_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_details_remote_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_list_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_doctor_remote_data_source.dart';
+import 'package:book_ease/features/admin/data/repositories/admin_doctor_repository_impl.dart';
+import 'package:book_ease/features/admin/domain/repositories/admin_doctor_repository.dart';
+import 'package:book_ease/features/admin/presentation/cubit/admin_doctor_details_cubit.dart';
+import 'package:book_ease/features/admin/presentation/cubit/admin_doctor_list_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
@@ -77,7 +92,10 @@ Future<void> setupDependencies() async {
       getIt.isRegistered<MyAppointmentsCubit>() &&
       getIt.isRegistered<AppointmentDetailsCubit>() &&
       getIt.isRegistered<DoctorDashboardCubit>() &&
-      getIt.isRegistered<DoctorAppointmentDetailsCubit>()) {
+      getIt.isRegistered<DoctorAppointmentDetailsCubit>() &&
+      getIt.isRegistered<AdminDashboardCubit>() &&
+      getIt.isRegistered<AdminDoctorListCubit>() &&
+      getIt.isRegistered<AdminDoctorDetailsCubit>()) {
     return;
   }
 
@@ -459,6 +477,81 @@ Future<void> setupDependencies() async {
         getIt<CompleteDoctorAppointment>(),
         getIt<DoctorAppointmentPolicy>(),
       ),
+    );
+  }
+
+  if (!getIt.isRegistered<AdminDashboardRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminDashboardRemoteDataSource>(
+      () => AdminDashboardRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+
+  if (!getIt.isRegistered<AdminDashboardRepository>()) {
+    getIt.registerLazySingleton<AdminDashboardRepository>(
+      () =>
+          AdminDashboardRepositoryImpl(getIt<AdminDashboardRemoteDataSource>()),
+    );
+  }
+
+  if (!getIt.isRegistered<GetAdminDashboardStats>()) {
+    getIt.registerLazySingleton<GetAdminDashboardStats>(
+      () => GetAdminDashboardStats(getIt<AdminDashboardRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<AdminDashboardCubit>()) {
+    getIt.registerFactory<AdminDashboardCubit>(
+      () => AdminDashboardCubit(getIt<GetAdminDashboardStats>()),
+    );
+  }
+
+  if (!getIt.isRegistered<AdminDoctorRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorRemoteDataSource>(
+      () => AdminDoctorRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorListDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorListDataSource>(
+      () => getIt<AdminDoctorRemoteDataSource>(),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorDetailsRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorDetailsRemoteDataSource>(
+      () => AdminDoctorDetailsRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorDetailsDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorDetailsDataSource>(
+      () => getIt<AdminDoctorDetailsRemoteDataSource>(),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorActionsRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorActionsRemoteDataSource>(
+      AdminDoctorActionsRemoteDataSource.new,
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorActionsDataSource>()) {
+    getIt.registerLazySingleton<AdminDoctorActionsDataSource>(
+      () => getIt<AdminDoctorActionsRemoteDataSource>(),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorRepository>()) {
+    getIt.registerLazySingleton<AdminDoctorRepository>(
+      () => AdminDoctorRepositoryImpl(
+        getIt<AdminDoctorListDataSource>(),
+        getIt<AdminDoctorDetailsDataSource>(),
+        getIt<AdminDoctorActionsDataSource>(),
+      ),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorListCubit>()) {
+    getIt.registerFactory<AdminDoctorListCubit>(
+      () => AdminDoctorListCubit(getIt<AdminDoctorRepository>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorDetailsCubit>()) {
+    getIt.registerFactory<AdminDoctorDetailsCubit>(
+      () => AdminDoctorDetailsCubit(getIt<AdminDoctorRepository>()),
     );
   }
 }

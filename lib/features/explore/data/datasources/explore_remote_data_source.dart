@@ -17,7 +17,13 @@ class ExploreRemoteDataSource implements ExploreDataSource {
   Future<ExploreCatalog> loadCatalog() async {
     final results = await Future.wait<_QueryResult>([
       _loadQuery(_firestore.collection('specialties').get()),
-      _loadQuery(_firestore.collection('doctors').get()),
+      _loadQuery(
+        _firestore
+            .collection('doctors')
+            .where('approvalStatus', isEqualTo: 'approved')
+            .where('administrativeStatus', isEqualTo: 'active')
+            .get(),
+      ),
     ]);
 
     final specialties =
