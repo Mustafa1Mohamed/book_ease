@@ -18,8 +18,13 @@ import '../../features/admin/presentation/cubit/admin_dashboard_cubit.dart';
 import '../../features/admin/presentation/pages/admin_dashboard_page.dart';
 import '../../features/admin/presentation/cubit/admin_doctor_list_cubit.dart';
 import '../../features/admin/presentation/cubit/admin_doctor_details_cubit.dart';
+import '../../features/admin/domain/entities/admin_doctor_filter.dart';
 import '../../features/admin/presentation/pages/admin_doctor_list_page.dart';
 import '../../features/admin/presentation/pages/admin_doctor_details_page.dart';
+import '../../features/admin/presentation/cubit/admin_patient_list_cubit.dart';
+import '../../features/admin/presentation/cubit/admin_patient_details_cubit.dart';
+import '../../features/admin/presentation/pages/admin_patient_list_page.dart';
+import '../../features/admin/presentation/pages/admin_patient_details_page.dart';
 import '../../features/explore/presentation/cubit/explore_cubit.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/doctors/presentation/cubit/doctor_details_cubit.dart';
@@ -68,6 +73,8 @@ abstract final class AppRouter {
   static const adminDashboard = 'admin-dashboard';
   static const adminDoctors = 'admin-doctors';
   static const adminDoctorDetails = 'admin-doctor-details';
+  static const adminPatients = 'admin-patients';
+  static const adminPatientDetails = 'admin-patient-details';
   static const home = 'home';
   static const explore = 'explore';
   static const appointments = 'appointments';
@@ -220,12 +227,45 @@ abstract final class AppRouter {
         ),
         routes: [
           GoRoute(
+            path: 'patients',
+            name: adminPatients,
+            builder: (_, _) => BlocProvider(
+              create: (_) => GetIt.instance<AdminPatientListCubit>()..load(),
+              child: const AdminPatientListPage(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':patientId',
+                name: adminPatientDetails,
+                builder: (_, state) {
+                  final patientId = state.pathParameters['patientId'] ?? '';
+                  return BlocProvider(
+                    create: (_) =>
+                        GetIt.instance<AdminPatientDetailsCubit>()
+                          ..load(patientId),
+                    child: AdminPatientDetailsPage(patientId: patientId),
+                  );
+                },
+              ),
+            ],
+          ),
+          GoRoute(
             path: 'doctors',
             name: adminDoctors,
-            builder: (_, _) => BlocProvider(
-              create: (_) => GetIt.instance<AdminDoctorListCubit>()..load(),
-              child: const AdminDoctorListPage(),
-            ),
+            builder: (_, state) {
+              final initialFilter =
+                  switch (state.uri.queryParameters['filter']) {
+                    'pending' => AdminDoctorFilter.pending,
+                    'approved' => AdminDoctorFilter.approved,
+                    _ => AdminDoctorFilter.all,
+                  };
+              return BlocProvider(
+                create: (_) =>
+                    GetIt.instance<AdminDoctorListCubit>()
+                      ..load(initialFilter: initialFilter),
+                child: const AdminDoctorListPage(),
+              );
+            },
             routes: [
               GoRoute(
                 path: ':doctorId',

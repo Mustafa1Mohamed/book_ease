@@ -11,7 +11,18 @@ class AdminDoctorListCubit extends Cubit<AdminDoctorListState> {
   final AdminDoctorRepository _repository;
   int _request = 0;
 
-  Future<void> load() async {
+  Future<void> load({AdminDoctorFilter? initialFilter}) async {
+    if (initialFilter != null && initialFilter != state.filter) {
+      emit(
+        state.copyWith(
+          filter: initialFilter,
+          doctors: const [],
+          clearCursor: true,
+          hasMore: false,
+          isLoadingMore: false,
+        ),
+      );
+    }
     final request = ++_request;
     emit(state.copyWith(isLoading: state.doctors.isEmpty, hasError: false));
     await _loadSpecialties(request);

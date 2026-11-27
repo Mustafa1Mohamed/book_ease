@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 import '../../../../core/firebase/doctor_profile_resolver.dart';
-import '../../../auth/domain/entities/user_role.dart';
 import '../../domain/entities/admin_doctor.dart';
 import '../../domain/entities/admin_doctor_filter.dart';
 import '../../domain/errors/admin_doctor_exception.dart';
@@ -52,9 +51,7 @@ class AdminDoctorRemoteDataSource implements AdminDoctorListDataSource {
       final snapshot = await query.limit(_pageSize + 1).get();
       var documents = snapshot.docs.take(_pageSize).toList();
 
-      if (field == 'fullName' &&
-          documents.isEmpty &&
-          cursor?.sortField != 'name') {
+      if (field == 'fullName' && documents.isEmpty && cursor == null) {
         return await _searchLegacyNames(queryText, filter, specialtyId, null);
       }
       if (field == 'name') {
@@ -74,9 +71,7 @@ class AdminDoctorRemoteDataSource implements AdminDoctorListDataSource {
       final filteredDoctors = doctors
           .where((doctor) => _matchesFilter(doctor, filter, specialtyId))
           .toList(growable: false);
-      final hasMore = field == 'fullName'
-          ? true
-          : snapshot.docs.length > _pageSize;
+      final hasMore = snapshot.docs.length > _pageSize;
       final nextCursor = documents.isEmpty
           ? cursor
           : AdminDoctorCursor(
@@ -271,18 +266,7 @@ class AdminDoctorRemoteDataSource implements AdminDoctorListDataSource {
     AdminDoctorFilter filter,
     String specialtyId,
   ) {
-    final statusMatches = switch (filter) {
-      AdminDoctorFilter.all => true,
-      AdminDoctorFilter.pending =>
-        doctor.lifecycle.isValid &&
-            doctor.lifecycle.approvalStatus == DoctorApprovalStatus.pending,
-      AdminDoctorFilter.approved => doctor.lifecycle.canOperate,
-      AdminDoctorFilter.rejected =>
-        doctor.lifecycle.isValid &&
-            doctor.lifecycle.approvalStatus == DoctorApprovalStatus.rejected,
-      AdminDoctorFilter.suspended => doctor.lifecycle.isSuspended,
-    };
-    return statusMatches &&
+    return filter.matchesLifecycle(doctor) &&
         (specialtyId.isEmpty || doctor.specialtyId == specialtyId);
   }
 }

@@ -5,6 +5,7 @@ import 'package:book_ease/features/admin/domain/usecases/get_admin_dashboard_sta
 import 'package:book_ease/features/admin/presentation/cubit/admin_dashboard_cubit.dart';
 import 'package:book_ease/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:book_ease/features/admin/presentation/widgets/admin_stat_card.dart';
+import 'package:book_ease/core/router/app_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cupertino_ui/cupertino_ui.dart'
     show GlobalCupertinoLocalizations;
@@ -12,6 +13,7 @@ import 'package:flutter_localizations/flutter_localizations.dart'
     show GlobalWidgetsLocalizations;
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 class _FakeAdminDashboardRepository implements AdminDashboardRepository {
@@ -132,5 +134,90 @@ void main() {
       ),
       findsWidgets,
     );
+  });
+
+  testWidgets('patient and doctor dashboard cards open their directories', (
+    tester,
+  ) async {
+    final cubit = AdminDashboardCubit(
+      GetAdminDashboardStats(_FakeAdminDashboardRepository(_stats)),
+    );
+    await cubit.load();
+    addTearDown(cubit.close);
+    final router = GoRouter(
+      initialLocation: '/admin',
+      routes: [
+        GoRoute(
+          path: '/admin',
+          name: AppRouter.adminDashboard,
+          builder: (_, _) => BlocProvider.value(
+            value: cubit,
+            child: const AdminDashboardPage(),
+          ),
+          routes: [
+            GoRoute(
+              path: 'patients',
+              name: AppRouter.adminPatients,
+              builder: (_, _) =>
+                  const Scaffold(body: Text('Patient directory')),
+            ),
+            GoRoute(
+              path: 'doctors',
+              name: AppRouter.adminDoctors,
+              builder: (_, state) => Scaffold(
+                body: Text(
+                  'Doctor directory: '
+                  '${state.uri.queryParameters['filter'] ?? 'all'}',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+
+    await tester.pumpWidget(
+      ScreenUtilPlusInit(
+        designSize: const Size(360, 690),
+        child: MaterialApp.router(
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Total patients'));
+    await tester.tap(find.text('Total patients'));
+    await tester.pumpAndSettle();
+    expect(find.text('Patient directory'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Pending doctors'));
+    await tester.tap(find.text('Pending doctors'));
+    await tester.pumpAndSettle();
+    expect(find.text('Doctor directory: pending'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Approved doctors'));
+    await tester.tap(find.text('Approved doctors'));
+    await tester.pumpAndSettle();
+    expect(find.text('Doctor directory: approved'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Total doctors'));
+    await tester.tap(find.text('Total doctors'));
+    await tester.pumpAndSettle();
+    expect(find.text('Doctor directory: all'), findsOneWidget);
   });
 }

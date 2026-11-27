@@ -776,6 +776,162 @@ abstract class AppLocalizations {
   /// **'Restore'**
   String get adminDoctorActionRestore;
 
+  /// No description provided for @adminPatientsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient directory'**
+  String get adminPatientsTitle;
+
+  /// No description provided for @adminPatientsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by patient name or email'**
+  String get adminPatientsSearch;
+
+  /// No description provided for @adminPatientsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search matches name or email prefixes. Name matching is case-sensitive; use an email prefix containing @ to search email.'**
+  String get adminPatientsSearchHint;
+
+  /// No description provided for @adminPatientsClearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get adminPatientsClearSearch;
+
+  /// No description provided for @adminPatientsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No registered patients were found.'**
+  String get adminPatientsEmpty;
+
+  /// No description provided for @adminPatientsNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No patients match this search.'**
+  String get adminPatientsNoResults;
+
+  /// No description provided for @adminPatientsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Patients could not be loaded. Check admin access and your connection, then retry.'**
+  String get adminPatientsLoadError;
+
+  /// No description provided for @adminPatientsRetryLoadingMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load more patients. Retry'**
+  String get adminPatientsRetryLoadingMore;
+
+  /// No description provided for @adminPatientNameUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Name unavailable'**
+  String get adminPatientNameUnavailable;
+
+  /// No description provided for @adminPatientRegistered.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered {date}'**
+  String adminPatientRegistered(Object date);
+
+  /// No description provided for @adminPatientDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient details'**
+  String get adminPatientDetailsTitle;
+
+  /// No description provided for @adminPatientDetailsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient details could not be loaded.'**
+  String get adminPatientDetailsError;
+
+  /// No description provided for @adminPatientNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This patient profile was not found.'**
+  String get adminPatientNotFound;
+
+  /// No description provided for @adminPatientProfileCompleteness.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile completeness'**
+  String get adminPatientProfileCompleteness;
+
+  /// No description provided for @adminPatientCompletenessPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% complete'**
+  String adminPatientCompletenessPercent(int percent);
+
+  /// No description provided for @adminPatientRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get adminPatientRole;
+
+  /// No description provided for @adminPatientRoleValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient'**
+  String get adminPatientRoleValue;
+
+  /// No description provided for @adminPatientAccountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created'**
+  String get adminPatientAccountCreated;
+
+  /// No description provided for @adminPatientLastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get adminPatientLastUpdated;
+
+  /// No description provided for @adminPatientAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment history'**
+  String get adminPatientAppointments;
+
+  /// No description provided for @adminPatientAppointmentsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No appointment history was found.'**
+  String get adminPatientAppointmentsEmpty;
+
+  /// No description provided for @adminPatientAppointmentsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Appointment history could not be loaded.'**
+  String get adminPatientAppointmentsError;
+
+  /// No description provided for @adminPatientUpcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get adminPatientUpcoming;
+
+  /// No description provided for @adminPatientCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get adminPatientCompleted;
+
+  /// No description provided for @adminPatientCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get adminPatientCancelled;
+
+  /// No description provided for @adminPatientOtherAppointments.
+  ///
+  /// In en, this message translates to:
+  /// **'Other appointments'**
+  String get adminPatientOtherAppointments;
+
   /// No description provided for @cancel.
   ///
   /// In en, this message translates to:

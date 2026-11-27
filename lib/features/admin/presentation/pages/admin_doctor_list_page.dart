@@ -5,6 +5,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
+import '../../domain/entities/admin_doctor_filter.dart';
 import '../cubit/admin_doctor_list_cubit.dart';
 import '../cubit/admin_doctor_list_state.dart';
 import '../widgets/admin_doctor_list_controls.dart';
@@ -32,7 +33,15 @@ class _AdminDoctorListPageState extends State<AdminDoctorListPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.adminDoctorsTitle)),
+      appBar: AppBar(
+        title: BlocBuilder<AdminDoctorListCubit, AdminDoctorListState>(
+          builder: (_, state) => Text(switch (state.filter) {
+            AdminDoctorFilter.pending => l10n.adminPendingDoctors,
+            AdminDoctorFilter.approved => l10n.adminApprovedDoctors,
+            _ => l10n.adminDoctorsTitle,
+          }),
+        ),
+      ),
       body: BlocBuilder<AdminDoctorListCubit, AdminDoctorListState>(
         builder: (context, state) {
           final cubit = context.read<AdminDoctorListCubit>();

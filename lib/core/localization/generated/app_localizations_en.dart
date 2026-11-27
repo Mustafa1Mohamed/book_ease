@@ -376,6 +376,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminDoctorActionRestore => 'Restore';
 
   @override
+  String get adminPatientsTitle => 'Patient directory';
+
+  @override
+  String get adminPatientsSearch => 'Search by patient name or email';
+
+  @override
+  String get adminPatientsSearchHint =>
+      'Search matches name or email prefixes. Name matching is case-sensitive; use an email prefix containing @ to search email.';
+
+  @override
+  String get adminPatientsClearSearch => 'Clear search';
+
+  @override
+  String get adminPatientsEmpty => 'No registered patients were found.';
+
+  @override
+  String get adminPatientsNoResults => 'No patients match this search.';
+
+  @override
+  String get adminPatientsLoadError =>
+      'Patients could not be loaded. Check admin access and your connection, then retry.';
+
+  @override
+  String get adminPatientsRetryLoadingMore =>
+      'Could not load more patients. Retry';
+
+  @override
+  String get adminPatientNameUnavailable => 'Name unavailable';
+
+  @override
+  String adminPatientRegistered(Object date) {
+    return 'Registered $date';
+  }
+
+  @override
+  String get adminPatientDetailsTitle => 'Patient details';
+
+  @override
+  String get adminPatientDetailsError => 'Patient details could not be loaded.';
+
+  @override
+  String get adminPatientNotFound => 'This patient profile was not found.';
+
+  @override
+  String get adminPatientProfileCompleteness => 'Profile completeness';
+
+  @override
+  String adminPatientCompletenessPercent(int percent) {
+    return '$percent% complete';
+  }
+
+  @override
+  String get adminPatientRole => 'Role';
+
+  @override
+  String get adminPatientRoleValue => 'Patient';
+
+  @override
+  String get adminPatientAccountCreated => 'Account created';
+
+  @override
+  String get adminPatientLastUpdated => 'Last updated';
+
+  @override
+  String get adminPatientAppointments => 'Appointment history';
+
+  @override
+  String get adminPatientAppointmentsEmpty =>
+      'No appointment history was found.';
+
+  @override
+  String get adminPatientAppointmentsError =>
+      'Appointment history could not be loaded.';
+
+  @override
+  String get adminPatientUpcoming => 'Upcoming';
+
+  @override
+  String get adminPatientCompleted => 'Completed';
+
+  @override
+  String get adminPatientCancelled => 'Cancelled';
+
+  @override
+  String get adminPatientOtherAppointments => 'Other appointments';
+
+  @override
   String get cancel => 'Cancel';
 
   @override

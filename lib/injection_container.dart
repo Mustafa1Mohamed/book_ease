@@ -72,6 +72,12 @@ import 'package:book_ease/features/admin/data/repositories/admin_doctor_reposito
 import 'package:book_ease/features/admin/domain/repositories/admin_doctor_repository.dart';
 import 'package:book_ease/features/admin/presentation/cubit/admin_doctor_details_cubit.dart';
 import 'package:book_ease/features/admin/presentation/cubit/admin_doctor_list_cubit.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_patient_data_source.dart';
+import 'package:book_ease/features/admin/data/datasources/admin_patient_remote_data_source.dart';
+import 'package:book_ease/features/admin/data/repositories/admin_patient_repository_impl.dart';
+import 'package:book_ease/features/admin/domain/repositories/admin_patient_repository.dart';
+import 'package:book_ease/features/admin/presentation/cubit/admin_patient_details_cubit.dart';
+import 'package:book_ease/features/admin/presentation/cubit/admin_patient_list_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
@@ -95,7 +101,9 @@ Future<void> setupDependencies() async {
       getIt.isRegistered<DoctorAppointmentDetailsCubit>() &&
       getIt.isRegistered<AdminDashboardCubit>() &&
       getIt.isRegistered<AdminDoctorListCubit>() &&
-      getIt.isRegistered<AdminDoctorDetailsCubit>()) {
+      getIt.isRegistered<AdminDoctorDetailsCubit>() &&
+      getIt.isRegistered<AdminPatientListCubit>() &&
+      getIt.isRegistered<AdminPatientDetailsCubit>()) {
     return;
   }
 
@@ -552,6 +560,31 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<AdminDoctorDetailsCubit>()) {
     getIt.registerFactory<AdminDoctorDetailsCubit>(
       () => AdminDoctorDetailsCubit(getIt<AdminDoctorRepository>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminPatientRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminPatientRemoteDataSource>(
+      () => AdminPatientRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminPatientDataSource>()) {
+    getIt.registerLazySingleton<AdminPatientDataSource>(
+      () => getIt<AdminPatientRemoteDataSource>(),
+    );
+  }
+  if (!getIt.isRegistered<AdminPatientRepository>()) {
+    getIt.registerLazySingleton<AdminPatientRepository>(
+      () => AdminPatientRepositoryImpl(getIt<AdminPatientDataSource>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminPatientListCubit>()) {
+    getIt.registerFactory<AdminPatientListCubit>(
+      () => AdminPatientListCubit(getIt<AdminPatientRepository>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminPatientDetailsCubit>()) {
+    getIt.registerFactory<AdminPatientDetailsCubit>(
+      () => AdminPatientDetailsCubit(getIt<AdminPatientRepository>()),
     );
   }
 }

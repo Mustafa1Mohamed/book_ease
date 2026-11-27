@@ -2,6 +2,7 @@ import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
+import '../../../auth/domain/entities/doctor_lifecycle_status.dart';
 import '../../domain/entities/admin_doctor.dart';
 
 class AdminDoctorCard extends StatelessWidget {
@@ -71,9 +72,22 @@ class AdminDoctorCard extends StatelessWidget {
                               ? colorScheme.primary
                               : colorScheme.error,
                         ),
-                        if (doctor.lifecycle.isSuspended)
+                        if (doctor.lifecycle.administrativeStatus ==
+                            DoctorAdministrativeStatus.active)
+                          _StatusChip(
+                            label: l10n.adminDoctorActive,
+                            color: colorScheme.tertiary,
+                          ),
+                        if (doctor.lifecycle.administrativeStatus ==
+                            DoctorAdministrativeStatus.suspended)
                           _StatusChip(
                             label: l10n.adminDoctorsSuspended,
+                            color: colorScheme.error,
+                          ),
+                        if (doctor.lifecycle.administrativeStatus ==
+                            DoctorAdministrativeStatus.unknown)
+                          _StatusChip(
+                            label: l10n.adminDoctorInvalidStatus,
                             color: colorScheme.error,
                           ),
                         if (doctor.needsReview)

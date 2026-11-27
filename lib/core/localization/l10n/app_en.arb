@@ -114,6 +114,44 @@
   "adminDoctorActionReject": "Reject",
   "adminDoctorActionSuspend": "Suspend",
   "adminDoctorActionRestore": "Restore",
+  "adminPatientsTitle": "Patient directory",
+  "adminPatientsSearch": "Search by patient name or email",
+  "adminPatientsSearchHint": "Search matches name or email prefixes. Name matching is case-sensitive; use an email prefix containing @ to search email.",
+  "adminPatientsClearSearch": "Clear search",
+  "adminPatientsEmpty": "No registered patients were found.",
+  "adminPatientsNoResults": "No patients match this search.",
+  "adminPatientsLoadError": "Patients could not be loaded. Check admin access and your connection, then retry.",
+  "adminPatientsRetryLoadingMore": "Could not load more patients. Retry",
+  "adminPatientNameUnavailable": "Name unavailable",
+  "adminPatientRegistered": "Registered {date}",
+  "@adminPatientRegistered": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "adminPatientDetailsTitle": "Patient details",
+  "adminPatientDetailsError": "Patient details could not be loaded.",
+  "adminPatientNotFound": "This patient profile was not found.",
+  "adminPatientProfileCompleteness": "Profile completeness",
+  "adminPatientCompletenessPercent": "{percent}% complete",
+  "@adminPatientCompletenessPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adminPatientRole": "Role",
+  "adminPatientRoleValue": "Patient",
+  "adminPatientAccountCreated": "Account created",
+  "adminPatientLastUpdated": "Last updated",
+  "adminPatientAppointments": "Appointment history",
+  "adminPatientAppointmentsEmpty": "No appointment history was found.",
+  "adminPatientAppointmentsError": "Appointment history could not be loaded.",
+  "adminPatientUpcoming": "Upcoming",
+  "adminPatientCompleted": "Completed",
+  "adminPatientCancelled": "Cancelled",
+  "adminPatientOtherAppointments": "Other appointments",
   "cancel": "Cancel",
   "retry": "Retry",
   "signOut": "Sign out",

@@ -104,6 +104,10 @@ void main() {
         '/login',
       );
       expect(
+        AppRouter.redirectFor(const AuthUnauthenticated(), '/admin/patients'),
+        '/login',
+      );
+      expect(
         AppRouter.redirectFor(const AuthUnauthenticated(), '/register'),
         isNull,
       );
@@ -127,6 +131,11 @@ void main() {
         expect(AppRouter.redirectFor(state, '/admin'), '/home');
         expect(AppRouter.redirectFor(state, '/admin/appointments'), '/home');
         expect(AppRouter.redirectFor(state, '/admin/doctors'), '/home');
+        expect(AppRouter.redirectFor(state, '/admin/patients'), '/home');
+        expect(
+          AppRouter.redirectFor(state, '/admin/patients/patient-1'),
+          '/home',
+        );
       },
     );
 
@@ -203,6 +212,11 @@ void main() {
         expect(AppRouter.redirectFor(admin, '/admin'), isNull);
         expect(AppRouter.redirectFor(admin, '/admin/dashboard'), isNull);
         expect(AppRouter.redirectFor(admin, '/admin/doctors'), isNull);
+        expect(AppRouter.redirectFor(admin, '/admin/patients'), isNull);
+        expect(
+          AppRouter.redirectFor(admin, '/admin/patients/patient-1'),
+          isNull,
+        );
         expect(
           AppRouter.redirectFor(admin, '/admin/doctors/profile-1'),
           isNull,

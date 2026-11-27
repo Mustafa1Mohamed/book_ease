@@ -40,7 +40,12 @@ final _doctor = AdminDoctor(
 class _FakeAdminDoctorRepository implements AdminDoctorRepository {
   final requests =
       <
-        ({String search, AdminDoctorFilter filter, AdminDoctorCursor? cursor})
+        ({
+          String search,
+          AdminDoctorFilter filter,
+          String specialtyId,
+          AdminDoctorCursor? cursor,
+        })
       >[];
   final operationIds = <String>[];
   final appointment = MyAppointment(
@@ -78,7 +83,12 @@ class _FakeAdminDoctorRepository implements AdminDoctorRepository {
     required String specialtyId,
     AdminDoctorCursor? cursor,
   }) async {
-    requests.add((search: search, filter: filter, cursor: cursor));
+    requests.add((
+      search: search,
+      filter: filter,
+      specialtyId: specialtyId,
+      cursor: cursor,
+    ));
     if (cursor == null) {
       return AdminDoctorPage(
         doctors: [_doctor],
@@ -154,6 +164,51 @@ void main() {
     expect(repository.requests.last.search, 'doctor@example.com');
     expect(repository.requests.last.cursor, isNull);
   });
+
+  test('initial approval filter persists through pagination, search, refresh, and specialty changes', () async {
+    final cubit = AdminDoctorListCubit(repository);
+    addTearDown(cubit.close);
+
+    await cubit.load(initialFilter: AdminDoctorFilter.approved);
+    expect(cubit.state.filter, AdminDoctorFilter.approved);
+    expect(repository.requests.last.filter, AdminDoctorFilter.approved);
+
+    await cubit.loadMore();
+    expect(repository.requests.last.filter, AdminDoctorFilter.approved);
+    expect(repository.requests.last.cursor?.documentId, 'profile-1');
+
+    await cubit.updateSearch('doctor@example.com');
+    expect(repository.requests.last.filter, AdminDoctorFilter.approved);
+    expect(repository.requests.last.search, 'doctor@example.com');
+    expect(repository.requests.last.cursor, isNull);
+
+    await cubit.updateSpecialty('specialty-2');
+    expect(repository.requests.last.filter, AdminDoctorFilter.approved);
+    expect(repository.requests.last.specialtyId, 'specialty-2');
+    expect(repository.requests.last.cursor, isNull);
+
+    await cubit.load();
+    expect(repository.requests.last.filter, AdminDoctorFilter.approved);
+    expect(repository.requests.last.cursor, isNull);
+
+    await cubit.updateFilter(AdminDoctorFilter.all);
+    expect(cubit.state.filter, AdminDoctorFilter.all);
+    expect(repository.requests.last.filter, AdminDoctorFilter.all);
+    expect(repository.requests.last.cursor, isNull);
+  });
+
+  test(
+    'pending filter is applied before the first repository request',
+    () async {
+      final cubit = AdminDoctorListCubit(repository);
+      addTearDown(cubit.close);
+
+      await cubit.load(initialFilter: AdminDoctorFilter.pending);
+
+      expect(cubit.state.filter, AdminDoctorFilter.pending);
+      expect(repository.requests.single.filter, AdminDoctorFilter.pending);
+    },
+  );
 
   test('retrying the same failed action reuses its operation id', () async {
     repository.failFirstAction = true;

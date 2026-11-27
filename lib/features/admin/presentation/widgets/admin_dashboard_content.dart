@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/localization/generated/app_localizations.dart';
+import '../../../../core/router/app_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/admin_dashboard_stats.dart';
 import 'admin_stat_card.dart';
@@ -32,48 +33,62 @@ class AdminDashboardContent extends StatelessWidget {
         value: stats?.totalPatients,
         icon: Icons.people_alt_rounded,
         color: AppColors.primary,
+        onTap: () => context.pushNamed(AppRouter.adminPatients),
       ),
       (
         label: l10n.adminTotalDoctors,
         value: stats?.totalDoctors,
         icon: Icons.medical_services_rounded,
         color: AppColors.secondary,
+        onTap: () => context.pushNamed(AppRouter.adminDoctors),
       ),
       (
         label: l10n.adminPendingDoctors,
         value: stats?.pendingDoctors,
         icon: Icons.pending_actions_rounded,
         color: AppColors.warning,
+        onTap: () => context.pushNamed(
+          AppRouter.adminDoctors,
+          queryParameters: const {'filter': 'pending'},
+        ),
       ),
       (
         label: l10n.adminApprovedDoctors,
         value: stats?.approvedDoctors,
         icon: Icons.verified_rounded,
         color: AppColors.success,
+        onTap: () => context.pushNamed(
+          AppRouter.adminDoctors,
+          queryParameters: const {'filter': 'approved'},
+        ),
       ),
       (
         label: l10n.adminTotalSpecialties,
         value: stats?.totalSpecialties,
         icon: Icons.category_rounded,
         color: AppColors.primaryDark,
+        onTap: null,
       ),
       (
         label: l10n.adminTotalAppointments,
         value: stats?.totalAppointments,
         icon: Icons.calendar_month_rounded,
         color: AppColors.secondary,
+        onTap: null,
       ),
       (
         label: l10n.adminUpcomingAppointments,
         value: stats?.upcomingAppointments,
         icon: Icons.event_available_rounded,
         color: AppColors.primary,
+        onTap: null,
       ),
       (
         label: l10n.adminCompletedAppointments,
         value: stats?.completedAppointments,
         icon: Icons.task_alt_rounded,
         color: AppColors.success,
+        onTap: null,
       ),
     ];
 
@@ -115,7 +130,8 @@ class AdminDashboardContent extends StatelessWidget {
                       ),
                       SizedBox(height: 16.h),
                       FilledButton.icon(
-                        onPressed: () => context.push('/admin/doctors'),
+                        onPressed: () =>
+                            context.pushNamed(AppRouter.adminDoctors),
                         icon: const Icon(Icons.medical_services_rounded),
                         label: Text(l10n.adminDoctorsTitle),
                       ),
@@ -148,6 +164,7 @@ class AdminDashboardContent extends StatelessWidget {
                                 accentColor: metric.color,
                                 localeName: l10n.localeName,
                                 isLoading: isLoading,
+                                onTap: metric.onTap,
                               ),
                             ),
                         ],

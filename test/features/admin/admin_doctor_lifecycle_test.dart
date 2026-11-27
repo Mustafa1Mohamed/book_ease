@@ -1,6 +1,7 @@
 import 'package:book_ease/features/admin/data/models/admin_doctor_model.dart';
 import 'package:book_ease/features/admin/domain/entities/admin_doctor.dart';
 import 'package:book_ease/features/admin/domain/entities/admin_doctor_action.dart';
+import 'package:book_ease/features/admin/domain/entities/admin_doctor_filter.dart';
 import 'package:book_ease/features/auth/domain/entities/doctor_lifecycle_status.dart';
 import 'package:book_ease/features/auth/domain/entities/user_role.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -120,11 +121,31 @@ void main() {
     );
   });
 
+  test('approval filters include approved suspended doctors without enabling invalid actions', () {
+    final suspended = _doctor({
+      'approvalStatus': 'approved',
+      'administrativeStatus': 'suspended',
+    });
+    expect(AdminDoctorFilter.approved.matchesLifecycle(suspended), isTrue);
+    expect(AdminDoctorFilter.suspended.matchesLifecycle(suspended), isTrue);
+    expect(AdminDoctorActionPolicy.actionsFor(suspended), [
+      AdminDoctorAction.restore,
+    ]);
+
+    final inconsistent = _doctor({
+      'approvalStatus': 'approved',
+      'administrativeStatus': 'unknown',
+    });
+    expect(AdminDoctorFilter.approved.matchesLifecycle(inconsistent), isTrue);
+    expect(AdminDoctorActionPolicy.actionsFor(inconsistent), isEmpty);
+  });
+
   test('ambiguous identities cannot expose lifecycle actions', () {
     final doctor = _doctor({
       'approvalStatus': 'pending',
       'administrativeStatus': 'active',
     });
+
     final ambiguous = AdminDoctor(
       id: doctor.id,
       uid: doctor.uid,

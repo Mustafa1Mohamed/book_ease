@@ -370,6 +370,91 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminDoctorActionRestore => 'استعادة';
 
   @override
+  String get adminPatientsTitle => 'دليل المرضى';
+
+  @override
+  String get adminPatientsSearch => 'ابحث باسم المريض أو بريده الإلكتروني';
+
+  @override
+  String get adminPatientsSearchHint =>
+      'البحث بمقدمات الاسم أو البريد الإلكتروني. البحث بالاسم حساس لحالة الأحرف؛ ابدأ البريد بمقدمة تتضمن @.';
+
+  @override
+  String get adminPatientsClearSearch => 'مسح البحث';
+
+  @override
+  String get adminPatientsEmpty => 'لم يتم العثور على مرضى مسجلين.';
+
+  @override
+  String get adminPatientsNoResults => 'لا يوجد مرضى يطابقون هذا البحث.';
+
+  @override
+  String get adminPatientsLoadError =>
+      'تعذر تحميل المرضى. تحقق من صلاحيات المسؤول والاتصال ثم أعد المحاولة.';
+
+  @override
+  String get adminPatientsRetryLoadingMore =>
+      'تعذر تحميل المزيد من المرضى. إعادة المحاولة';
+
+  @override
+  String get adminPatientNameUnavailable => 'الاسم غير متاح';
+
+  @override
+  String adminPatientRegistered(Object date) {
+    return 'تاريخ التسجيل: $date';
+  }
+
+  @override
+  String get adminPatientDetailsTitle => 'تفاصيل المريض';
+
+  @override
+  String get adminPatientDetailsError => 'تعذر تحميل تفاصيل المريض.';
+
+  @override
+  String get adminPatientNotFound => 'لم يتم العثور على ملف هذا المريض.';
+
+  @override
+  String get adminPatientProfileCompleteness => 'اكتمال الملف الشخصي';
+
+  @override
+  String adminPatientCompletenessPercent(int percent) {
+    return 'مكتمل بنسبة $percent٪';
+  }
+
+  @override
+  String get adminPatientRole => 'الدور';
+
+  @override
+  String get adminPatientRoleValue => 'مريض';
+
+  @override
+  String get adminPatientAccountCreated => 'تاريخ إنشاء الحساب';
+
+  @override
+  String get adminPatientLastUpdated => 'آخر تحديث';
+
+  @override
+  String get adminPatientAppointments => 'سجل المواعيد';
+
+  @override
+  String get adminPatientAppointmentsEmpty => 'لم يتم العثور على سجل مواعيد.';
+
+  @override
+  String get adminPatientAppointmentsError => 'تعذر تحميل سجل المواعيد.';
+
+  @override
+  String get adminPatientUpcoming => 'القادمة';
+
+  @override
+  String get adminPatientCompleted => 'مكتملة';
+
+  @override
+  String get adminPatientCancelled => 'ملغاة';
+
+  @override
+  String get adminPatientOtherAppointments => 'مواعيد أخرى';
+
+  @override
   String get cancel => 'إلغاء';
 
   @override

@@ -14,6 +14,7 @@ class AdminStatCard extends StatelessWidget {
     required this.accentColor,
     required this.localeName,
     this.isLoading = false,
+    this.onTap,
   });
 
   final String label;
@@ -23,6 +24,7 @@ class AdminStatCard extends StatelessWidget {
   final Color accentColor;
   final String localeName;
   final bool isLoading;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -31,54 +33,58 @@ class AdminStatCard extends StatelessWidget {
         : NumberFormat.decimalPattern(localeName).format(value);
 
     return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12.r),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: EdgeInsets.all(16.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(10.w),
+                  child: Icon(icon, color: accentColor, size: 22.w),
+                ),
               ),
-              child: Padding(
-                padding: EdgeInsets.all(10.w),
-                child: Icon(icon, color: accentColor, size: 22.w),
-              ),
-            ),
-            SizedBox(height: 16.h),
-            if (isLoading)
-              SizedBox(
-                height: 28.h,
-                width: 64.w,
-                child: const Center(
-                  child: SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+              SizedBox(height: 16.h),
+              if (isLoading)
+                SizedBox(
+                  height: 28.h,
+                  width: 64.w,
+                  child: const Center(
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                )
+              else
+                Text(
+                  valueText,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: value == null
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              )
-            else
+              SizedBox(height: 4.h),
               Text(
-                valueText,
-                maxLines: 1,
+                label,
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: value == null
-                      ? AppColors.textSecondary
-                      : AppColors.textPrimary,
-                  fontWeight: FontWeight.w700,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-            SizedBox(height: 4.h),
-            Text(
-              label,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

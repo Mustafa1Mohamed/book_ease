@@ -114,6 +114,44 @@
   "adminDoctorActionReject": "رفض",
   "adminDoctorActionSuspend": "إيقاف",
   "adminDoctorActionRestore": "استعادة",
+  "adminPatientsTitle": "دليل المرضى",
+  "adminPatientsSearch": "ابحث باسم المريض أو بريده الإلكتروني",
+  "adminPatientsSearchHint": "البحث بمقدمات الاسم أو البريد الإلكتروني. البحث بالاسم حساس لحالة الأحرف؛ ابدأ البريد بمقدمة تتضمن @.",
+  "adminPatientsClearSearch": "مسح البحث",
+  "adminPatientsEmpty": "لم يتم العثور على مرضى مسجلين.",
+  "adminPatientsNoResults": "لا يوجد مرضى يطابقون هذا البحث.",
+  "adminPatientsLoadError": "تعذر تحميل المرضى. تحقق من صلاحيات المسؤول والاتصال ثم أعد المحاولة.",
+  "adminPatientsRetryLoadingMore": "تعذر تحميل المزيد من المرضى. إعادة المحاولة",
+  "adminPatientNameUnavailable": "الاسم غير متاح",
+  "adminPatientRegistered": "تاريخ التسجيل: {date}",
+  "@adminPatientRegistered": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "adminPatientDetailsTitle": "تفاصيل المريض",
+  "adminPatientDetailsError": "تعذر تحميل تفاصيل المريض.",
+  "adminPatientNotFound": "لم يتم العثور على ملف هذا المريض.",
+  "adminPatientProfileCompleteness": "اكتمال الملف الشخصي",
+  "adminPatientCompletenessPercent": "مكتمل بنسبة {percent}٪",
+  "@adminPatientCompletenessPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "adminPatientRole": "الدور",
+  "adminPatientRoleValue": "مريض",
+  "adminPatientAccountCreated": "تاريخ إنشاء الحساب",
+  "adminPatientLastUpdated": "آخر تحديث",
+  "adminPatientAppointments": "سجل المواعيد",
+  "adminPatientAppointmentsEmpty": "لم يتم العثور على سجل مواعيد.",
+  "adminPatientAppointmentsError": "تعذر تحميل سجل المواعيد.",
+  "adminPatientUpcoming": "القادمة",
+  "adminPatientCompleted": "مكتملة",
+  "adminPatientCancelled": "ملغاة",
+  "adminPatientOtherAppointments": "مواعيد أخرى",
   "cancel": "إلغاء",
   "retry": "إعادة المحاولة",
   "signOut": "تسجيل الخروج",
