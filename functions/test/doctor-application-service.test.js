@@ -168,6 +168,30 @@ test('rejects invalid roles, fields, specialties, and existing doctor identities
   }
 });
 
+test('allows legacy specialties without status but rejects explicit inactive or malformed status', async () => {
+  const { service } = fixture({
+    'specialties/legacy': { name: 'Legacy specialty' },
+    'specialties/inactive': { name: 'Inactive specialty', isActive: false },
+    'specialties/malformed': { name: 'Malformed specialty', isActive: 'active' },
+  });
+  const legacy = await service.submit({
+    actorUid: 'patient-1',
+    payload: { ...applicationPayload, specialtyId: 'legacy' },
+  });
+  assert.equal(legacy.applicationStatus, 'pending');
+
+  for (const specialtyId of ['inactive', 'malformed']) {
+    await assert.rejects(
+      service.submit({
+        actorUid: 'patient-1',
+        payload: { ...applicationPayload, specialtyId },
+      }),
+      (error) => error instanceof DoctorAdminError &&
+        error.code === 'invalid-argument',
+    );
+  }
+});
+
 test('requires a Firestore admin for review and a reason for rejection', async () => {
   const { service } = fixture();
   await service.submit({ actorUid: 'patient-1', payload: applicationPayload });

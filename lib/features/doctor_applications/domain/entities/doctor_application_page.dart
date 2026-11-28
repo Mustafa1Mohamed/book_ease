@@ -13,8 +13,16 @@ class DoctorApplicationPage {
 }
 
 class DoctorApplicationSpecialty {
-  const DoctorApplicationSpecialty({required this.id, required this.name});
+  const DoctorApplicationSpecialty({
+    required this.id,
+    required this.name,
+    this.nameAr = '',
+  });
 
   final String id;
   final String name;
+  final String nameAr;
+
+  String localizedName(String languageCode) =>
+      languageCode == 'ar' && nameAr.isNotEmpty ? nameAr : name;
 }

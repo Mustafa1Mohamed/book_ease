@@ -20,10 +20,12 @@ void main() {
         'reviewCount': 42,
       },
       specialtyNamesById: const {'cardiology': 'Cardiology'},
+      specialtyNamesArById: const {'cardiology': 'أمراض القلب'},
     );
 
     expect(doctor, isNotNull);
     expect(doctor!.specialtyName, 'Cardiology');
+    expect(doctor.specialtyNameAr, 'أمراض القلب');
     expect(doctor.biography, 'Cardiologist with a patient-first approach.');
     expect(doctor.qualifications, ['MD', 'Board certified']);
     expect(doctor.yearsExperience, 12);

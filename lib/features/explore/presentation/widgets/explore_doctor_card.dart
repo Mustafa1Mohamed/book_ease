@@ -18,6 +18,11 @@ class ExploreDoctorCard extends StatelessWidget {
     final rating = doctor.rating;
     final fee = doctor.consultationFee;
     final availability = doctor.isAvailable;
+    final specialtyName =
+        Localizations.localeOf(context).languageCode == 'ar' &&
+            doctor.specialtyNameAr.isNotEmpty
+        ? doctor.specialtyNameAr
+        : doctor.specialtyName;
     void openDetails() => context.pushNamed(
       AppRouter.doctorDetails,
       pathParameters: {'doctorId': doctor.id},
@@ -47,10 +52,10 @@ class ExploreDoctorCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  if (doctor.specialtyName.isNotEmpty) ...[
+                  if (specialtyName.isNotEmpty) ...[
                     SizedBox(height: 3.h),
                     Text(
-                      doctor.specialtyName,
+                      specialtyName,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodyMedium,

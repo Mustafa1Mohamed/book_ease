@@ -51,6 +51,24 @@ class AdminDoctorProfilePanel extends StatelessWidget {
                   ? doctor.specialtyName
                   : doctor.specialtyId,
             ),
+            if (_specialtyWarning(doctor, l10n) case final warning?)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Text(warning),
+                ),
+              ),
+            if (doctor.specialtyNameStale)
+              Padding(
+                padding: EdgeInsets.only(top: 8.h),
+                child: Text(l10n.adminDoctorSpecialtyStaleWarning),
+              ),
             _Field(
               label: l10n.adminDoctorFee,
               value: doctor.consultationFee?.toStringAsFixed(2) ?? '',
@@ -100,6 +118,22 @@ class AdminDoctorProfilePanel extends StatelessWidget {
         'active' => l10n.adminDoctorActive,
         'suspended' => l10n.adminDoctorsSuspended,
         _ => l10n.adminDoctorInvalidStatus,
+      };
+
+  String? _specialtyWarning(AdminDoctor doctor, AppLocalizations l10n) =>
+      switch (doctor.specialtyReferenceStatus) {
+        AdminDoctorSpecialtyReferenceStatus.inactive =>
+          l10n.adminDoctorSpecialtyInactiveWarning,
+        AdminDoctorSpecialtyReferenceStatus.invalid =>
+          l10n.adminDoctorSpecialtyInvalidWarning,
+        AdminDoctorSpecialtyReferenceStatus.missing =>
+          l10n.adminDoctorSpecialtyMissingWarning,
+        AdminDoctorSpecialtyReferenceStatus.legacyActive =>
+          l10n.adminDoctorSpecialtyLegacyWarning,
+        AdminDoctorSpecialtyReferenceStatus.notChecked ||
+        AdminDoctorSpecialtyReferenceStatus.active => null,
+        AdminDoctorSpecialtyReferenceStatus.unavailable =>
+          l10n.adminDoctorSpecialtyStatusUnavailableWarning,
       };
 }
 

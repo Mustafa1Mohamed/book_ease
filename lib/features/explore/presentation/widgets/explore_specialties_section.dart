@@ -27,10 +27,7 @@ class ExploreSpecialtiesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visibleSpecialties = specialties
-        .where(
-          (specialty) =>
-              specialty.name.toLowerCase().contains(query.trim().toLowerCase()),
-        )
+        .where((specialty) => specialty.matches(query))
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,11 +54,14 @@ class ExploreSpecialtiesSection extends StatelessWidget {
               separatorBuilder: (_, _) => SizedBox(width: 8.w),
               itemBuilder: (_, index) {
                 final specialty = visibleSpecialties[index];
+                final specialtyName = specialty.localizedName(
+                  Localizations.localeOf(context).languageCode,
+                );
                 final isSelected = specialty.id == selectedId;
                 return Semantics(
                   button: true,
                   selected: isSelected,
-                  label: 'Filter by ${specialty.name}',
+                  label: 'Filter by $specialtyName',
                   child: MedicalSpecialtyCard(
                     specialty: specialty,
                     isSelected: isSelected,

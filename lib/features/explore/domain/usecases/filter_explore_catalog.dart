@@ -15,7 +15,8 @@ class FilterExploreCatalog {
       final matchesQuery =
           normalizedQuery.isEmpty ||
           doctor.fullName.toLowerCase().contains(normalizedQuery) ||
-          doctor.specialtyName.toLowerCase().contains(normalizedQuery);
+          doctor.specialtyName.toLowerCase().contains(normalizedQuery) ||
+          doctor.specialtyNameAr.toLowerCase().contains(normalizedQuery);
       final matchesSpecialty =
           filters.specialtyId == null ||
           doctor.specialtyId == filters.specialtyId;

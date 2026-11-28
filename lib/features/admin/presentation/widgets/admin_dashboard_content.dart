@@ -67,7 +67,7 @@ class AdminDashboardContent extends StatelessWidget {
         value: stats?.totalSpecialties,
         icon: Icons.category_rounded,
         color: AppColors.primaryDark,
-        onTap: null,
+        onTap: () => context.pushNamed(AppRouter.adminSpecialties),
       ),
       (
         label: l10n.adminTotalAppointments,
@@ -145,6 +145,12 @@ class AdminDashboardContent extends StatelessWidget {
                             ),
                             icon: const Icon(Icons.assignment_ind_outlined),
                             label: Text(l10n.adminDoctorApplications),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () =>
+                                context.pushNamed(AppRouter.adminSpecialties),
+                            icon: const Icon(Icons.category_outlined),
+                            label: Text(l10n.adminSpecialtiesManage),
                           ),
                         ],
                       ),

@@ -16,6 +16,11 @@ class FeaturedDoctorCard extends StatelessWidget {
     final rating = doctor.rating;
     final consultationFee = doctor.consultationFee;
     final isAvailable = doctor.isAvailable;
+    final specialtyName =
+        Localizations.localeOf(context).languageCode == 'ar' &&
+            doctor.specialtyNameAr.isNotEmpty
+        ? doctor.specialtyNameAr
+        : doctor.specialtyName;
     return SizedBox(
       width: 224.w,
       child: Card(
@@ -42,10 +47,10 @@ class FeaturedDoctorCard extends StatelessWidget {
                   ),
                 ],
               ),
-              if (doctor.specialtyName.isNotEmpty) ...[
+              if (specialtyName.isNotEmpty) ...[
                 SizedBox(height: 8.h),
                 Text(
-                  doctor.specialtyName,
+                  specialtyName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context).textTheme.bodyMedium,

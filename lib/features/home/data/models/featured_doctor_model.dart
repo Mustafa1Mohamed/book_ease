@@ -6,6 +6,7 @@ abstract final class FeaturedDoctorModel {
     String id,
     Map<String, dynamic> data, {
     required Map<String, String> specialtyNamesById,
+    Map<String, String> specialtyNamesArById = const {},
   }) {
     if (!DoctorLifecycleStatus.fromDoctorData(data).canOperate) return null;
 
@@ -19,9 +20,10 @@ abstract final class FeaturedDoctorModel {
       id: id,
       fullName: fullName,
       specialtyId: specialtyId,
-      specialtyName: _string(data['specialtyName']).trim().isNotEmpty
-          ? _string(data['specialtyName']).trim()
-          : specialtyNamesById[specialtyId] ?? '',
+      specialtyName:
+          specialtyNamesById[specialtyId] ??
+          _string(data['specialtyName']).trim(),
+      specialtyNameAr: specialtyNamesArById[specialtyId] ?? '',
       imageUrl: _string(data['profileImageUrl']),
       rating: _number(data['rating']),
       consultationFee: _number(data['consultationFee']),

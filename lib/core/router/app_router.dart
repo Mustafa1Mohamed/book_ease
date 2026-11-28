@@ -25,6 +25,10 @@ import '../../features/admin/presentation/cubit/admin_patient_list_cubit.dart';
 import '../../features/admin/presentation/cubit/admin_patient_details_cubit.dart';
 import '../../features/admin/presentation/pages/admin_patient_list_page.dart';
 import '../../features/admin/presentation/pages/admin_patient_details_page.dart';
+import '../../features/admin/specialties/presentation/cubit/admin_specialties_cubit.dart';
+import '../../features/admin/specialties/presentation/pages/admin_specialties_page.dart';
+import '../../features/admin/specialties/presentation/pages/admin_specialty_details_page.dart';
+import '../../features/admin/specialties/presentation/pages/admin_specialty_form_page.dart';
 import '../../features/explore/presentation/cubit/explore_cubit.dart';
 import '../../features/explore/presentation/pages/explore_page.dart';
 import '../../features/doctors/presentation/cubit/doctor_details_cubit.dart';
@@ -84,6 +88,10 @@ abstract final class AppRouter {
   static const adminDoctorDetails = 'admin-doctor-details';
   static const adminPatients = 'admin-patients';
   static const adminPatientDetails = 'admin-patient-details';
+  static const adminSpecialties = 'admin-specialties';
+  static const adminSpecialtyDetails = 'admin-specialty-details';
+  static const adminSpecialtyCreate = 'admin-specialty-create';
+  static const adminSpecialtyEdit = 'admin-specialty-edit';
   static const adminDoctorApplications = 'admin-doctor-applications';
   static const adminDoctorApplicationDetails =
       'admin-doctor-application-details';
@@ -322,6 +330,72 @@ abstract final class AppRouter {
                     ),
                   );
                 },
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'specialties',
+            name: adminSpecialties,
+            builder: (_, _) => BlocProvider(
+              create: (_) => GetIt.instance<AdminSpecialtiesCubit>()..load(),
+              child: const AdminSpecialtiesPage(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'new',
+                name: adminSpecialtyCreate,
+                builder: (_, state) {
+                  final cubit = state.extra;
+                  if (cubit is AdminSpecialtiesCubit) {
+                    return BlocProvider.value(
+                      value: cubit,
+                      child: const AdminSpecialtyFormPage(),
+                    );
+                  }
+                  return BlocProvider(
+                    create: (_) =>
+                        GetIt.instance<AdminSpecialtiesCubit>()..load(),
+                    child: const AdminSpecialtyFormPage(),
+                  );
+                },
+              ),
+              GoRoute(
+                path: ':specialtyId',
+                name: adminSpecialtyDetails,
+                builder: (_, state) {
+                  final page = AdminSpecialtyDetailsPage(
+                    specialtyId: state.pathParameters['specialtyId'] ?? '',
+                  );
+                  final cubit = state.extra;
+                  if (cubit is AdminSpecialtiesCubit) {
+                    return BlocProvider.value(value: cubit, child: page);
+                  }
+                  return BlocProvider(
+                    create: (_) =>
+                        GetIt.instance<AdminSpecialtiesCubit>()..load(),
+                    child: page,
+                  );
+                },
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: adminSpecialtyEdit,
+                    builder: (_, state) {
+                      final page = AdminSpecialtyFormPage(
+                        specialtyId: state.pathParameters['specialtyId'],
+                      );
+                      final cubit = state.extra;
+                      if (cubit is AdminSpecialtiesCubit) {
+                        return BlocProvider.value(value: cubit, child: page);
+                      }
+                      return BlocProvider(
+                        create: (_) =>
+                            GetIt.instance<AdminSpecialtiesCubit>()..load(),
+                        child: page,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

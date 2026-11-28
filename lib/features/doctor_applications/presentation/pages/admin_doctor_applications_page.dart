@@ -147,7 +147,12 @@ class _AdminDoctorApplicationsPageState
                                             in state.specialties)
                                           DropdownMenuItem(
                                             value: specialty.id,
-                                            child: Text(specialty.name),
+                                            child: Text(
+                                              specialty.localizedName(
+                                                Localizations.localeOf(context)
+                                                    .languageCode,
+                                              ),
+                                            ),
                                           ),
                                       ],
                                       onChanged: (value) {

@@ -16,6 +16,7 @@ import {
 import {
   collection,
   deleteField,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -312,6 +313,42 @@ test('allows an approved active doctor booking atomically', async () => {
       doc(dbFor('admin-1'), 'doctor_application_audit/forged-event'),
       { actorUid: 'admin-1' },
     ));
+  });
+
+  test('specialties are readable to app users but writable only through admin callables', async () => {
+    await seed();
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'specialties/active'), {
+        name: 'Cardiology',
+        isActive: true,
+      });
+      await setDoc(doc(db, 'specialties/inactive'), {
+        name: 'Legacy specialty',
+        isActive: false,
+      });
+    });
+
+    const patientDb = dbFor('patient-1');
+    const adminDb = dbFor('admin-1');
+    await assertSucceeds(getDoc(doc(patientDb, 'specialties/active')));
+    await assertSucceeds(getDoc(doc(patientDb, 'specialties/inactive')));
+    await assertSucceeds(getDocs(collection(patientDb, 'specialties')));
+    await assertSucceeds(getDocs(collection(adminDb, 'specialties')));
+    await assertFails(
+      getDocs(collection(testEnvironment.unauthenticatedContext().firestore(), 'specialties')),
+    );
+
+    for (const db of [patientDb, adminDb]) {
+      await assertFails(setDoc(doc(db, 'specialties/forged'), {
+        name: 'Forged specialty',
+        isActive: true,
+      }));
+      await assertFails(updateDoc(doc(db, 'specialties/inactive'), {
+        isActive: true,
+      }));
+      await assertFails(deleteDoc(doc(db, 'specialties/inactive')));
+    }
   });
 });
 

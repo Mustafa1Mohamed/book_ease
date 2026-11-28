@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../../core/firebase/specialty_status.dart';
 import '../../../my_appointments/data/models/my_appointment_model.dart';
 import '../../../my_appointments/domain/entities/my_appointment.dart';
 import '../../domain/entities/admin_doctor.dart';
@@ -49,8 +50,19 @@ class AdminDoctorDetailsRemoteDataSource
         );
       }
 
-      final doctor = await AdminDoctorSnapshotMapper(_firestore)
+      final mappedDoctor = await AdminDoctorSnapshotMapper(_firestore)
           .map(doctorSnapshot);
+      final specialtyDetails = await _loadSpecialtyDetails(
+        mappedDoctor.specialtyId,
+        mappedDoctor.specialtyName,
+      );
+      final doctor = mappedDoctor.copyWith(
+        specialtyName: specialtyDetails.name.isEmpty
+            ? mappedDoctor.specialtyName
+            : specialtyDetails.name,
+        specialtyReferenceStatus: specialtyDetails.status,
+        specialtyNameStale: specialtyDetails.nameStale,
+      );
       var appointmentsUnavailable = false;
       List<MyAppointment> appointments;
       if (!doctor.identityVerified) {
@@ -75,6 +87,66 @@ class AdminDoctorDetailsRemoteDataSource
       throw AdminDoctorException(error.code);
     }
   }
+
+  Future<
+    ({AdminDoctorSpecialtyReferenceStatus status, String name, bool nameStale})
+  >
+  _loadSpecialtyDetails(String specialtyId, String storedName) async {
+    if (specialtyId.isEmpty) {
+      return (
+        status: AdminDoctorSpecialtyReferenceStatus.missing,
+        name: '',
+        nameStale: false,
+      );
+    }
+    try {
+      final snapshot = await _firestore
+          .collection('specialties')
+          .doc(specialtyId)
+          .get();
+      if (!snapshot.exists) {
+        return (
+          status: AdminDoctorSpecialtyReferenceStatus.missing,
+          name: '',
+          nameStale: false,
+        );
+      }
+      final data = snapshot.data()!;
+      final name = data['name'] is String
+          ? (data['name'] as String).trim()
+          : '';
+      final status = switch (specialtyAvailability(data)) {
+        SpecialtyAvailability.active =>
+          AdminDoctorSpecialtyReferenceStatus.active,
+        SpecialtyAvailability.legacyActive =>
+          AdminDoctorSpecialtyReferenceStatus.legacyActive,
+        SpecialtyAvailability.inactive =>
+          AdminDoctorSpecialtyReferenceStatus.inactive,
+        SpecialtyAvailability.invalid =>
+          AdminDoctorSpecialtyReferenceStatus.invalid,
+      };
+      return (
+        status: name.isEmpty
+            ? AdminDoctorSpecialtyReferenceStatus.missing
+            : status,
+        name: name,
+        nameStale:
+            name.isNotEmpty &&
+            storedName.isNotEmpty &&
+            _normalizeName(name) != _normalizeName(storedName),
+      );
+    } on FirebaseException catch (error) {
+      debugPrint('Admin doctor specialty status failed: ${error.code}');
+      return (
+        status: AdminDoctorSpecialtyReferenceStatus.unavailable,
+        name: '',
+        nameStale: false,
+      );
+    }
+  }
+
+  String _normalizeName(String value) =>
+      value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
 
   Future<List<MyAppointment>> _loadUpcomingAppointments(
     AdminDoctor doctor,

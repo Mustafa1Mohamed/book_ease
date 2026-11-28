@@ -25,11 +25,7 @@ class HomeSpecialtiesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final visible = specialties
-        .where(
-          (specialty) => specialty.name.toLowerCase().contains(
-            searchQuery.trim().toLowerCase(),
-          ),
-        )
+        .where((specialty) => specialty.matches(searchQuery))
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

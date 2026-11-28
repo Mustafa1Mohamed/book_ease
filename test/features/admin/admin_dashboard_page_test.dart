@@ -172,6 +172,12 @@ void main() {
                 ),
               ),
             ),
+            GoRoute(
+              path: 'specialties',
+              name: AppRouter.adminSpecialties,
+              builder: (_, _) =>
+                  const Scaffold(body: Text('Specialty management')),
+            ),
           ],
         ),
       ],
@@ -220,5 +226,12 @@ void main() {
     await tester.tap(find.text('Total doctors'));
     await tester.pumpAndSettle();
     expect(find.text('Doctor directory: all'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Total specialties'));
+    await tester.tap(find.text('Total specialties'));
+    await tester.pumpAndSettle();
+    expect(find.text('Specialty management'), findsOneWidget);
   });
 }

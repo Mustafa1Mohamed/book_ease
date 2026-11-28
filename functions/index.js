@@ -16,6 +16,8 @@ const {
 const {
   createDoctorApplicationService,
 } = require('./src/doctor-application/service');
+const { createSpecialtyCallable } = require('./src/specialties/callable');
+const { createSpecialtyService } = require('./src/specialties/service');
 
 if (getApps().length === 0) {
   initializeApp();
@@ -26,6 +28,10 @@ const doctorAdminService = createDoctorAdminService({
   serverTimestamp: () => FieldValue.serverTimestamp(),
 });
 const doctorApplicationService = createDoctorApplicationService({
+  db: getFirestore(),
+  serverTimestamp: () => FieldValue.serverTimestamp(),
+});
+const specialtyService = createSpecialtyService({
   db: getFirestore(),
   serverTimestamp: () => FieldValue.serverTimestamp(),
 });
@@ -46,6 +52,18 @@ for (const action of ['approve', 'reject']) {
       service: doctorApplicationService,
       operation: 'review',
       action,
+      HttpsError,
+      logger,
+    }),
+  );
+}
+for (const operation of ['save', 'setActive']) {
+  const functionName = operation === 'save' ? 'saveSpecialty' : 'setSpecialtyActive';
+  exports[functionName] = onCall(
+    { region: 'us-central1' },
+    createSpecialtyCallable({
+      service: specialtyService,
+      operation,
       HttpsError,
       logger,
     }),

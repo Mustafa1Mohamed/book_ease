@@ -19,6 +19,16 @@ enum AdminDoctorWarning {
   consultationFeeMissing,
 }
 
+enum AdminDoctorSpecialtyReferenceStatus {
+  notChecked,
+  active,
+  legacyActive,
+  inactive,
+  invalid,
+  missing,
+  unavailable,
+}
+
 class AdminDoctor extends Equatable {
   const AdminDoctor({
     required this.id,
@@ -39,6 +49,9 @@ class AdminDoctor extends Equatable {
     required this.lifecycle,
     required this.warnings,
     required this.identityVerified,
+    this.specialtyReferenceStatus =
+        AdminDoctorSpecialtyReferenceStatus.notChecked,
+    this.specialtyNameStale = false,
   });
 
   final String id;
@@ -59,6 +72,36 @@ class AdminDoctor extends Equatable {
   final DoctorLifecycleStatus lifecycle;
   final List<AdminDoctorWarning> warnings;
   final bool identityVerified;
+  final AdminDoctorSpecialtyReferenceStatus specialtyReferenceStatus;
+  final bool specialtyNameStale;
+
+  AdminDoctor copyWith({
+    AdminDoctorSpecialtyReferenceStatus? specialtyReferenceStatus,
+    String? specialtyName,
+    bool? specialtyNameStale,
+  }) => AdminDoctor(
+    id: id,
+    uid: uid,
+    name: name,
+    email: email,
+    phoneNumber: phoneNumber,
+    profileImageUrl: profileImageUrl,
+    specialtyId: specialtyId,
+    specialtyName: specialtyName ?? this.specialtyName,
+    consultationFee: consultationFee,
+    biography: biography,
+    qualifications: qualifications,
+    yearsExperience: yearsExperience,
+    languages: languages,
+    clinicName: clinicName,
+    clinicAddress: clinicAddress,
+    lifecycle: lifecycle,
+    warnings: warnings,
+    identityVerified: identityVerified,
+    specialtyReferenceStatus:
+        specialtyReferenceStatus ?? this.specialtyReferenceStatus,
+    specialtyNameStale: specialtyNameStale ?? this.specialtyNameStale,
+  );
 
   bool get needsReview => warnings.isNotEmpty || !lifecycle.isValid;
 
@@ -85,5 +128,7 @@ class AdminDoctor extends Equatable {
     lifecycle,
     warnings,
     identityVerified,
+    specialtyReferenceStatus,
+    specialtyNameStale,
   ];
 }

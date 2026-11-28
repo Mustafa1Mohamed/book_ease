@@ -38,12 +38,16 @@ class PatientHomeCatalogRemoteDataSource {
     final specialtyNames = {
       for (final specialty in specialties) specialty.id: specialty.name,
     };
+    final specialtyNamesAr = {
+      for (final specialty in specialties) specialty.id: specialty.nameAr,
+    };
     final doctors = (results[1].value?.docs ?? [])
         .map(
           (document) => FeaturedDoctorModel.fromMap(
             document.id,
             document.data(),
             specialtyNamesById: specialtyNames,
+            specialtyNamesArById: specialtyNamesAr,
           ),
         )
         .whereType<FeaturedDoctor>()

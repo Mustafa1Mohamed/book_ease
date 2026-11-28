@@ -22,10 +22,18 @@ enum AdminDoctorFilter {
 }
 
 class AdminDoctorSpecialty {
-  const AdminDoctorSpecialty({required this.id, required this.name});
+  const AdminDoctorSpecialty({
+    required this.id,
+    required this.name,
+    this.nameAr = '',
+  });
 
   final String id;
   final String name;
+  final String nameAr;
+
+  String localizedName(String languageCode) =>
+      languageCode == 'ar' && nameAr.isNotEmpty ? nameAr : name;
 }
 
 class AdminDoctorCursor {

@@ -68,7 +68,7 @@ function createDoctorApplicationService({ db, serverTimestamp }) {
         }
         const specialty = specialtySnapshot.data();
         if (!specialtySnapshot.exists ||
-            specialty?.isActive === false ||
+            (Object.hasOwn(specialty, 'isActive') && specialty.isActive !== true) ||
             typeof specialty?.name !== 'string' ||
             specialty.name.trim().length === 0) {
           throw new DoctorAdminError(

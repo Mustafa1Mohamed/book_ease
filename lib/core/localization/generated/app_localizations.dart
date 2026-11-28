@@ -1381,6 +1381,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not complete the review. Please retry.'**
   String get adminDoctorApplicationRetry;
+
+  /// No description provided for @adminSpecialtiesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty management'**
+  String get adminSpecialtiesTitle;
+
+  /// No description provided for @adminSpecialtiesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage the specialties used for discovery and doctor applications.'**
+  String get adminSpecialtiesSubtitle;
+
+  /// No description provided for @adminSpecialtiesManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage specialties'**
+  String get adminSpecialtiesManage;
+
+  /// No description provided for @adminSpecialtiesSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search specialties'**
+  String get adminSpecialtiesSearch;
+
+  /// No description provided for @adminSpecialtiesAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminSpecialtiesAll;
+
+  /// No description provided for @adminSpecialtiesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminSpecialtiesActive;
+
+  /// No description provided for @adminSpecialtiesInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get adminSpecialtiesInactive;
+
+  /// No description provided for @adminSpecialtiesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add specialty'**
+  String get adminSpecialtiesAdd;
+
+  /// No description provided for @adminSpecialtiesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No specialties have been added.'**
+  String get adminSpecialtiesEmpty;
+
+  /// No description provided for @adminSpecialtiesNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No specialties match your search or filter.'**
+  String get adminSpecialtiesNoResults;
+
+  /// No description provided for @adminSpecialtiesLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialties could not be loaded. Check access and connection, then retry.'**
+  String get adminSpecialtiesLoadError;
+
+  /// No description provided for @adminSpecialtyDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty details'**
+  String get adminSpecialtyDetails;
+
+  /// No description provided for @adminSpecialtyCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create specialty'**
+  String get adminSpecialtyCreate;
+
+  /// No description provided for @adminSpecialtyEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit specialty'**
+  String get adminSpecialtyEdit;
+
+  /// No description provided for @adminSpecialtyNameEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in English'**
+  String get adminSpecialtyNameEnglish;
+
+  /// No description provided for @adminSpecialtyNameArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Name in Arabic'**
+  String get adminSpecialtyNameArabic;
+
+  /// No description provided for @adminSpecialtyDescriptionEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'Description in English'**
+  String get adminSpecialtyDescriptionEnglish;
+
+  /// No description provided for @adminSpecialtyDescriptionArabic.
+  ///
+  /// In en, this message translates to:
+  /// **'Description in Arabic'**
+  String get adminSpecialtyDescriptionArabic;
+
+  /// No description provided for @adminSpecialtyIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get adminSpecialtyIcon;
+
+  /// No description provided for @adminSpecialtyStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminSpecialtyStatus;
+
+  /// No description provided for @adminSpecialtyIsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for new applications and discovery'**
+  String get adminSpecialtyIsActive;
+
+  /// No description provided for @adminSpecialtyImagePolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure specialty image uploads are not configured. Use the supported icon; existing images are preserved.'**
+  String get adminSpecialtyImagePolicy;
+
+  /// No description provided for @adminSpecialtyClearImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the existing image and use the selected icon'**
+  String get adminSpecialtyClearImage;
+
+  /// No description provided for @adminSpecialtyCreateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty created.'**
+  String get adminSpecialtyCreateSuccess;
+
+  /// No description provided for @adminSpecialtySaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty updated.'**
+  String get adminSpecialtySaveSuccess;
+
+  /// No description provided for @adminSpecialtySaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'The specialty could not be saved. Check your access and connection, then retry.'**
+  String get adminSpecialtySaveError;
+
+  /// No description provided for @adminSpecialtyDuplicateName.
+  ///
+  /// In en, this message translates to:
+  /// **'A specialty with this English or Arabic name already exists.'**
+  String get adminSpecialtyDuplicateName;
+
+  /// No description provided for @adminSpecialtyRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value for both specialty names.'**
+  String get adminSpecialtyRequired;
+
+  /// No description provided for @adminSpecialtyNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Names must be 100 characters or fewer.'**
+  String get adminSpecialtyNameTooLong;
+
+  /// No description provided for @adminSpecialtyDescriptionTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Descriptions must be 2,000 characters or fewer.'**
+  String get adminSpecialtyDescriptionTooLong;
+
+  /// No description provided for @adminSpecialtyLegacyStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'This legacy specialty has no status field and is treated as active for compatibility. Save it to make the status explicit.'**
+  String get adminSpecialtyLegacyStatus;
+
+  /// No description provided for @adminSpecialtyInvalidStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'This specialty has an invalid status and is treated as inactive until an admin sets a valid status.'**
+  String get adminSpecialtyInvalidStatus;
+
+  /// No description provided for @adminSpecialtyDeactivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate specialty?'**
+  String get adminSpecialtyDeactivateTitle;
+
+  /// No description provided for @adminSpecialtyDeactivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This specialty will no longer be offered for new doctor applications or discovery. Existing doctors and appointments will not be deleted or changed.'**
+  String get adminSpecialtyDeactivateMessage;
+
+  /// No description provided for @adminSpecialtyActivateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate specialty?'**
+  String get adminSpecialtyActivateTitle;
+
+  /// No description provided for @adminSpecialtyActivateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This specialty will become available for new doctor applications and discovery.'**
+  String get adminSpecialtyActivateMessage;
+
+  /// No description provided for @adminSpecialtyActivationSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty availability updated.'**
+  String get adminSpecialtyActivationSuccess;
+
+  /// No description provided for @adminSpecialtyDoctorCount.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctors linked by specialty ID: {count}'**
+  String adminSpecialtyDoctorCount(int count);
+
+  /// No description provided for @adminSpecialtyDoctorCountUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked doctor count is unavailable.'**
+  String get adminSpecialtyDoctorCountUnavailable;
+
+  /// No description provided for @adminSpecialtyDoctorCountNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Legacy doctors linked only by a name may not be included in this count.'**
+  String get adminSpecialtyDoctorCountNote;
+
+  /// No description provided for @adminSpecialtyCreatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get adminSpecialtyCreatedAt;
+
+  /// No description provided for @adminSpecialtyUpdatedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated'**
+  String get adminSpecialtyUpdatedAt;
+
+  /// No description provided for @adminSpecialtyIconMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get adminSpecialtyIconMedical;
+
+  /// No description provided for @adminSpecialtyIconHeart.
+  ///
+  /// In en, this message translates to:
+  /// **'Heart'**
+  String get adminSpecialtyIconHeart;
+
+  /// No description provided for @adminSpecialtyIconDental.
+  ///
+  /// In en, this message translates to:
+  /// **'Dental'**
+  String get adminSpecialtyIconDental;
+
+  /// No description provided for @adminSpecialtyIconSkin.
+  ///
+  /// In en, this message translates to:
+  /// **'Skin'**
+  String get adminSpecialtyIconSkin;
+
+  /// No description provided for @adminSpecialtyIconNeurology.
+  ///
+  /// In en, this message translates to:
+  /// **'Neurology'**
+  String get adminSpecialtyIconNeurology;
+
+  /// No description provided for @adminSpecialtyIconPediatrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Pediatrics'**
+  String get adminSpecialtyIconPediatrics;
+
+  /// No description provided for @adminSpecialtyIconOrthopedics.
+  ///
+  /// In en, this message translates to:
+  /// **'Orthopedics'**
+  String get adminSpecialtyIconOrthopedics;
+
+  /// No description provided for @adminDoctorSpecialtyInactiveWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This doctor\'s specialty is inactive. Existing access and appointments are unchanged.'**
+  String get adminDoctorSpecialtyInactiveWarning;
+
+  /// No description provided for @adminDoctorSpecialtyInvalidWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This specialty has an invalid availability status and is excluded from new applications and discovery.'**
+  String get adminDoctorSpecialtyInvalidWarning;
+
+  /// No description provided for @adminDoctorSpecialtyMissingWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The specialty reference is missing or no longer exists. Review the doctor\'s linked specialty ID.'**
+  String get adminDoctorSpecialtyMissingWarning;
+
+  /// No description provided for @adminDoctorSpecialtyLegacyWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This specialty has no stored status and remains active under the legacy compatibility policy.'**
+  String get adminDoctorSpecialtyLegacyWarning;
+
+  /// No description provided for @adminDoctorSpecialtyStatusUnavailableWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The specialty status could not be verified. No doctor lifecycle changes were made.'**
+  String get adminDoctorSpecialtyStatusUnavailableWarning;
+
+  /// No description provided for @adminDoctorSpecialtyStaleWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'The doctor\'s stored specialty name differs from the current specialty name. The linked specialty ID remains unchanged.'**
+  String get adminDoctorSpecialtyStaleWarning;
 }
 
 class _AppLocalizationsDelegate

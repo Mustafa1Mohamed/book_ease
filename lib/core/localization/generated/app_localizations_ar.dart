@@ -690,4 +690,191 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get adminDoctorApplicationRetry =>
       'تعذرت مراجعة الطلب. حاول مرة أخرى.';
+
+  @override
+  String get adminSpecialtiesTitle => 'إدارة التخصصات';
+
+  @override
+  String get adminSpecialtiesSubtitle =>
+      'إدارة التخصصات المستخدمة في البحث وطلبات الأطباء.';
+
+  @override
+  String get adminSpecialtiesManage => 'إدارة التخصصات';
+
+  @override
+  String get adminSpecialtiesSearch => 'ابحث عن التخصصات';
+
+  @override
+  String get adminSpecialtiesAll => 'الكل';
+
+  @override
+  String get adminSpecialtiesActive => 'نشط';
+
+  @override
+  String get adminSpecialtiesInactive => 'غير نشط';
+
+  @override
+  String get adminSpecialtiesAdd => 'إضافة تخصص';
+
+  @override
+  String get adminSpecialtiesEmpty => 'لم تتم إضافة تخصصات بعد.';
+
+  @override
+  String get adminSpecialtiesNoResults =>
+      'لا توجد تخصصات تطابق البحث أو التصفية.';
+
+  @override
+  String get adminSpecialtiesLoadError =>
+      'تعذر تحميل التخصصات. تحقق من الصلاحيات والاتصال ثم أعد المحاولة.';
+
+  @override
+  String get adminSpecialtyDetails => 'تفاصيل التخصص';
+
+  @override
+  String get adminSpecialtyCreate => 'إنشاء تخصص';
+
+  @override
+  String get adminSpecialtyEdit => 'تعديل التخصص';
+
+  @override
+  String get adminSpecialtyNameEnglish => 'الاسم باللغة الإنجليزية';
+
+  @override
+  String get adminSpecialtyNameArabic => 'الاسم باللغة العربية';
+
+  @override
+  String get adminSpecialtyDescriptionEnglish => 'الوصف باللغة الإنجليزية';
+
+  @override
+  String get adminSpecialtyDescriptionArabic => 'الوصف باللغة العربية';
+
+  @override
+  String get adminSpecialtyIcon => 'الأيقونة';
+
+  @override
+  String get adminSpecialtyStatus => 'الحالة';
+
+  @override
+  String get adminSpecialtyIsActive => 'متاح لطلبات الأطباء والبحث الجديد';
+
+  @override
+  String get adminSpecialtyImagePolicy =>
+      'رفع صور التخصصات بشكل آمن غير مهيأ. استخدم الأيقونة المدعومة؛ سيتم الاحتفاظ بالصور الحالية.';
+
+  @override
+  String get adminSpecialtyClearImage =>
+      'إزالة الصورة الحالية واستخدام الأيقونة المحددة';
+
+  @override
+  String get adminSpecialtyCreateSuccess => 'تم إنشاء التخصص.';
+
+  @override
+  String get adminSpecialtySaveSuccess => 'تم تحديث التخصص.';
+
+  @override
+  String get adminSpecialtySaveError =>
+      'تعذر حفظ التخصص. تحقق من الصلاحيات والاتصال ثم أعد المحاولة.';
+
+  @override
+  String get adminSpecialtyDuplicateName =>
+      'يوجد تخصص بهذا الاسم الإنجليزي أو العربي بالفعل.';
+
+  @override
+  String get adminSpecialtyRequired => 'أدخل اسمي التخصص باللغتين.';
+
+  @override
+  String get adminSpecialtyNameTooLong => 'يجب ألا يتجاوز الاسم 100 حرف.';
+
+  @override
+  String get adminSpecialtyDescriptionTooLong =>
+      'يجب ألا يتجاوز الوصف 2000 حرف.';
+
+  @override
+  String get adminSpecialtyLegacyStatus =>
+      'هذا تخصص قديم بلا حقل حالة، ويُعامل كنشط للتوافق. احفظه لتحديد الحالة صراحةً.';
+
+  @override
+  String get adminSpecialtyInvalidStatus =>
+      'حالة التخصص غير صالحة ويُعامل كغير نشط حتى يحدد المسؤول حالة صحيحة.';
+
+  @override
+  String get adminSpecialtyDeactivateTitle => 'إلغاء تنشيط التخصص؟';
+
+  @override
+  String get adminSpecialtyDeactivateMessage =>
+      'لن يُعرض هذا التخصص لطلبات الأطباء الجديدة أو البحث. لن تُحذف الأطباء أو المواعيد الحالية ولن تتغير.';
+
+  @override
+  String get adminSpecialtyActivateTitle => 'تنشيط التخصص؟';
+
+  @override
+  String get adminSpecialtyActivateMessage =>
+      'سيصبح هذا التخصص متاحاً لطلبات الأطباء والبحث الجديد.';
+
+  @override
+  String get adminSpecialtyActivationSuccess => 'تم تحديث إتاحة التخصص.';
+
+  @override
+  String adminSpecialtyDoctorCount(int count) {
+    return 'الأطباء المرتبطون بمعرّف التخصص: $count';
+  }
+
+  @override
+  String get adminSpecialtyDoctorCountUnavailable =>
+      'عدد الأطباء المرتبطين غير متاح.';
+
+  @override
+  String get adminSpecialtyDoctorCountNote =>
+      'قد لا يشمل العدد الأطباء المرتبطين بالاسم فقط في السجلات القديمة.';
+
+  @override
+  String get adminSpecialtyCreatedAt => 'تاريخ الإنشاء';
+
+  @override
+  String get adminSpecialtyUpdatedAt => 'آخر تحديث';
+
+  @override
+  String get adminSpecialtyIconMedical => 'طبي';
+
+  @override
+  String get adminSpecialtyIconHeart => 'القلب';
+
+  @override
+  String get adminSpecialtyIconDental => 'الأسنان';
+
+  @override
+  String get adminSpecialtyIconSkin => 'الجلدية';
+
+  @override
+  String get adminSpecialtyIconNeurology => 'الأعصاب';
+
+  @override
+  String get adminSpecialtyIconPediatrics => 'الأطفال';
+
+  @override
+  String get adminSpecialtyIconOrthopedics => 'العظام';
+
+  @override
+  String get adminDoctorSpecialtyInactiveWarning =>
+      'تخصص الطبيب غير نشط. لا يتغير الوصول الحالي أو المواعيد القائمة.';
+
+  @override
+  String get adminDoctorSpecialtyInvalidWarning =>
+      'حالة إتاحة التخصص غير صالحة، لذا يُستبعد من الطلبات والبحث الجديد.';
+
+  @override
+  String get adminDoctorSpecialtyMissingWarning =>
+      'مرجع التخصص مفقود أو لم يعد موجوداً. راجع معرّف التخصص المرتبط بالطبيب.';
+
+  @override
+  String get adminDoctorSpecialtyLegacyWarning =>
+      'لا توجد حالة مخزنة لهذا التخصص، ويظل نشطاً وفق سياسة التوافق مع السجلات القديمة.';
+
+  @override
+  String get adminDoctorSpecialtyStatusUnavailableWarning =>
+      'تعذر التحقق من حالة التخصص. لم يتم تغيير حالة دورة حياة الطبيب.';
+
+  @override
+  String get adminDoctorSpecialtyStaleWarning =>
+      'يختلف اسم التخصص المخزن للطبيب عن الاسم الحالي. لم يتغير معرّف التخصص المرتبط.';
 }

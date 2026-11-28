@@ -18,7 +18,10 @@ class MedicalSpecialtyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final icon = _iconFor(specialty.iconName, specialty.name);
+    final name = specialty.localizedName(
+      Localizations.localeOf(context).languageCode,
+    );
+    final icon = _iconFor(specialty.iconName, name);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20.r),
@@ -59,7 +62,7 @@ class MedicalSpecialtyCard extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              specialty.name,
+              name,
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,

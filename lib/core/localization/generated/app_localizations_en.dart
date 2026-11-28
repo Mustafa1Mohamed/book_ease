@@ -704,4 +704,195 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminDoctorApplicationRetry =>
       'Could not complete the review. Please retry.';
+
+  @override
+  String get adminSpecialtiesTitle => 'Specialty management';
+
+  @override
+  String get adminSpecialtiesSubtitle =>
+      'Manage the specialties used for discovery and doctor applications.';
+
+  @override
+  String get adminSpecialtiesManage => 'Manage specialties';
+
+  @override
+  String get adminSpecialtiesSearch => 'Search specialties';
+
+  @override
+  String get adminSpecialtiesAll => 'All';
+
+  @override
+  String get adminSpecialtiesActive => 'Active';
+
+  @override
+  String get adminSpecialtiesInactive => 'Inactive';
+
+  @override
+  String get adminSpecialtiesAdd => 'Add specialty';
+
+  @override
+  String get adminSpecialtiesEmpty => 'No specialties have been added.';
+
+  @override
+  String get adminSpecialtiesNoResults =>
+      'No specialties match your search or filter.';
+
+  @override
+  String get adminSpecialtiesLoadError =>
+      'Specialties could not be loaded. Check access and connection, then retry.';
+
+  @override
+  String get adminSpecialtyDetails => 'Specialty details';
+
+  @override
+  String get adminSpecialtyCreate => 'Create specialty';
+
+  @override
+  String get adminSpecialtyEdit => 'Edit specialty';
+
+  @override
+  String get adminSpecialtyNameEnglish => 'Name in English';
+
+  @override
+  String get adminSpecialtyNameArabic => 'Name in Arabic';
+
+  @override
+  String get adminSpecialtyDescriptionEnglish => 'Description in English';
+
+  @override
+  String get adminSpecialtyDescriptionArabic => 'Description in Arabic';
+
+  @override
+  String get adminSpecialtyIcon => 'Icon';
+
+  @override
+  String get adminSpecialtyStatus => 'Status';
+
+  @override
+  String get adminSpecialtyIsActive =>
+      'Available for new applications and discovery';
+
+  @override
+  String get adminSpecialtyImagePolicy =>
+      'Secure specialty image uploads are not configured. Use the supported icon; existing images are preserved.';
+
+  @override
+  String get adminSpecialtyClearImage =>
+      'Remove the existing image and use the selected icon';
+
+  @override
+  String get adminSpecialtyCreateSuccess => 'Specialty created.';
+
+  @override
+  String get adminSpecialtySaveSuccess => 'Specialty updated.';
+
+  @override
+  String get adminSpecialtySaveError =>
+      'The specialty could not be saved. Check your access and connection, then retry.';
+
+  @override
+  String get adminSpecialtyDuplicateName =>
+      'A specialty with this English or Arabic name already exists.';
+
+  @override
+  String get adminSpecialtyRequired =>
+      'Enter a value for both specialty names.';
+
+  @override
+  String get adminSpecialtyNameTooLong =>
+      'Names must be 100 characters or fewer.';
+
+  @override
+  String get adminSpecialtyDescriptionTooLong =>
+      'Descriptions must be 2,000 characters or fewer.';
+
+  @override
+  String get adminSpecialtyLegacyStatus =>
+      'This legacy specialty has no status field and is treated as active for compatibility. Save it to make the status explicit.';
+
+  @override
+  String get adminSpecialtyInvalidStatus =>
+      'This specialty has an invalid status and is treated as inactive until an admin sets a valid status.';
+
+  @override
+  String get adminSpecialtyDeactivateTitle => 'Deactivate specialty?';
+
+  @override
+  String get adminSpecialtyDeactivateMessage =>
+      'This specialty will no longer be offered for new doctor applications or discovery. Existing doctors and appointments will not be deleted or changed.';
+
+  @override
+  String get adminSpecialtyActivateTitle => 'Activate specialty?';
+
+  @override
+  String get adminSpecialtyActivateMessage =>
+      'This specialty will become available for new doctor applications and discovery.';
+
+  @override
+  String get adminSpecialtyActivationSuccess =>
+      'Specialty availability updated.';
+
+  @override
+  String adminSpecialtyDoctorCount(int count) {
+    return 'Doctors linked by specialty ID: $count';
+  }
+
+  @override
+  String get adminSpecialtyDoctorCountUnavailable =>
+      'Linked doctor count is unavailable.';
+
+  @override
+  String get adminSpecialtyDoctorCountNote =>
+      'Legacy doctors linked only by a name may not be included in this count.';
+
+  @override
+  String get adminSpecialtyCreatedAt => 'Created';
+
+  @override
+  String get adminSpecialtyUpdatedAt => 'Last updated';
+
+  @override
+  String get adminSpecialtyIconMedical => 'Medical';
+
+  @override
+  String get adminSpecialtyIconHeart => 'Heart';
+
+  @override
+  String get adminSpecialtyIconDental => 'Dental';
+
+  @override
+  String get adminSpecialtyIconSkin => 'Skin';
+
+  @override
+  String get adminSpecialtyIconNeurology => 'Neurology';
+
+  @override
+  String get adminSpecialtyIconPediatrics => 'Pediatrics';
+
+  @override
+  String get adminSpecialtyIconOrthopedics => 'Orthopedics';
+
+  @override
+  String get adminDoctorSpecialtyInactiveWarning =>
+      'This doctor\'s specialty is inactive. Existing access and appointments are unchanged.';
+
+  @override
+  String get adminDoctorSpecialtyInvalidWarning =>
+      'This specialty has an invalid availability status and is excluded from new applications and discovery.';
+
+  @override
+  String get adminDoctorSpecialtyMissingWarning =>
+      'The specialty reference is missing or no longer exists. Review the doctor\'s linked specialty ID.';
+
+  @override
+  String get adminDoctorSpecialtyLegacyWarning =>
+      'This specialty has no stored status and remains active under the legacy compatibility policy.';
+
+  @override
+  String get adminDoctorSpecialtyStatusUnavailableWarning =>
+      'The specialty status could not be verified. No doctor lifecycle changes were made.';
+
+  @override
+  String get adminDoctorSpecialtyStaleWarning =>
+      'The doctor\'s stored specialty name differs from the current specialty name. The linked specialty ID remains unchanged.';
 }

@@ -87,6 +87,10 @@ import 'package:book_ease/features/admin/data/repositories/admin_patient_reposit
 import 'package:book_ease/features/admin/domain/repositories/admin_patient_repository.dart';
 import 'package:book_ease/features/admin/presentation/cubit/admin_patient_details_cubit.dart';
 import 'package:book_ease/features/admin/presentation/cubit/admin_patient_list_cubit.dart';
+import 'package:book_ease/features/admin/specialties/data/datasources/admin_specialty_remote_data_source.dart';
+import 'package:book_ease/features/admin/specialties/data/repositories/admin_specialty_repository_impl.dart';
+import 'package:book_ease/features/admin/specialties/domain/repositories/admin_specialty_repository.dart';
+import 'package:book_ease/features/admin/specialties/presentation/cubit/admin_specialties_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get_it/get_it.dart';
@@ -116,7 +120,8 @@ Future<void> setupDependencies() async {
       getIt.isRegistered<AdminDoctorListCubit>() &&
       getIt.isRegistered<AdminDoctorDetailsCubit>() &&
       getIt.isRegistered<AdminPatientListCubit>() &&
-      getIt.isRegistered<AdminPatientDetailsCubit>()) {
+      getIt.isRegistered<AdminPatientDetailsCubit>() &&
+      getIt.isRegistered<AdminSpecialtiesCubit>()) {
     return;
   }
 
@@ -656,6 +661,22 @@ Future<void> setupDependencies() async {
       () => AdminDoctorApplicationDetailsCubit(
         getIt<DoctorApplicationRepository>(),
       ),
+    );
+  }
+  if (!getIt.isRegistered<AdminSpecialtyRemoteDataSource>()) {
+    getIt.registerLazySingleton<AdminSpecialtyRemoteDataSource>(
+      () => AdminSpecialtyRemoteDataSource(getIt<FirebaseFirestore>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminSpecialtyRepository>()) {
+    getIt.registerLazySingleton<AdminSpecialtyRepository>(
+      () =>
+          AdminSpecialtyRepositoryImpl(getIt<AdminSpecialtyRemoteDataSource>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminSpecialtiesCubit>()) {
+    getIt.registerFactory<AdminSpecialtiesCubit>(
+      () => AdminSpecialtiesCubit(getIt<AdminSpecialtyRepository>()),
     );
   }
 }

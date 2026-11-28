@@ -215,7 +215,13 @@ class AdminDoctorRemoteDataSource implements AdminDoctorListDataSource {
           .map((document) {
             final name = document.data()['name'];
             return name is String && name.trim().isNotEmpty
-                ? AdminDoctorSpecialty(id: document.id, name: name.trim())
+                ? AdminDoctorSpecialty(
+                    id: document.id,
+                    name: name.trim(),
+                    nameAr: document.data()['nameAr'] is String
+                        ? (document.data()['nameAr'] as String).trim()
+                        : '',
+                  )
                 : null;
           })
           .whereType<AdminDoctorSpecialty>()

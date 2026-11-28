@@ -29,7 +29,8 @@ class HomeFeaturedDoctorsSection extends StatelessWidget {
         .where(
           (doctor) =>
               doctor.fullName.toLowerCase().contains(query) ||
-              doctor.specialtyName.toLowerCase().contains(query),
+              doctor.specialtyName.toLowerCase().contains(query) ||
+              doctor.specialtyNameAr.toLowerCase().contains(query),
         )
         .toList();
     return Column(

@@ -73,7 +73,11 @@ class AdminDoctorListControls extends StatelessWidget {
             ...state.specialties.map(
               (specialty) => DropdownMenuItem(
                 value: specialty.id,
-                child: Text(specialty.name),
+                child: Text(
+                  specialty.localizedName(
+                    Localizations.localeOf(context).languageCode,
+                  ),
+                ),
               ),
             ),
           ],

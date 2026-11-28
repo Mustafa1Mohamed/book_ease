@@ -6,6 +6,7 @@ function createFakeFirestore(initialDocuments = {}) {
     ]),
   );
   let transactionQueue = Promise.resolve();
+  let autoId = 0;
 
   const db = {
     collection(name) {
@@ -22,18 +23,23 @@ function createFakeFirestore(initialDocuments = {}) {
       const writes = [];
       const transaction = {
         async get(reference) {
-          if (reference.type === 'query') {
+          if (reference.type === 'query' || reference.type === 'collection') {
             const docs = [];
             for (const [path, data] of documents) {
               const prefix = `${reference.collectionName}/`;
               if (!path.startsWith(prefix) || path.slice(prefix.length).includes('/')) {
                 continue;
               }
-              if (data[reference.field] === reference.value) {
+              if (reference.type === 'collection' ||
+                  data[reference.field] === reference.value) {
                 docs.push(snapshot(path, data));
               }
             }
-            return { docs: docs.slice(0, reference.limitCount) };
+            return {
+              docs: reference.limitCount
+                ? docs.slice(0, reference.limitCount)
+                : docs,
+            };
           }
           return snapshot(reference.path, documents.get(reference.path));
         },
@@ -81,8 +87,15 @@ function createFakeFirestore(initialDocuments = {}) {
 
   function collectionReference(name) {
     return {
+      type: 'collection',
+      collectionName: name,
       doc(id) {
-        return { type: 'document', id, path: `${name}/${id}` };
+        const documentId = id ?? `auto-${++autoId}`;
+        return {
+          type: 'document',
+          id: documentId,
+          path: `${name}/${documentId}`,
+        };
       },
       where(field, operator, value) {
         if (operator !== '==') throw new Error('Unsupported fake query.');

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../../core/firebase/specialty_status.dart';
 import '../../domain/entities/doctor_application.dart';
 import '../../domain/entities/doctor_application_page.dart';
 import '../../domain/errors/doctor_application_exception.dart';
@@ -58,9 +59,15 @@ class DoctorApplicationRemoteDataSource {
       final name = document.data()['name'];
       if (name is String &&
           name.trim().isNotEmpty &&
-          document.data()['isActive'] != false) {
+          specialtyIsAvailableForPatients(document.data())) {
         specialties.add(
-          DoctorApplicationSpecialty(id: document.id, name: name.trim()),
+          DoctorApplicationSpecialty(
+            id: document.id,
+            name: name.trim(),
+            nameAr: document.data()['nameAr'] is String
+                ? (document.data()['nameAr'] as String).trim()
+                : '',
+          ),
         );
       }
     }

@@ -11,6 +11,7 @@ void main() {
       fullName: 'Dr. Heart',
       specialtyId: 'cardio',
       specialtyName: 'Cardiology',
+      specialtyNameAr: 'أمراض القلب',
       imageUrl: '',
       rating: 4.8,
       consultationFee: 100,
@@ -31,6 +32,7 @@ void main() {
       fullName: 'Dr. Care',
       specialtyId: 'cardio',
       specialtyName: 'Cardiology',
+      specialtyNameAr: 'أمراض القلب',
       imageUrl: '',
       rating: null,
       consultationFee: 50,
@@ -48,6 +50,16 @@ void main() {
     );
 
     expect(results.map((doctor) => doctor.id), ['two']);
+  });
+
+  test('searches Arabic specialty names', () {
+    final results = filter(
+      doctors,
+      query: 'أمراض القلب',
+      filters: const ExploreFilters(),
+    );
+
+    expect(results.map((doctor) => doctor.id), ['one', 'three']);
   });
 
   test('filters by specialty and reliable availability', () {

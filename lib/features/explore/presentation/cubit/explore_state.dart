@@ -52,11 +52,8 @@ class ExploreLoaded extends ExploreState {
   );
 
   List<MedicalSpecialty> get matchingSpecialties {
-    final normalizedQuery = query.trim().toLowerCase();
     return catalog.specialties.value
-        .where(
-          (specialty) => specialty.name.toLowerCase().contains(normalizedQuery),
-        )
+        .where((specialty) => specialty.matches(query))
         .toList();
   }
 

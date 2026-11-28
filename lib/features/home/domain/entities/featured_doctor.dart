@@ -6,6 +6,7 @@ class FeaturedDoctor extends Equatable {
     required this.fullName,
     required this.specialtyId,
     required this.specialtyName,
+    this.specialtyNameAr = '',
     required this.imageUrl,
     required this.rating,
     required this.consultationFee,
@@ -24,6 +25,7 @@ class FeaturedDoctor extends Equatable {
   final String fullName;
   final String specialtyId;
   final String specialtyName;
+  final String specialtyNameAr;
   final String imageUrl;
   final double? rating;
   final double? consultationFee;
@@ -43,6 +45,7 @@ class FeaturedDoctor extends Equatable {
     fullName,
     specialtyId,
     specialtyName,
+    specialtyNameAr,
     imageUrl,
     rating,
     consultationFee,
