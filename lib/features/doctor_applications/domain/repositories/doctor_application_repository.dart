@@ -8,6 +8,8 @@ abstract interface class DoctorApplicationRepository {
 
   Future<List<DoctorApplicationSpecialty>> getSpecialties();
 
+  Stream<List<DoctorApplicationSpecialty>> watchSpecialties();
+
   Future<void> submit({
     required String fullName,
     required String phoneNumber,

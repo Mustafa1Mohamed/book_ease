@@ -91,6 +91,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get adminPendingDoctors => 'الأطباء بانتظار الموافقة';
 
   @override
+  String get adminPendingApplications => 'طلبات الأطباء قيد الانتظار';
+
+  @override
   String get adminApprovedDoctors => 'الأطباء المعتمدون';
 
   @override
@@ -655,10 +658,18 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا توجد طلبات تطابق عوامل التصفية.';
 
   @override
+  String get adminDoctorApplicationsLoadError =>
+      'تعذر تحميل الطلبات. تحقق من صلاحيات المسؤول والاتصال ثم أعد المحاولة.';
+
+  @override
   String get adminDoctorApplicationsEnd => 'وصلت إلى نهاية الطلبات.';
 
   @override
   String get adminDoctorApplicationDetails => 'تفاصيل الطلب';
+
+  @override
+  String get adminDoctorApplicationDetailsLoadError =>
+      'تعذر تحميل تفاصيل الطلب. تحقق من صلاحيات المسؤول والاتصال ثم أعد المحاولة.';
 
   @override
   String get adminDoctorApplicationAccount => 'حساب مقدم الطلب';
@@ -778,6 +789,30 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get adminSpecialtyDuplicateName =>
       'يوجد تخصص بهذا الاسم الإنجليزي أو العربي بالفعل.';
+
+  @override
+  String get adminSpecialtyPermissionDenied =>
+      'لا يملك حسابك صلاحية إدارة التخصصات. سجّل الدخول بحساب مسؤول.';
+
+  @override
+  String get adminSpecialtySessionExpired =>
+      'انتهت جلستك. سجّل الدخول مرة أخرى ثم أعد المحاولة.';
+
+  @override
+  String get adminSpecialtyNetworkError =>
+      'تعذر الاتصال بخدمة التخصصات. تحقق من اتصالك بالإنترنت ثم أعد المحاولة.';
+
+  @override
+  String get adminSpecialtyServiceUnavailable =>
+      'لم يتم العثور على خدمة التخصصات أو السجل المطلوب. تحقق من نشر Cloud Function ومن وجود التخصص.';
+
+  @override
+  String get adminSpecialtyValidationError =>
+      'تم رفض بيانات التخصص. تحقق من الاسمين وبقية الحقول ثم أعد المحاولة.';
+
+  @override
+  String get adminSpecialtyUnexpectedError =>
+      'حدث خطأ غير متوقع أثناء حفظ التخصص. أعد المحاولة لاحقاً.';
 
   @override
   String get adminSpecialtyRequired => 'أدخل اسمي التخصص باللغتين.';

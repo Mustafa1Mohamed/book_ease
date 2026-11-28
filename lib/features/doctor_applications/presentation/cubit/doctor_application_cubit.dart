@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/doctor_application_page.dart';
 import '../../domain/errors/doctor_application_exception.dart';
 import '../../domain/repositories/doctor_application_repository.dart';
 import 'doctor_application_state.dart';
@@ -9,6 +12,8 @@ class DoctorApplicationCubit extends Cubit<DoctorApplicationState> {
     : super(const DoctorApplicationState());
 
   final DoctorApplicationRepository _repository;
+  StreamSubscription<List<DoctorApplicationSpecialty>>?
+  _specialtiesSubscription;
 
   Future<void> loadStatus() async {
     emit(const DoctorApplicationState(isLoading: true));
@@ -21,20 +26,49 @@ class DoctorApplicationCubit extends Cubit<DoctorApplicationState> {
   }
 
   Future<void> loadForm() async {
+    await _specialtiesSubscription?.cancel();
+    _specialtiesSubscription = null;
     emit(const DoctorApplicationState(isLoading: true, isForm: true));
     try {
       final application = await _repository.getLatestForCurrentUser();
-      final specialties = await _repository.getSpecialties();
-      emit(
-        DoctorApplicationState(
-          isForm: true,
-          application: application,
-          specialties: specialties,
-        ),
+      if (isClosed) return;
+      final firstSnapshot = Completer<void>();
+      _specialtiesSubscription = _repository.watchSpecialties().listen(
+        (specialties) {
+          if (isClosed) return;
+          emit(
+            DoctorApplicationState(
+              isForm: true,
+              application: application,
+              specialties: specialties,
+            ),
+          );
+          if (!firstSnapshot.isCompleted) firstSnapshot.complete();
+        },
+        onError: (Object error) {
+          if (isClosed) return;
+          emit(
+            DoctorApplicationState(
+              isForm: true,
+              application: application,
+              errorMessage: error is DoctorApplicationException
+                  ? error.message
+                  : 'Specialties could not be loaded. Please retry.',
+            ),
+          );
+          if (!firstSnapshot.isCompleted) firstSnapshot.complete();
+        },
       );
+      await firstSnapshot.future;
     } on DoctorApplicationException catch (error) {
       emit(DoctorApplicationState(isForm: true, errorMessage: error.message));
     }
+  }
+
+  @override
+  Future<void> close() async {
+    await _specialtiesSubscription?.cancel();
+    await super.close();
   }
 
   Future<void> submit({

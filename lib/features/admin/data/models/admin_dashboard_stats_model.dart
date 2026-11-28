@@ -5,6 +5,7 @@ class AdminDashboardStatsModel extends AdminDashboardStats {
     required super.totalPatients,
     required super.totalDoctors,
     required super.pendingDoctors,
+    required super.pendingApplications,
     required super.approvedDoctors,
     required super.totalSpecialties,
     required super.totalAppointments,
@@ -25,11 +26,12 @@ class AdminDashboardStatsModel extends AdminDashboardStats {
       totalPatients: counts[0],
       totalDoctors: counts[1],
       pendingDoctors: counts[2],
-      approvedDoctors: counts[3],
-      totalSpecialties: counts[4],
-      totalAppointments: counts[5],
-      upcomingAppointments: counts[6],
-      completedAppointments: counts[7],
+      pendingApplications: counts[3],
+      approvedDoctors: counts[4],
+      totalSpecialties: counts[5],
+      totalAppointments: counts[6],
+      upcomingAppointments: counts[7],
+      completedAppointments: counts[8],
     );
   }
 }

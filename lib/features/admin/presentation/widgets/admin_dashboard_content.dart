@@ -53,6 +53,13 @@ class AdminDashboardContent extends StatelessWidget {
         ),
       ),
       (
+        label: l10n.adminPendingApplications,
+        value: stats?.pendingApplications,
+        icon: Icons.assignment_late_outlined,
+        color: AppColors.warning,
+        onTap: () => context.pushNamed(AppRouter.adminDoctorApplications),
+      ),
+      (
         label: l10n.adminApprovedDoctors,
         value: stats?.approvedDoctors,
         icon: Icons.verified_rounded,

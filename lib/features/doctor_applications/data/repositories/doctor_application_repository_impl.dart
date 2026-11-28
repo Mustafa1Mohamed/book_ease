@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 
 import '../../domain/entities/doctor_application.dart';
 import '../../domain/entities/doctor_application_page.dart';
@@ -23,6 +24,23 @@ class DoctorApplicationRepositoryImpl implements DoctorApplicationRepository {
   @override
   Future<List<DoctorApplicationSpecialty>> getSpecialties() =>
       _guard(_remoteDataSource.getSpecialties);
+
+  @override
+  Stream<List<DoctorApplicationSpecialty>> watchSpecialties() =>
+      _remoteDataSource.watchSpecialties().transform(
+        StreamTransformer.fromHandlers(
+          handleError: (error, stackTrace, sink) {
+            if (error is FirebaseException) {
+              sink.addError(
+                DoctorApplicationException(_messageForCode(error.code)),
+                stackTrace,
+              );
+            } else {
+              sink.addError(error, stackTrace);
+            }
+          },
+        ),
+      );
 
   @override
   Future<void> submit({
@@ -88,8 +106,6 @@ class DoctorApplicationRepositoryImpl implements DoctorApplicationRepository {
       return await action();
     } on DoctorApplicationException {
       rethrow;
-    } on FirebaseFunctionsException catch (error) {
-      throw DoctorApplicationException(_messageForCode(error.code));
     } on FirebaseException catch (error) {
       throw DoctorApplicationException(_messageForCode(error.code));
     }

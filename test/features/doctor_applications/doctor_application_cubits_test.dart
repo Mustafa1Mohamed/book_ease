@@ -37,6 +37,7 @@ class _FakeDoctorApplicationRepository implements DoctorApplicationRepository {
   bool failSubmit = false;
   Completer<void>? submitGate;
   int submitCalls = 0;
+  StreamController<List<DoctorApplicationSpecialty>>? specialtyUpdates;
   final requests =
       <({String status, String specialty, String search, String? cursor})>[];
 
@@ -68,6 +69,13 @@ class _FakeDoctorApplicationRepository implements DoctorApplicationRepository {
   Future<List<DoctorApplicationSpecialty>> getSpecialties() async => const [
     DoctorApplicationSpecialty(id: 'cardiology', name: 'Cardiology'),
   ];
+
+  @override
+  Stream<List<DoctorApplicationSpecialty>> watchSpecialties() =>
+      specialtyUpdates?.stream ??
+      Stream.value(const [
+        DoctorApplicationSpecialty(id: 'cardiology', name: 'Cardiology'),
+      ]);
 
   @override
   Future<void> submit({
@@ -152,7 +160,36 @@ void main() {
     await cubit.loadForm();
     expect(cubit.state.isForm, isTrue);
     expect(cubit.state.specialties.single.name, 'Cardiology');
+    await cubit.close();
   });
+
+  test(
+    'keeps the doctor specialty dropdown synchronized with the catalog',
+    () async {
+      final repository = _FakeDoctorApplicationRepository()
+        ..specialtyUpdates =
+            StreamController<List<DoctorApplicationSpecialty>>.broadcast();
+      final cubit = DoctorApplicationCubit(repository);
+
+      final loading = cubit.loadForm();
+      await Future<void>.delayed(Duration.zero);
+      repository.specialtyUpdates!.add(const [
+        DoctorApplicationSpecialty(id: 'cardiology', name: 'Cardiology'),
+      ]);
+      await loading;
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.specialties.single.name, 'Cardiology');
+
+      repository.specialtyUpdates!.add(const [
+        DoctorApplicationSpecialty(id: 'neurology', name: 'Neurology'),
+      ]);
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.specialties.single.name, 'Neurology');
+
+      await cubit.close();
+      await repository.specialtyUpdates!.close();
+    },
+  );
 
   test('reports status retrieval errors', () async {
     final repository = _FakeDoctorApplicationRepository()..failLoad = true;
@@ -200,6 +237,7 @@ void main() {
     final repository = _FakeDoctorApplicationRepository();
     final cubit = AdminDoctorApplicationsCubit(repository);
     await cubit.load();
+    expect(repository.requests.first.status, 'pending');
     expect(cubit.state.applications, hasLength(1));
 
     await cubit.loadMore();
@@ -216,6 +254,23 @@ void main() {
     expect(repository.requests.last.specialty, 'cardiology');
     expect(repository.requests.last.search, 'patient');
     expect(repository.requests.last.cursor, isNull);
+  });
+
+  test('refresh after opening details preserves selected filters', () async {
+    final repository = _FakeDoctorApplicationRepository();
+    final cubit = AdminDoctorApplicationsCubit(repository);
+    await cubit.load();
+    await cubit.updateStatus('approved');
+    await cubit.updateSpecialty('cardiology');
+    await cubit.updateSearch('patient');
+
+    await cubit.reloadAfterReview();
+
+    expect(repository.requests.last.status, 'approved');
+    expect(repository.requests.last.specialty, 'cardiology');
+    expect(repository.requests.last.search, 'patient');
+    expect(repository.requests.last.cursor, isNull);
+    await cubit.close();
   });
 
   test('application review refreshes its status', () async {

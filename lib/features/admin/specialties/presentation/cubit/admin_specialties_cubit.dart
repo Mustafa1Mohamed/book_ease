@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/entities/admin_specialty.dart';
@@ -88,6 +89,12 @@ class AdminSpecialtiesCubit extends Cubit<AdminSpecialtiesState> {
         emit(state.copyWith(isSaving: false, mutationError: error.code));
       }
       return false;
+    } catch (error, stackTrace) {
+      _logUnexpectedFailure('save', error, stackTrace);
+      if (!isClosed) {
+        emit(state.copyWith(isSaving: false, mutationError: 'internal'));
+      }
+      return false;
     }
   }
 
@@ -116,6 +123,12 @@ class AdminSpecialtiesCubit extends Cubit<AdminSpecialtiesState> {
     } on AdminSpecialtyException catch (error) {
       if (!isClosed) {
         emit(state.copyWith(isMutating: false, mutationError: error.code));
+      }
+      return false;
+    } catch (error, stackTrace) {
+      _logUnexpectedFailure('activation', error, stackTrace);
+      if (!isClosed) {
+        emit(state.copyWith(isMutating: false, mutationError: 'internal'));
       }
       return false;
     }
@@ -157,5 +170,17 @@ class AdminSpecialtiesCubit extends Cubit<AdminSpecialtiesState> {
       if (specialty.id == id) return specialty;
     }
     return null;
+  }
+
+  void _logUnexpectedFailure(
+    String operation,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    debugPrint('Admin specialty $operation failed (${error.runtimeType}).');
+    debugPrintStack(
+      stackTrace: stackTrace,
+      label: 'Admin specialty $operation failed',
+    );
   }
 }

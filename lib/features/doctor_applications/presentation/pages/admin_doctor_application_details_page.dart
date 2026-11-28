@@ -31,8 +31,7 @@ class AdminDoctorApplicationDetailsPage extends StatelessWidget {
               }
               if (state.errorMessage != null || state.application == null) {
                 return _Error(
-                  message:
-                      state.errorMessage ?? l10n.adminDoctorApplicationRetry,
+                  message: l10n.adminDoctorApplicationDetailsLoadError,
                   onRetry: () => context
                       .read<AdminDoctorApplicationDetailsCubit>()
                       .load(applicationId),
@@ -217,10 +216,10 @@ class _DetailsContent extends StatelessWidget {
                     ),
                   ),
                 ],
-                if (state.reviewError case final error?) ...[
+                if (state.reviewError != null) ...[
                   SizedBox(height: 12.h),
                   Text(
-                    error,
+                    l10n.adminDoctorApplicationRetry,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),

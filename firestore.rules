@@ -32,6 +32,359 @@ service cloud.firestore {
         && get(userPath).data.get('role', '') in ['patient', 'doctor'];
     }
 
+    function isDoctorApplicationStateTransitionValid(uid, applicationId, revision) {
+      let statePath =
+        /databases/$(database)/documents/doctor_application_state/$(uid);
+      let stateExists = exists(statePath);
+      let currentState = stateExists ? get(statePath).data : {};
+      let previousApplicationId =
+        currentState.get('currentApplicationId', '__missing__');
+      let previousApplicationPath =
+        /databases/$(database)/documents/doctor_applications/$(previousApplicationId);
+      let stateAfter = getAfter(statePath).data;
+      return stateAfter.get('currentApplicationId', '') == applicationId
+        && stateAfter.get('nextRevision', 0) == revision + 1
+        && stateAfter.get('updatedAt', null) == request.time
+        && (
+          (!stateExists && revision == 1)
+          || (
+            stateExists
+            && currentState.get('nextRevision', 0) is int
+            && currentState.get('nextRevision', 0) == revision
+            && previousApplicationId is string
+            && previousApplicationId != '__missing__'
+            && previousApplicationId.size() > 0
+            && exists(previousApplicationPath)
+            && get(previousApplicationPath).data.get('applicantUid', '') == uid
+            && get(previousApplicationPath).data.get('applicationStatus', '')
+              == 'rejected'
+          )
+        );
+    }
+
+    function isValidDoctorApplication(applicationId, data) {
+      let userPath =
+        /databases/$(database)/documents/users/$(request.auth.uid);
+      let specialtyPath =
+        /databases/$(database)/documents/specialties/$(data.get('specialtyId', ''));
+      return data.keys().hasOnly([
+          'applicationId', 'applicantUid', 'applicantName',
+          'applicantNameLower', 'applicantEmail', 'applicantEmailLower',
+          'applicantPhone', 'profileImageUrl', 'specialtyId',
+          'specialtyName', 'qualification', 'experienceYears', 'bio',
+          'consultationFee', 'clinicAddress', 'applicationStatus',
+          'submittedAt', 'updatedAt', 'schemaVersion', 'revision'
+        ])
+        && data.keys().hasAll([
+          'applicationId', 'applicantUid', 'applicantName',
+          'applicantNameLower', 'applicantEmail', 'applicantEmailLower',
+          'applicantPhone', 'profileImageUrl', 'specialtyId',
+          'specialtyName', 'qualification', 'experienceYears', 'bio',
+          'consultationFee', 'clinicAddress', 'applicationStatus',
+          'submittedAt', 'updatedAt', 'schemaVersion', 'revision'
+        ])
+        && data.get('applicationId', '') == applicationId
+        && data.get('applicantUid', '') == request.auth.uid
+        && get(userPath).data.get('role', '') == 'patient'
+        && !get(userPath).data.keys().hasAny(['doctorProfileId'])
+        && data.get('applicantName', '')
+          == getAfter(userPath).data.get('fullName', '')
+        && data.get('applicantEmail', '')
+          == get(userPath).data.get('email', '')
+        && data.get('applicantPhone', '')
+          == getAfter(userPath).data.get('phoneNumber', '')
+        && data.get('profileImageUrl', '')
+          == getAfter(userPath).data.get('profileImageUrl', '')
+        && data.get('applicantName', null) is string
+        && data.get('applicantName', '').size() > 0
+        && data.get('applicantName', '').size() <= 120
+        && data.get('applicantNameLower', null) is string
+        && data.get('applicantNameLower', '').size() > 0
+        && data.get('applicantNameLower', '').size() <= 120
+        && data.get('applicantEmail', null) is string
+        && data.get('applicantEmail', '').size() > 0
+        && data.get('applicantEmail', '').size() <= 254
+        && data.get('applicantEmailLower', null) is string
+        && data.get('applicantEmailLower', '').size() > 0
+        && data.get('applicantEmailLower', '').size() <= 254
+        && data.get('applicantPhone', null) is string
+        && data.get('applicantPhone', '').matches('^[0-9+() .-]{7,24}$')
+        && data.get('profileImageUrl', null) is string
+        && data.get('profileImageUrl', '').size() <= 2048
+        && data.get('specialtyId', null) is string
+        && data.get('specialtyId', '').size() > 0
+        && data.get('specialtyId', '').size() <= 128
+        && exists(specialtyPath)
+        && data.get('specialtyName', '')
+          == get(specialtyPath).data.get('name', '')
+        && (
+          !get(specialtyPath).data.keys().hasAny(['isActive'])
+          || get(specialtyPath).data.get('isActive', null) == true
+        )
+        && data.get('qualification', null) is string
+        && data.get('qualification', '').size() > 0
+        && data.get('qualification', '').size() <= 250
+        && data.get('experienceYears', null) is int
+        && data.get('experienceYears', 0) >= 0
+        && data.get('experienceYears', 0) <= 80
+        && data.get('bio', null) is string
+        && data.get('bio', '').size() > 0
+        && data.get('bio', '').size() <= 5000
+        && data.get('consultationFee', null) is number
+        && data.get('consultationFee', 0) >= 0
+        && data.get('consultationFee', 0) <= 1000000
+        && data.get('clinicAddress', null) is string
+        && data.get('clinicAddress', '').size() > 0
+        && data.get('clinicAddress', '').size() <= 500
+        && data.get('applicationStatus', '') == 'pending'
+        && data.get('submittedAt', null) == request.time
+        && data.get('updatedAt', null) == request.time
+        && data.get('schemaVersion', null) == 1
+        && data.get('revision', null) is int
+        && data.get('revision', 0) > 0
+        && isDoctorApplicationStateTransitionValid(
+          request.auth.uid,
+          applicationId,
+          data.get('revision', 0)
+        );
+    }
+
+    function isValidDoctorApplicationState(uid, data) {
+      let applicationId = data.get('currentApplicationId', '');
+      let applicationPath =
+        /databases/$(database)/documents/doctor_applications/$(applicationId);
+      let application = getAfter(applicationPath).data;
+      return data.keys().hasOnly([
+          'currentApplicationId', 'nextRevision', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'currentApplicationId', 'nextRevision', 'updatedAt'
+        ])
+        && applicationId is string
+        && applicationId.size() > 0
+        && data.get('nextRevision', null) is int
+        && data.get('nextRevision', 0) > 1
+        && data.get('updatedAt', null) == request.time
+        && application.get('applicationId', '') == applicationId
+        && application.get('applicantUid', '') == uid
+        && application.get('applicationStatus', '') == 'pending'
+        && application.get('revision', 0) + 1 == data.get('nextRevision', 0);
+    }
+
+    function isValidDoctorApplicationApproval(
+      applicationId,
+      applicantUid,
+      doctorProfileId
+    ) {
+      let doctorPath =
+        /databases/$(database)/documents/doctors/$(doctorProfileId);
+      let userPath =
+        /databases/$(database)/documents/users/$(applicantUid);
+      return existsAfter(doctorPath)
+        && existsAfter(userPath)
+        && getAfter(doctorPath).data.get('applicationId', '') == applicationId
+        && getAfter(doctorPath).data.get('uid', '') == applicantUid
+        && getAfter(doctorPath).data.get('approvalStatus', '') == 'approved'
+        && getAfter(doctorPath).data.get('administrativeStatus', '') == 'active'
+        && getAfter(userPath).data.get('role', '') == 'doctor'
+        && getAfter(userPath).data.get('doctorProfileId', '') == doctorProfileId;
+    }
+
+    function isValidDoctorApplicationReview(applicationId) {
+      let applicantUid = resource.data.get('applicantUid', '');
+      let statePath =
+        /databases/$(database)/documents/doctor_application_state/$(applicantUid);
+      let state = get(statePath).data;
+      let isApproval = request.resource.data.get('applicationStatus', '') == 'approved';
+      let isRejection = request.resource.data.get('applicationStatus', '') == 'rejected';
+      let doctorProfileId =
+        request.resource.data.get('doctorProfileId', '__missing__');
+      return isAdmin()
+        && resource.data.get('applicationId', '') == applicationId
+        && resource.data.get('applicationStatus', '') == 'pending'
+        && applicantUid is string
+        && applicantUid != request.auth.uid
+        && (
+          isRejection
+          || (
+            exists(statePath)
+            && state.get('currentApplicationId', '') == applicationId
+            && resource.data.get('revision', null) is int
+            && state.get('nextRevision', 0)
+              == resource.data.get('revision', 0) + 1
+          )
+        )
+        && request.resource.data.get('reviewedBy', '') == request.auth.uid
+        && request.resource.data.get('reviewedAt', null) == request.time
+        && request.resource.data.get('updatedAt', null) == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'applicationStatus', 'reviewedBy', 'reviewedAt', 'updatedAt',
+          'doctorProfileId', 'rejectionReason'
+        ])
+        && (
+          (
+            isApproval
+            && request.resource.data.keys().hasAll(['doctorProfileId'])
+            && !request.resource.data.keys().hasAny(['rejectionReason'])
+            && doctorProfileId is string
+            && doctorProfileId.size() > 0
+            && isValidDoctorApplicationApproval(
+              applicationId,
+              applicantUid,
+              doctorProfileId
+            )
+          )
+          || (
+            isRejection
+            && !request.resource.data.keys().hasAny(['doctorProfileId'])
+            && request.resource.data.get('rejectionReason', '') is string
+            && request.resource.data.get('rejectionReason', '').size() >= 5
+            && request.resource.data.get('rejectionReason', '').size() <= 500
+          )
+        );
+    }
+
+    function isValidDoctorApplicationDoctor(doctorId, data) {
+      let applicationId = data.get('applicationId', '');
+      let applicationPath =
+        /databases/$(database)/documents/doctor_applications/$(applicationId);
+      let applicationBefore = get(applicationPath).data;
+      let applicationAfter = getAfter(applicationPath).data;
+      let applicantUid = applicationBefore.get('applicantUid', '');
+      let userPath =
+        /databases/$(database)/documents/users/$(applicantUid);
+      let userAfter = getAfter(userPath).data;
+      let specialtyPath =
+        /databases/$(database)/documents/specialties/$(data.get('specialtyId', ''));
+      return isAdmin()
+        && exists(applicationPath)
+        && applicationBefore.get('applicationStatus', '') == 'pending'
+        && applicationAfter.get('applicationStatus', '') == 'approved'
+        && applicationAfter.get('reviewedBy', '') == request.auth.uid
+        && applicationAfter.get('doctorProfileId', '') == doctorId
+        && applicantUid is string
+        && applicantUid != request.auth.uid
+        && userAfter.get('role', '') == 'doctor'
+        && userAfter.get('doctorProfileId', '') == doctorId
+        && data.keys().hasOnly([
+          'uid', 'fullName', 'email', 'phoneNumber', 'profileImageUrl',
+          'specialtyId', 'specialtyName', 'qualifications', 'yearsExperience',
+          'biography', 'consultationFee', 'clinicAddress', 'approvalStatus',
+          'administrativeStatus', 'applicationId', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'uid', 'fullName', 'email', 'phoneNumber', 'profileImageUrl',
+          'specialtyId', 'specialtyName', 'qualifications', 'yearsExperience',
+          'biography', 'consultationFee', 'clinicAddress', 'approvalStatus',
+          'administrativeStatus', 'applicationId', 'createdAt', 'updatedAt'
+        ])
+        && data.get('uid', '') == applicantUid
+        && data.get('fullName', '') == applicationBefore.get('applicantName', '')
+        && data.get('email', '') == applicationBefore.get('applicantEmail', '')
+        && data.get('phoneNumber', '') == applicationBefore.get('applicantPhone', '')
+        && data.get('profileImageUrl', '')
+          == applicationBefore.get('profileImageUrl', '')
+        && data.get('specialtyId', '')
+          == applicationBefore.get('specialtyId', '')
+        && exists(specialtyPath)
+        && data.get('specialtyName', '')
+          == get(specialtyPath).data.get('name', '')
+        && (
+          !get(specialtyPath).data.keys().hasAny(['isActive'])
+          || get(specialtyPath).data.get('isActive', null) == true
+        )
+        && data.get('qualifications', null) is list
+        && data.get('qualifications', []).size() == 1
+        && data.get('qualifications', [])[0]
+          == applicationBefore.get('qualification', '')
+        && data.get('yearsExperience', null)
+          == applicationBefore.get('experienceYears', null)
+        && data.get('biography', '') == applicationBefore.get('bio', '')
+        && data.get('consultationFee', null)
+          == applicationBefore.get('consultationFee', null)
+        && data.get('clinicAddress', '')
+          == applicationBefore.get('clinicAddress', '')
+        && data.get('approvalStatus', '') == 'approved'
+        && data.get('administrativeStatus', '') == 'active'
+        && data.get('createdAt', null) == request.time
+        && data.get('updatedAt', null) == request.time;
+    }
+
+    function isValidDoctorApplicationPromotion(uid, data) {
+      let doctorProfileId = data.get('doctorProfileId', '');
+      let doctorPath =
+        /databases/$(database)/documents/doctors/$(doctorProfileId);
+      let doctor = getAfter(doctorPath).data;
+      let applicationId = doctor.get('applicationId', '');
+      let applicationPath =
+        /databases/$(database)/documents/doctor_applications/$(applicationId);
+      let application = getAfter(applicationPath).data;
+      return isAdmin()
+        && resource.data.get('role', '') == 'patient'
+        && data.get('role', '') == 'doctor'
+        && doctorProfileId is string
+        && doctorProfileId.size() > 0
+        && doctor.get('uid', '') == uid
+        && doctor.get('approvalStatus', '') == 'approved'
+        && doctor.get('administrativeStatus', '') == 'active'
+        && doctor.get('applicationId', '') == applicationId
+        && application.get('applicationId', '') == applicationId
+        && application.get('applicantUid', '') == uid
+        && application.get('applicationStatus', '') == 'approved'
+        && application.get('reviewedBy', '') == request.auth.uid
+        && data.get('fullName', '') == application.get('applicantName', '')
+        && data.get('phoneNumber', '') == application.get('applicantPhone', '')
+        && data.get('updatedAt', null) == request.time
+        && data.diff(resource.data).affectedKeys().hasOnly([
+          'role', 'doctorProfileId', 'fullName', 'phoneNumber', 'updatedAt'
+        ]);
+    }
+
+    function isValidDoctorApplicationAudit(operationId, data) {
+      let applicationId = data.get('applicationId', '');
+      let applicationPath =
+        /databases/$(database)/documents/doctor_applications/$(applicationId);
+      let application = getAfter(applicationPath).data;
+      let applicationBefore = get(applicationPath).data;
+      let isApproval = data.get('action', '') == 'application_approve';
+      let isRejection = data.get('action', '') == 'application_reject';
+      return isAdmin()
+        && exists(applicationPath)
+        && applicationBefore.get('applicationStatus', '') == 'pending'
+        && data.keys().hasOnly([
+          'actorUid', 'action', 'applicationId', 'applicantUid', 'operationId',
+          'reason', 'schemaVersion', 'createdAt', 'doctorProfileId', 'newRole'
+        ])
+        && data.keys().hasAll([
+          'actorUid', 'action', 'applicationId', 'applicantUid', 'operationId',
+          'reason', 'schemaVersion', 'createdAt'
+        ])
+        && data.get('actorUid', '') == request.auth.uid
+        && data.get('operationId', '') == operationId
+        && data.get('schemaVersion', null) == 1
+        && data.get('createdAt', null) == request.time
+        && application.get('applicationId', '') == applicationId
+        && application.get('applicantUid', '') == data.get('applicantUid', '')
+        && application.get('reviewedBy', '') == request.auth.uid
+        && (
+          (
+            isApproval
+            && application.get('applicationStatus', '') == 'approved'
+            && data.get('reason', '') == ''
+            && data.get('doctorProfileId', '')
+              == application.get('doctorProfileId', '')
+            && data.get('newRole', '') == 'doctor'
+          )
+          || (
+            isRejection
+            && application.get('applicationStatus', '') == 'rejected'
+            && data.get('reason', '')
+              == application.get('rejectionReason', '')
+            && !data.keys().hasAny(['doctorProfileId', 'newRole'])
+          )
+        );
+    }
+
     function isDoctorCheckingOwnMissingProfile(doctorId) {
       let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
       return isDoctor()
@@ -52,6 +405,36 @@ service cloud.firestore {
         && exists(/databases/$(database)/documents/users/$(request.auth.uid))
         && get(/databases/$(database)/documents/users/$(request.auth.uid))
           .data.get('role', '') == 'admin';
+    }
+
+    function validSpecialty(data) {
+      return data.keys().hasOnly([
+          'name', 'nameLower', 'nameAr', 'description', 'descriptionAr',
+          'iconName', 'imageUrl', 'isActive', 'createdAt', 'updatedAt'
+        ])
+        && data.keys().hasAll([
+          'name', 'nameLower', 'nameAr', 'description', 'descriptionAr',
+          'iconName', 'imageUrl', 'isActive', 'updatedAt'
+        ])
+        && data.get('name', null) is string
+        && data.get('name', '').size() > 0
+        && data.get('name', '').size() <= 100
+        && data.get('nameLower', null) is string
+        && data.get('nameLower', '').size() > 0
+        && data.get('nameLower', '').size() <= 100
+        && data.get('nameAr', null) is string
+        && data.get('nameAr', '').size() <= 100
+        && data.get('description', null) is string
+        && data.get('description', '').size() <= 2000
+        && data.get('descriptionAr', null) is string
+        && data.get('descriptionAr', '').size() <= 2000
+        && data.get('iconName', null) in [
+          'medical', 'heart', 'dental', 'skin', 'neurology',
+          'pediatrics', 'orthopedics'
+        ]
+        && data.get('imageUrl', null) is string
+        && data.get('isActive', null) is bool
+        && data.get('updatedAt', null) == request.time;
     }
 
     function isDoctorStatusValid(doctorId) {
@@ -230,7 +613,7 @@ service cloud.firestore {
           'profileImageUrl', 'createdAt', 'updatedAt'
         ])
         && request.resource.data.get('uid', '') == uid
-        && request.resource.data.get('role', '') == 'patient'
+        && request.resource.data.get('role', '') in ['doctor', 'patient']
         && request.resource.data.get('email', '') == request.auth.token.email;
       allow update: if isOwner(uid)
         && (
@@ -277,28 +660,23 @@ service cloud.firestore {
             && request.resource.data.get('profileImageUrl', '') is string
             && request.resource.data.get('updatedAt', null) == request.time
           )
-          || (
-            (
-              resource.data.get('role', null) == null
-              || resource.data.get('role', '') == ''
-            )
-            && request.resource.data.get('role', '') == 'patient'
-            && request.resource.data.get('uid', '')
-              == resource.data.get('uid', '')
-            && request.resource.data.get('email', '')
-              == resource.data.get('email', '')
-            && request.resource.data.get('updatedAt', null) == request.time
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-              'role', 'updatedAt'
-            ])
-          )
+          ||
+          isValidDoctorApplicationPromotion(uid, request.resource.data)
         );
       allow delete: if false;
     }
 
     match /specialties/{specialtyId} {
-      allow read: if isPatient() || isAdmin();
-      allow write: if false;
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        && validSpecialty(request.resource.data)
+        && request.resource.data.keys().hasAll(['createdAt'])
+        && request.resource.data.get('createdAt', null) == request.time;
+      allow update: if isAdmin()
+        && validSpecialty(request.resource.data)
+        && request.resource.data.get('createdAt', null)
+          == resource.data.get('createdAt', null);
+      allow delete: if isAdmin();
     }
 
     match /doctors/{doctorId} {
@@ -325,7 +703,11 @@ service cloud.firestore {
             || resource.data.get('uid', '') == ''
           )
         );
-      allow create, delete: if false;
+      allow create: if isValidDoctorApplicationDoctor(
+        doctorId,
+        request.resource.data
+      );
+      allow delete: if false;
       allow update: if isApprovedDoctorOwner(doctorId)
         && request.resource.data.get('uid', '')
           == resource.data.get('uid', '')
@@ -548,18 +930,49 @@ service cloud.firestore {
     match /doctor_applications/{applicationId} {
       allow get, list: if isAdmin()
         || isDoctorApplicationApplicant(resource.data);
-      // Application creation and review use authenticated callables to enforce
-      // single-pending submissions and atomic doctor provisioning.
-      allow create, update, delete: if false;
+      allow create: if isPatient()
+        && isValidDoctorApplication(
+          applicationId,
+          request.resource.data
+        );
+      allow update: if isValidDoctorApplicationReview(applicationId);
+      allow delete: if false;
     }
 
     match /doctor_application_state/{uid} {
-      allow read, write: if false;
+      allow get: if (isOwner(uid) && isPatient()) || isAdmin();
+      allow list: if false;
+      allow create: if isOwner(uid)
+        && isPatient()
+        && request.resource.data.get('nextRevision', 0) == 2
+        && getAfter(
+          /databases/$(database)/documents/doctor_applications/$(request.resource.data.get('currentApplicationId', ''))
+        ).data.get('revision', 0) == 1
+        && isValidDoctorApplicationState(uid, request.resource.data);
+      allow update: if isOwner(uid)
+        && isPatient()
+        && resource.data.get('nextRevision', 0) is int
+        && request.resource.data.get('nextRevision', 0)
+          == resource.data.get('nextRevision', 0) + 1
+        && request.resource.data.get('currentApplicationId', '')
+          != resource.data.get('currentApplicationId', '')
+        && get(
+          /databases/$(database)/documents/doctor_applications/$(resource.data.get('currentApplicationId', '__missing__'))
+        ).data.get('applicantUid', '') == uid
+        && get(
+          /databases/$(database)/documents/doctor_applications/$(resource.data.get('currentApplicationId', '__missing__'))
+        ).data.get('applicationStatus', '') == 'rejected'
+        && isValidDoctorApplicationState(uid, request.resource.data);
+      allow delete: if false;
     }
 
     match /doctor_application_audit/{operationId} {
       allow read: if isAdmin();
-      allow write: if false;
+      allow create: if isValidDoctorApplicationAudit(
+        operationId,
+        request.resource.data
+      );
+      allow update, delete: if false;
     }
   }
 }

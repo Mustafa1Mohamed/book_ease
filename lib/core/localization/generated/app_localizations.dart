@@ -260,6 +260,12 @@ abstract class AppLocalizations {
   /// **'Pending doctors'**
   String get adminPendingDoctors;
 
+  /// No description provided for @adminPendingApplications.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending applications'**
+  String get adminPendingApplications;
+
   /// No description provided for @adminApprovedDoctors.
   ///
   /// In en, this message translates to:
@@ -1310,6 +1316,12 @@ abstract class AppLocalizations {
   /// **'No applications match these filters.'**
   String get adminDoctorApplicationsEmpty;
 
+  /// No description provided for @adminDoctorApplicationsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Applications could not be loaded. Check admin access and connection, then retry.'**
+  String get adminDoctorApplicationsLoadError;
+
   /// No description provided for @adminDoctorApplicationsEnd.
   ///
   /// In en, this message translates to:
@@ -1321,6 +1333,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Application details'**
   String get adminDoctorApplicationDetails;
+
+  /// No description provided for @adminDoctorApplicationDetailsLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Application details could not be loaded. Check admin access and connection, then retry.'**
+  String get adminDoctorApplicationDetailsLoadError;
 
   /// No description provided for @adminDoctorApplicationAccount.
   ///
@@ -1543,6 +1561,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A specialty with this English or Arabic name already exists.'**
   String get adminSpecialtyDuplicateName;
+
+  /// No description provided for @adminSpecialtyPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account cannot manage specialties. Sign in with an admin account.'**
+  String get adminSpecialtyPermissionDenied;
+
+  /// No description provided for @adminSpecialtySessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session expired. Sign in again and retry.'**
+  String get adminSpecialtySessionExpired;
+
+  /// No description provided for @adminSpecialtyNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach the specialty service. Check your connection and retry.'**
+  String get adminSpecialtyNetworkError;
+
+  /// No description provided for @adminSpecialtyServiceUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The specialty service or requested record was not found. Verify that the Cloud Function is deployed and the specialty exists.'**
+  String get adminSpecialtyServiceUnavailable;
+
+  /// No description provided for @adminSpecialtyValidationError.
+  ///
+  /// In en, this message translates to:
+  /// **'The specialty data was rejected. Check both names and the other fields, then retry.'**
+  String get adminSpecialtyValidationError;
+
+  /// No description provided for @adminSpecialtyUnexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred while saving the specialty. Try again later.'**
+  String get adminSpecialtyUnexpectedError;
 
   /// No description provided for @adminSpecialtyRequired.
   ///

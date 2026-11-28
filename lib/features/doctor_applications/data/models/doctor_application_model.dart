@@ -27,7 +27,9 @@ abstract final class DoctorApplicationModel {
       status: DoctorApplicationStatus.fromValue(data['applicationStatus']),
       submittedAt: _dateTime(data['submittedAt']),
       reviewedAt: _dateTime(data['reviewedAt']),
-      reviewerUid: _string(data['reviewerUid']),
+      reviewerUid: _string(data['reviewedBy']).isNotEmpty
+          ? _string(data['reviewedBy'])
+          : _string(data['reviewerUid']),
       rejectionReason: _string(data['rejectionReason']),
       doctorProfileId: _string(data['doctorProfileId']),
     );

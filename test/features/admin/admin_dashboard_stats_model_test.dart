@@ -8,6 +8,7 @@ void main() {
       10,
       8,
       3,
+      12,
       4,
       6,
       20,
@@ -18,6 +19,7 @@ void main() {
     expect(stats.totalPatients, 10);
     expect(stats.totalDoctors, 8);
     expect(stats.pendingDoctors, 3);
+    expect(stats.pendingApplications, 12);
     expect(stats.approvedDoctors, 4);
     expect(stats.totalSpecialties, 6);
     expect(stats.totalAppointments, 20);
@@ -32,6 +34,7 @@ void main() {
       10,
       null,
       3,
+      null,
       null,
       6,
       null,

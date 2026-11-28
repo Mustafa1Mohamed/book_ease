@@ -8,6 +8,7 @@ import '../../../../../core/router/app_router.dart';
 import '../../domain/entities/admin_specialty.dart';
 import '../cubit/admin_specialties_cubit.dart';
 import '../cubit/admin_specialties_state.dart';
+import '../utils/admin_specialty_error_message.dart';
 
 class AdminSpecialtiesPage extends StatelessWidget {
   const AdminSpecialtiesPage({super.key});
@@ -120,7 +121,10 @@ class AdminSpecialtiesPage extends StatelessWidget {
                             if (state.mutationError != null) ...[
                               SizedBox(height: 12.h),
                               Text(
-                                _mutationMessage(l10n, state.mutationError!),
+                                adminSpecialtyErrorMessage(
+                                  l10n,
+                                  state.mutationError!,
+                                ),
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.error,
                                 ),
@@ -159,12 +163,6 @@ class AdminSpecialtiesPage extends StatelessWidget {
       ),
     );
   }
-
-  String _mutationMessage(AppLocalizations l10n, String code) => switch (code) {
-    'already-exists' => l10n.adminSpecialtyDuplicateName,
-    'permission-denied' => l10n.adminSpecialtiesLoadError,
-    _ => l10n.adminSpecialtySaveError,
-  };
 }
 
 class _SpecialtyTile extends StatelessWidget {

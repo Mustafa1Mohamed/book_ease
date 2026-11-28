@@ -173,9 +173,7 @@ class _AdminDoctorApplicationsPageState
                               else if (state.hasError &&
                                   state.applications.isEmpty)
                                 _Retry(
-                                  message:
-                                      state.errorMessage ??
-                                      l10n.adminDoctorApplicationRetry,
+                                  message: l10n.adminDoctorApplicationsLoadError,
                                   onRetry: cubit.load,
                                 )
                               else if (state.applications.isEmpty)
@@ -218,8 +216,7 @@ class _AdminDoctorApplicationsPageState
                                   onPressed: cubit.loadMore,
                                   icon: const Icon(Icons.refresh_rounded),
                                   label: Text(
-                                    state.errorMessage ??
-                                        l10n.adminDoctorApplicationRetry,
+                                    l10n.retry,
                                   ),
                                 ),
                               if (!state.hasMore &&

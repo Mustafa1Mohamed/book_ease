@@ -20,6 +20,7 @@ class AdminDashboardRemoteDataSource implements AdminDashboardDataSource {
   Future<AdminDashboardStatsModel> getDashboardStats() async {
     final users = _firestore.collection('users');
     final doctors = _firestore.collection('doctors');
+    final applications = _firestore.collection('doctor_applications');
     final specialties = _firestore.collection('specialties');
     final appointments = _firestore.collection('appointments');
     final now = Timestamp.fromDate(DateTime.now());
@@ -30,6 +31,10 @@ class AdminDashboardRemoteDataSource implements AdminDashboardDataSource {
       _count(
         doctors.where('approvalStatus', isEqualTo: 'pending'),
         'pending doctors',
+      ),
+      _count(
+        applications.where('applicationStatus', isEqualTo: 'pending'),
+        'pending doctor applications',
       ),
       _count(
         doctors.where('approvalStatus', isEqualTo: 'approved'),

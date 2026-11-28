@@ -92,6 +92,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminPendingDoctors => 'Pending doctors';
 
   @override
+  String get adminPendingApplications => 'Pending applications';
+
+  @override
   String get adminApprovedDoctors => 'Approved doctors';
 
   @override
@@ -666,11 +669,19 @@ class AppLocalizationsEn extends AppLocalizations {
       'No applications match these filters.';
 
   @override
+  String get adminDoctorApplicationsLoadError =>
+      'Applications could not be loaded. Check admin access and connection, then retry.';
+
+  @override
   String get adminDoctorApplicationsEnd =>
       'You have reached the end of the applications.';
 
   @override
   String get adminDoctorApplicationDetails => 'Application details';
+
+  @override
+  String get adminDoctorApplicationDetailsLoadError =>
+      'Application details could not be loaded. Check admin access and connection, then retry.';
 
   @override
   String get adminDoctorApplicationAccount => 'Applicant account';
@@ -793,6 +804,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get adminSpecialtyDuplicateName =>
       'A specialty with this English or Arabic name already exists.';
+
+  @override
+  String get adminSpecialtyPermissionDenied =>
+      'Your account cannot manage specialties. Sign in with an admin account.';
+
+  @override
+  String get adminSpecialtySessionExpired =>
+      'Your session expired. Sign in again and retry.';
+
+  @override
+  String get adminSpecialtyNetworkError =>
+      'Couldn\'t reach the specialty service. Check your connection and retry.';
+
+  @override
+  String get adminSpecialtyServiceUnavailable =>
+      'The specialty service or requested record was not found. Verify that the Cloud Function is deployed and the specialty exists.';
+
+  @override
+  String get adminSpecialtyValidationError =>
+      'The specialty data was rejected. Check both names and the other fields, then retry.';
+
+  @override
+  String get adminSpecialtyUnexpectedError =>
+      'An unexpected error occurred while saving the specialty. Try again later.';
 
   @override
   String get adminSpecialtyRequired =>

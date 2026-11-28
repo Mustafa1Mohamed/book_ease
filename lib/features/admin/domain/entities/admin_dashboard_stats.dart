@@ -5,6 +5,7 @@ class AdminDashboardStats extends Equatable {
     required this.totalPatients,
     required this.totalDoctors,
     required this.pendingDoctors,
+    required this.pendingApplications,
     required this.approvedDoctors,
     required this.totalSpecialties,
     required this.totalAppointments,
@@ -12,11 +13,12 @@ class AdminDashboardStats extends Equatable {
     required this.completedAppointments,
   });
 
-  static const metricCount = 8;
+  static const metricCount = 9;
 
   final int? totalPatients;
   final int? totalDoctors;
   final int? pendingDoctors;
+  final int? pendingApplications;
   final int? approvedDoctors;
   final int? totalSpecialties;
   final int? totalAppointments;
@@ -27,6 +29,7 @@ class AdminDashboardStats extends Equatable {
     totalPatients,
     totalDoctors,
     pendingDoctors,
+    pendingApplications,
     approvedDoctors,
     totalSpecialties,
     totalAppointments,
@@ -42,6 +45,7 @@ class AdminDashboardStats extends Equatable {
     totalPatients,
     totalDoctors,
     pendingDoctors,
+    pendingApplications,
     approvedDoctors,
     totalSpecialties,
     totalAppointments,

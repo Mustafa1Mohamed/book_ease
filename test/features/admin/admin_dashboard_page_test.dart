@@ -29,6 +29,7 @@ const _stats = AdminDashboardStats(
   totalPatients: 10,
   totalDoctors: 8,
   pendingDoctors: 3,
+  pendingApplications: 12,
   approvedDoctors: 4,
   totalSpecialties: 6,
   totalAppointments: 20,
@@ -72,10 +73,11 @@ void main() {
   testWidgets('renders all dashboard metrics and values', (tester) async {
     await pumpDashboard(tester);
 
-    expect(find.byType(AdminStatCard), findsNWidgets(8));
+    expect(find.byType(AdminStatCard), findsNWidgets(9));
     expect(find.text('Total patients'), findsOneWidget);
     expect(find.text('Total doctors'), findsOneWidget);
     expect(find.text('Pending doctors'), findsOneWidget);
+    expect(find.text('Pending applications'), findsOneWidget);
     expect(find.text('Approved doctors'), findsOneWidget);
     expect(find.text('Total specialties'), findsOneWidget);
     expect(find.text('Total appointments'), findsOneWidget);
@@ -92,6 +94,7 @@ void main() {
       totalPatients: null,
       totalDoctors: 8,
       pendingDoctors: null,
+      pendingApplications: 12,
       approvedDoctors: 4,
       totalSpecialties: 6,
       totalAppointments: 20,
@@ -126,6 +129,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('إجمالي المرضى'), findsOneWidget);
+    expect(find.text('طلبات الأطباء قيد الانتظار'), findsOneWidget);
     expect(find.text('غير متاح'), findsNWidgets(2));
     expect(
       find.byWidgetPredicate(
@@ -173,6 +177,12 @@ void main() {
               ),
             ),
             GoRoute(
+              path: 'doctor-applications',
+              name: AppRouter.adminDoctorApplications,
+              builder: (_, _) =>
+                  const Scaffold(body: Text('Doctor applications')),
+            ),
+            GoRoute(
               path: 'specialties',
               name: AppRouter.adminSpecialties,
               builder: (_, _) =>
@@ -212,6 +222,13 @@ void main() {
     await tester.tap(find.text('Pending doctors'));
     await tester.pumpAndSettle();
     expect(find.text('Doctor directory: pending'), findsOneWidget);
+
+    router.pop();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Pending applications'));
+    await tester.tap(find.text('Pending applications'));
+    await tester.pumpAndSettle();
+    expect(find.text('Doctor applications'), findsOneWidget);
 
     router.pop();
     await tester.pumpAndSettle();

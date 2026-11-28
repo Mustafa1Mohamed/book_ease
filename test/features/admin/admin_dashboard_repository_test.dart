@@ -19,6 +19,7 @@ void main() {
       10,
       8,
       3,
+      12,
       4,
       6,
       20,
@@ -34,7 +35,7 @@ void main() {
 
   test('repository rejects a response with no available metrics', () async {
     final stats = AdminDashboardStatsModel.fromCounts(
-      List<int?>.filled(8, null),
+      List<int?>.filled(9, null),
     );
     final repository = AdminDashboardRepositoryImpl(
       _FakeAdminDashboardDataSource(stats),

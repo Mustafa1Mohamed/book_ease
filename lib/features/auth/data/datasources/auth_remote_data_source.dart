@@ -248,28 +248,8 @@ class AuthRemoteDataSource {
     if (!snapshot.exists) {
       return (profile: null, doctor: null, userData: null);
     }
-    final rawRole = snapshot.data()?['role'];
-    var currentSnapshot = snapshot;
-    if (rawRole == null || (rawRole is String && rawRole.trim().isEmpty)) {
-      await _firestore.runTransaction<void>((transaction) async {
-        final latest = await transaction.get(profileRef);
-        final latestRole = latest.data()?['role'];
-        if (latest.exists &&
-            (latestRole == null ||
-                (latestRole is String && latestRole.trim().isEmpty))) {
-          transaction.update(profileRef, {
-            'role': UserRole.patient.firestoreValue,
-            'updatedAt': FieldValue.serverTimestamp(),
-          });
-        }
-      });
-      currentSnapshot = await profileRef.get();
-    }
-    if (!currentSnapshot.exists) {
-      return (profile: null, doctor: null, userData: null);
-    }
-    final userData = currentSnapshot.data();
-    final profile = AppUserModel.fromFirestore(currentSnapshot);
+    final userData = snapshot.data();
+    final profile = AppUserModel.fromFirestore(snapshot);
     if (profile.role != UserRole.doctor) {
       return (profile: profile, doctor: null, userData: userData);
     }

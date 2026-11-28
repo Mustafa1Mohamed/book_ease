@@ -6,6 +6,7 @@ import '../../../../../core/localization/generated/app_localizations.dart';
 import '../../domain/entities/admin_specialty.dart';
 import '../cubit/admin_specialties_cubit.dart';
 import '../cubit/admin_specialties_state.dart';
+import '../utils/admin_specialty_error_message.dart';
 
 class AdminSpecialtyFormPage extends StatefulWidget {
   const AdminSpecialtyFormPage({this.specialtyId, super.key});
@@ -179,7 +180,10 @@ class _AdminSpecialtyFormPageState extends State<AdminSpecialtyFormPage> {
                           if (state.mutationError != null) ...[
                             SizedBox(height: 12.h),
                             Text(
-                              _errorMessage(l10n, state.mutationError!),
+                              adminSpecialtyErrorMessage(
+                                l10n,
+                                state.mutationError!,
+                              ),
                               style: TextStyle(
                                 color: Theme.of(context).colorScheme.error,
                               ),
@@ -274,13 +278,6 @@ class _AdminSpecialtyFormPageState extends State<AdminSpecialtyFormPage> {
       Navigator.of(context).pop();
     }
   }
-
-  String _errorMessage(AppLocalizations l10n, String code) => switch (code) {
-    'already-exists' => l10n.adminSpecialtyDuplicateName,
-    'permission-denied' => l10n.adminSpecialtiesLoadError,
-    'invalid-argument' => l10n.adminSpecialtySaveError,
-    _ => l10n.adminSpecialtySaveError,
-  };
 
   String _iconLabel(AppLocalizations l10n, String value) => switch (value) {
     'heart' => l10n.adminSpecialtyIconHeart,

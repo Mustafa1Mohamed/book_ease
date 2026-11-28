@@ -61,6 +61,17 @@ class _DoctorApplicationFormPageState extends State<DoctorApplicationFormPage> {
       appBar: AppBar(title: Text(l10n.doctorApplicationFormTitle)),
       body: BlocConsumer<DoctorApplicationCubit, DoctorApplicationState>(
         listener: (context, state) {
+          if (state.isForm &&
+              _initialized &&
+              !state.specialties.any(
+                (specialty) => specialty.id == _specialtyId,
+              )) {
+            setState(
+              () => _specialtyId = state.specialties.isEmpty
+                  ? null
+                  : state.specialties.first.id,
+            );
+          }
           if (state.isSubmitted) Navigator.of(context).pop(true);
         },
         builder: (context, state) {
@@ -170,6 +181,7 @@ class _DoctorApplicationFormPageState extends State<DoctorApplicationFormPage> {
                   ),
                   SizedBox(height: 12.h),
                   DropdownButtonFormField<String>(
+                    key: ValueKey(_specialtyId),
                     initialValue: _specialtyId,
                     decoration: InputDecoration(
                       labelText: l10n.doctorApplicationSpecialty,
