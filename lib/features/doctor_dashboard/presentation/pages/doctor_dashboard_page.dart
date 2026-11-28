@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/router/app_router.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../cubit/doctor_dashboard_cubit.dart';
 import '../cubit/doctor_dashboard_state.dart';
@@ -15,6 +17,11 @@ class DoctorDashboardPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Doctor Dashboard'),
         actions: [
+          IconButton(
+            tooltip: 'Doctor profile',
+            onPressed: () => context.pushNamed(AppRouter.doctorProfile),
+            icon: const Icon(Icons.person_rounded),
+          ),
           IconButton(
             tooltip: 'Sign out',
             onPressed: context.read<AuthCubit>().signOut,

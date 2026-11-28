@@ -81,6 +81,7 @@ void main() {
     expect(find.text('Total appointments'), findsOneWidget);
     expect(find.text('Upcoming appointments'), findsOneWidget);
     expect(find.text('Completed appointments'), findsOneWidget);
+    expect(find.text('Doctor applications'), findsOneWidget);
     expect(find.text('20'), findsOneWidget);
   });
 

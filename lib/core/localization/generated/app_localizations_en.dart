@@ -508,4 +508,200 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get doctorAccessUnavailableMessage =>
       'We could not verify your account access. Please contact support.';
+
+  @override
+  String get doctorProfileTitle => 'Doctor profile';
+
+  @override
+  String get doctorProfileEdit => 'Edit profile';
+
+  @override
+  String get doctorProfilePhoto => 'Change profile photo';
+
+  @override
+  String get doctorProfileSave => 'Save profile';
+
+  @override
+  String get doctorProfileSpecialtyReadOnly =>
+      'Specialty changes require admin review and are not editable here.';
+
+  @override
+  String get doctorProfileCompleteness => 'Profile completeness';
+
+  @override
+  String get doctorProfileSaveSuccess => 'Profile saved.';
+
+  @override
+  String get doctorProfilePhotoSuccess => 'Profile photo updated.';
+
+  @override
+  String get patientBecomeDoctor => 'Become a doctor';
+
+  @override
+  String get patientBecomeDoctorSubtitle =>
+      'Apply to join BookEase as a medical professional.';
+
+  @override
+  String get doctorApplicationTitle => 'Doctor application';
+
+  @override
+  String get doctorApplicationStatus => 'Application status';
+
+  @override
+  String get doctorApplicationNoApplication =>
+      'You have not submitted a doctor application yet.';
+
+  @override
+  String get doctorApplicationPending => 'Your application is under review.';
+
+  @override
+  String get doctorApplicationApproved => 'Your application was approved.';
+
+  @override
+  String get doctorApplicationRejected => 'Your application was not approved.';
+
+  @override
+  String get doctorApplicationSubmittedOn => 'Submitted';
+
+  @override
+  String get doctorApplicationReviewedOn => 'Reviewed';
+
+  @override
+  String get doctorApplicationRejectionReason => 'Review notes';
+
+  @override
+  String get doctorApplicationStart => 'Start application';
+
+  @override
+  String get doctorApplicationResubmit => 'Submit a new application';
+
+  @override
+  String get doctorApplicationFormTitle => 'Apply as a doctor';
+
+  @override
+  String get doctorApplicationFullName => 'Full name';
+
+  @override
+  String get doctorApplicationPhone => 'Phone number';
+
+  @override
+  String get doctorApplicationSpecialty => 'Specialty';
+
+  @override
+  String get doctorApplicationQualification => 'Medical qualification';
+
+  @override
+  String get doctorApplicationExperience => 'Years of experience';
+
+  @override
+  String get doctorApplicationBio => 'Professional biography';
+
+  @override
+  String get doctorApplicationFee => 'Consultation fee';
+
+  @override
+  String get doctorApplicationClinicAddress => 'Clinic address';
+
+  @override
+  String get doctorApplicationCredentialNotice =>
+      'Professional details are self-reported. An administrator may request verification before or after review.';
+
+  @override
+  String get doctorApplicationSubmit => 'Submit for review';
+
+  @override
+  String get doctorApplicationSubmitted => 'Application submitted for review.';
+
+  @override
+  String get doctorApplicationAlreadyPending =>
+      'An application is already under review.';
+
+  @override
+  String get doctorApplicationValidationRequired => 'This field is required.';
+
+  @override
+  String get doctorApplicationValidationPhone => 'Enter a valid phone number.';
+
+  @override
+  String get doctorApplicationValidationFee =>
+      'Enter a valid non-negative fee.';
+
+  @override
+  String get doctorApplicationValidationExperience =>
+      'Enter a valid number of years.';
+
+  @override
+  String get doctorApplicationValidationBio => 'Enter at least 30 characters.';
+
+  @override
+  String get doctorApplicationSpecialtiesUnavailable =>
+      'No active specialties are available. Please contact support.';
+
+  @override
+  String get doctorApplicationGoDashboard => 'Open doctor dashboard';
+
+  @override
+  String get adminDoctorApplications => 'Doctor applications';
+
+  @override
+  String get adminDoctorApplicationsSearch => 'Search name or email prefix';
+
+  @override
+  String get adminDoctorApplicationsAll => 'All statuses';
+
+  @override
+  String get adminDoctorApplicationsPending => 'Pending';
+
+  @override
+  String get adminDoctorApplicationsApproved => 'Approved';
+
+  @override
+  String get adminDoctorApplicationsRejected => 'Rejected';
+
+  @override
+  String get adminDoctorApplicationsAllSpecialties => 'All specialties';
+
+  @override
+  String get adminDoctorApplicationsEmpty =>
+      'No applications match these filters.';
+
+  @override
+  String get adminDoctorApplicationsEnd =>
+      'You have reached the end of the applications.';
+
+  @override
+  String get adminDoctorApplicationDetails => 'Application details';
+
+  @override
+  String get adminDoctorApplicationAccount => 'Applicant account';
+
+  @override
+  String get adminDoctorApplicationHistory => 'Application history';
+
+  @override
+  String get adminDoctorApplicationUid => 'Applicant UID';
+
+  @override
+  String get adminDoctorApplicationRole => 'Current account role';
+
+  @override
+  String get adminDoctorApplicationReviewer => 'Reviewer UID';
+
+  @override
+  String get adminDoctorApplicationApprove =>
+      'Approve and create doctor profile';
+
+  @override
+  String get adminDoctorApplicationReject => 'Reject application';
+
+  @override
+  String get adminDoctorApplicationReasonPrompt =>
+      'Enter a reason for rejection';
+
+  @override
+  String get adminDoctorApplicationReasonRequired => 'A reason is required.';
+
+  @override
+  String get adminDoctorApplicationRetry =>
+      'Could not complete the review. Please retry.';
 }

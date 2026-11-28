@@ -44,6 +44,15 @@ import '../../features/doctor_dashboard/presentation/cubit/doctor_appointment_de
 import '../../features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
 import '../../features/doctor_dashboard/presentation/pages/doctor_appointment_details_page.dart';
 import '../../features/doctor_dashboard/presentation/pages/doctor_dashboard_page.dart';
+import '../../features/doctor_profile/presentation/cubit/doctor_profile_cubit.dart';
+import '../../features/doctor_profile/presentation/pages/doctor_profile_page.dart';
+import '../../features/doctor_profile/presentation/pages/doctor_profile_edit_page.dart';
+import '../../features/doctor_applications/presentation/cubit/doctor_application_cubit.dart';
+import '../../features/doctor_applications/presentation/cubit/admin_doctor_applications_cubit.dart';
+import '../../features/doctor_applications/presentation/pages/doctor_application_status_page.dart';
+import '../../features/doctor_applications/presentation/pages/doctor_application_form_page.dart';
+import '../../features/doctor_applications/presentation/pages/admin_doctor_applications_page.dart';
+import '../../features/doctor_applications/presentation/pages/admin_doctor_application_details_page.dart';
 import '../../features/onboarding/presentation/pages/onboarding_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
@@ -75,13 +84,20 @@ abstract final class AppRouter {
   static const adminDoctorDetails = 'admin-doctor-details';
   static const adminPatients = 'admin-patients';
   static const adminPatientDetails = 'admin-patient-details';
+  static const adminDoctorApplications = 'admin-doctor-applications';
+  static const adminDoctorApplicationDetails =
+      'admin-doctor-application-details';
   static const home = 'home';
   static const explore = 'explore';
   static const appointments = 'appointments';
   static const appointmentDetails = 'appointmentDetails';
   static const doctorDashboard = 'doctor-dashboard';
+  static const doctorProfile = 'doctor-profile';
+  static const doctorProfileEdit = 'doctor-profile-edit';
   static const doctorAppointmentDetails = 'doctor-appointment-details';
   static const profile = 'profile';
+  static const doctorApplication = 'doctor-application';
+  static const doctorApplicationForm = 'doctor-application-form';
   static const doctorDetails = 'doctor-details';
   static const booking = 'booking';
 
@@ -282,6 +298,33 @@ abstract final class AppRouter {
               ),
             ],
           ),
+          GoRoute(
+            path: 'doctor-applications',
+            name: adminDoctorApplications,
+            builder: (_, _) => BlocProvider(
+              create: (_) =>
+                  GetIt.instance<AdminDoctorApplicationsCubit>()..load(),
+              child: const AdminDoctorApplicationsPage(),
+            ),
+            routes: [
+              GoRoute(
+                path: ':applicationId',
+                name: adminDoctorApplicationDetails,
+                builder: (_, state) {
+                  final applicationId =
+                      state.pathParameters['applicationId'] ?? '';
+                  return BlocProvider(
+                    create: (_) =>
+                        GetIt.instance<AdminDoctorApplicationDetailsCubit>()
+                          ..load(applicationId),
+                    child: AdminDoctorApplicationDetailsPage(
+                      applicationId: applicationId,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -292,6 +335,24 @@ abstract final class AppRouter {
           child: const DoctorDashboardPage(),
         ),
         routes: [
+          GoRoute(
+            path: 'profile',
+            name: doctorProfile,
+            builder: (_, _) => BlocProvider(
+              create: (_) => GetIt.instance<DoctorProfileCubit>()..load(),
+              child: const DoctorProfilePage(),
+            ),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                name: doctorProfileEdit,
+                builder: (_, _) => BlocProvider(
+                  create: (_) => GetIt.instance<DoctorProfileCubit>()..load(),
+                  child: const DoctorProfileEditPage(),
+                ),
+              ),
+            ],
+          ),
           GoRoute(
             path: 'appointments/:appointmentId',
             name: doctorAppointmentDetails,
@@ -406,6 +467,30 @@ abstract final class AppRouter {
                   create: (_) => GetIt.instance<ProfileCubit>()..load(),
                   child: const ProfilePage(),
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'doctor-application',
+                    name: doctorApplication,
+                    builder: (_, _) => BlocProvider(
+                      create: (_) =>
+                          GetIt.instance<DoctorApplicationCubit>()
+                            ..loadStatus(),
+                      child: const DoctorApplicationStatusPage(),
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'apply',
+                        name: doctorApplicationForm,
+                        builder: (_, _) => BlocProvider(
+                          create: (_) =>
+                              GetIt.instance<DoctorApplicationCubit>()
+                                ..loadForm(),
+                          child: const DoctorApplicationFormPage(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

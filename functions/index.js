@@ -10,6 +10,12 @@ const { createDoctorAdminCallable } = require('./src/doctor-admin/callable');
 const {
   createDoctorAdminService,
 } = require('./src/doctor-admin/doctor-admin-service');
+const {
+  createDoctorApplicationCallable,
+} = require('./src/doctor-application/callable');
+const {
+  createDoctorApplicationService,
+} = require('./src/doctor-application/service');
 
 if (getApps().length === 0) {
   initializeApp();
@@ -19,6 +25,32 @@ const doctorAdminService = createDoctorAdminService({
   db: getFirestore(),
   serverTimestamp: () => FieldValue.serverTimestamp(),
 });
+const doctorApplicationService = createDoctorApplicationService({
+  db: getFirestore(),
+  serverTimestamp: () => FieldValue.serverTimestamp(),
+});
+
+exports.submitDoctorApplication = onCall(
+  { region: 'us-central1' },
+  createDoctorApplicationCallable({
+    service: doctorApplicationService,
+    operation: 'submit',
+    HttpsError,
+    logger,
+  }),
+);
+for (const action of ['approve', 'reject']) {
+  exports[`${action}DoctorApplication`] = onCall(
+    { region: 'us-central1' },
+    createDoctorApplicationCallable({
+      service: doctorApplicationService,
+      operation: 'review',
+      action,
+      HttpsError,
+      logger,
+    }),
+  );
+}
 
 for (const action of ['approve', 'reject', 'suspend', 'restore']) {
   exports[`${action}Doctor`] = onCall(

@@ -129,11 +129,24 @@ class AdminDashboardContent extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       SizedBox(height: 16.h),
-                      FilledButton.icon(
-                        onPressed: () =>
-                            context.pushNamed(AppRouter.adminDoctors),
-                        icon: const Icon(Icons.medical_services_rounded),
-                        label: Text(l10n.adminDoctorsTitle),
+                      Wrap(
+                        spacing: 12.w,
+                        runSpacing: 8.h,
+                        children: [
+                          FilledButton.icon(
+                            onPressed: () =>
+                                context.pushNamed(AppRouter.adminDoctors),
+                            icon: const Icon(Icons.medical_services_rounded),
+                            label: Text(l10n.adminDoctorsTitle),
+                          ),
+                          OutlinedButton.icon(
+                            onPressed: () => context.pushNamed(
+                              AppRouter.adminDoctorApplications,
+                            ),
+                            icon: const Icon(Icons.assignment_ind_outlined),
+                            label: Text(l10n.adminDoctorApplications),
+                          ),
+                        ],
                       ),
                       if (isRefreshing) ...[
                         SizedBox(height: 18.h),

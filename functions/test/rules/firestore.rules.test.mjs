@@ -235,6 +235,84 @@ test('allows an approved active doctor booking atomically', async () => {
     assert.equal(slot.data()?.isAvailable, false);
     assert.equal(slot.data()?.appointmentId, 'new-appointment');
   });
+
+  test('doctor applications are readable only by the applicant or an admin', async () => {
+    await seed();
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      const db = context.firestore();
+      await setDoc(doc(db, 'doctor_applications/application-own'), {
+        applicationId: 'application-own',
+        applicantUid: 'patient-1',
+        applicationStatus: 'pending',
+        specialtyId: 'cardiology',
+      });
+      await setDoc(doc(db, 'doctor_applications/application-other'), {
+        applicationId: 'application-other',
+        applicantUid: 'patient-2',
+        applicationStatus: 'pending',
+        specialtyId: 'cardiology',
+      });
+    });
+
+    const patientDb = dbFor('patient-1');
+    await assertSucceeds(getDoc(doc(patientDb, 'doctor_applications/application-own')));
+    await assertFails(getDoc(doc(patientDb, 'doctor_applications/application-other')));
+    await assertSucceeds(
+      getDocs(query(
+        collection(patientDb, 'doctor_applications'),
+        where('applicantUid', '==', 'patient-1'),
+      )),
+    );
+    await assertFails(
+      getDocs(collection(patientDb, 'doctor_applications')),
+    );
+    await assertSucceeds(
+      getDocs(collection(dbFor('admin-1'), 'doctor_applications')),
+    );
+  });
+
+  test('application submission and review fields cannot be written by clients', async () => {
+    await seed();
+    const patientDb = dbFor('patient-1');
+    const applicationRef = doc(patientDb, 'doctor_applications/new-application');
+    await assertFails(setDoc(applicationRef, {
+      applicationId: 'new-application',
+      applicantUid: 'patient-1',
+      applicationStatus: 'pending',
+      specialtyId: 'cardiology',
+    }));
+    await testEnvironment.withSecurityRulesDisabled(async (context) => {
+      await setDoc(doc(context.firestore(), 'doctor_applications/pending-app'), {
+        applicationId: 'pending-app',
+        applicantUid: 'patient-1',
+        applicationStatus: 'pending',
+        specialtyId: 'cardiology',
+      });
+    });
+
+    for (const privilegedChanges of [
+      { applicationStatus: 'approved' },
+      { applicationStatus: 'rejected' },
+      { reviewerUid: 'patient-1' },
+      { doctorProfileId: 'forged-doctor' },
+    ]) {
+      await assertFails(updateDoc(
+        doc(patientDb, 'doctor_applications/pending-app'),
+        privilegedChanges,
+      ));
+    }
+    await assertFails(updateDoc(doc(patientDb, 'users/patient-1'), {
+      role: 'doctor',
+    }));
+    await assertFails(updateDoc(
+      doc(dbFor('admin-1'), 'doctor_applications/pending-app'),
+      { applicationStatus: 'approved' },
+    ));
+    await assertFails(setDoc(
+      doc(dbFor('admin-1'), 'doctor_application_audit/forged-event'),
+      { actorUid: 'admin-1' },
+    ));
+  });
 });
 
 test('allows legacy missing administrativeStatus but explicit-active discovery omits it', async () => {

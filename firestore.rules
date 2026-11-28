@@ -23,6 +23,15 @@ service cloud.firestore {
           .data.get('role', '') == 'doctor';
     }
 
+    function isDoctorApplicationApplicant(applicationData) {
+      let userPath =
+        /databases/$(database)/documents/users/$(request.auth.uid);
+      return signedIn()
+        && applicationData.get('applicantUid', '') == request.auth.uid
+        && exists(userPath)
+        && get(userPath).data.get('role', '') in ['patient', 'doctor'];
+    }
+
     function isDoctorCheckingOwnMissingProfile(doctorId) {
       let doctorPath = /databases/$(database)/documents/doctors/$(doctorId);
       return isDoctor()
@@ -250,6 +259,24 @@ service cloud.firestore {
             && request.resource.data.get('fullName', '').size() > 0
             && request.resource.data.get('phoneNumber', '') is string
           )
+          ||
+          (
+            resource.data.get('role', '') == 'doctor'
+            && request.resource.data.get('uid', '')
+              == resource.data.get('uid', '')
+            && request.resource.data.get('role', '')
+              == resource.data.get('role', '')
+            && request.resource.data.get('email', '')
+              == resource.data.get('email', '')
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'fullName', 'phoneNumber', 'profileImageUrl', 'updatedAt'
+            ])
+            && request.resource.data.get('fullName', '') is string
+            && request.resource.data.get('fullName', '').size() > 0
+            && request.resource.data.get('phoneNumber', '') is string
+            && request.resource.data.get('profileImageUrl', '') is string
+            && request.resource.data.get('updatedAt', null) == request.time
+          )
           || (
             (
               resource.data.get('role', null) == null
@@ -307,9 +334,31 @@ service cloud.firestore {
         && request.resource.data.get('administrativeStatus', '')
           == resource.data.get('administrativeStatus', '')
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'fullName', 'phoneNumber', 'consultationFee', 'biography',
+          'yearsExperience', 'clinicName', 'clinicAddress',
           'profileImageUrl', 'updatedAt'
         ])
         && request.resource.data.get('profileImageUrl', '') is string
+        && request.resource.data.get('fullName', '') is string
+        && request.resource.data.get('fullName', '').size() > 0
+        && request.resource.data.get('phoneNumber', '') is string
+        && request.resource.data.get('biography', '') is string
+        && request.resource.data.get('clinicName', '') is string
+        && request.resource.data.get('clinicAddress', '') is string
+        && (
+          !request.resource.data.keys().hasAny(['consultationFee'])
+          || (
+            request.resource.data.get('consultationFee', 0) is number
+            && request.resource.data.get('consultationFee', 0) >= 0
+          )
+        )
+        && (
+          !request.resource.data.keys().hasAny(['yearsExperience'])
+          || (
+            request.resource.data.get('yearsExperience', 0) is int
+            && request.resource.data.get('yearsExperience', 0) >= 0
+          )
+        )
         && request.resource.data.get('updatedAt', null) == request.time;
 
       match /availabilitySlots/{slotId} {
@@ -492,6 +541,23 @@ service cloud.firestore {
     }
 
     match /doctor_admin_audit/{operationId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /doctor_applications/{applicationId} {
+      allow get, list: if isAdmin()
+        || isDoctorApplicationApplicant(resource.data);
+      // Application creation and review use authenticated callables to enforce
+      // single-pending submissions and atomic doctor provisioning.
+      allow create, update, delete: if false;
+    }
+
+    match /doctor_application_state/{uid} {
+      allow read, write: if false;
+    }
+
+    match /doctor_application_audit/{operationId} {
       allow read: if isAdmin();
       allow write: if false;
     }

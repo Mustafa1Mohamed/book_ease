@@ -6,7 +6,12 @@ import 'package:book_ease/features/profile/domain/usecases/pick_and_upload_profi
 import 'package:book_ease/features/profile/domain/usecases/update_profile.dart';
 import 'package:book_ease/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:book_ease/features/profile/presentation/pages/profile_page.dart';
+import 'package:book_ease/core/localization/generated/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
@@ -51,6 +56,13 @@ void main() {
       ScreenUtilPlusInit(
         designSize: const Size(360, 690),
         child: MaterialApp(
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
           home: BlocProvider.value(
             value: cubit,
             child: const Scaffold(body: ProfilePage()),
@@ -62,6 +74,7 @@ void main() {
 
     expect(find.text('Taylor Patient'), findsOneWidget);
     expect(find.text('taylor@example.test'), findsOneWidget);
+    expect(find.text('Become a doctor'), findsOneWidget);
     expect(find.text('role'), findsNothing);
     final emailField = tester
         .widgetList<TextFormField>(find.byType(TextFormField))

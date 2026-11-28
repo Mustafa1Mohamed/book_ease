@@ -57,6 +57,15 @@ import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_a
 import 'package:book_ease/features/doctor_dashboard/domain/usecases/get_doctor_dashboard.dart';
 import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_appointment_details_cubit.dart';
 import 'package:book_ease/features/doctor_dashboard/presentation/cubit/doctor_dashboard_cubit.dart';
+import 'package:book_ease/features/doctor_profile/data/datasources/doctor_profile_remote_data_source.dart';
+import 'package:book_ease/features/doctor_profile/data/repositories/doctor_profile_repository_impl.dart';
+import 'package:book_ease/features/doctor_profile/domain/repositories/doctor_profile_repository.dart';
+import 'package:book_ease/features/doctor_profile/presentation/cubit/doctor_profile_cubit.dart';
+import 'package:book_ease/features/doctor_applications/data/datasources/doctor_application_remote_data_source.dart';
+import 'package:book_ease/features/doctor_applications/data/repositories/doctor_application_repository_impl.dart';
+import 'package:book_ease/features/doctor_applications/domain/repositories/doctor_application_repository.dart';
+import 'package:book_ease/features/doctor_applications/presentation/cubit/doctor_application_cubit.dart';
+import 'package:book_ease/features/doctor_applications/presentation/cubit/admin_doctor_applications_cubit.dart';
 import 'package:book_ease/features/admin/data/datasources/admin_dashboard_remote_data_source.dart';
 import 'package:book_ease/features/admin/data/repositories/admin_dashboard_repository_impl.dart';
 import 'package:book_ease/features/admin/domain/repositories/admin_dashboard_repository.dart';
@@ -99,6 +108,10 @@ Future<void> setupDependencies() async {
       getIt.isRegistered<AppointmentDetailsCubit>() &&
       getIt.isRegistered<DoctorDashboardCubit>() &&
       getIt.isRegistered<DoctorAppointmentDetailsCubit>() &&
+      getIt.isRegistered<DoctorProfileCubit>() &&
+      getIt.isRegistered<DoctorApplicationCubit>() &&
+      getIt.isRegistered<AdminDoctorApplicationsCubit>() &&
+      getIt.isRegistered<AdminDoctorApplicationDetailsCubit>() &&
       getIt.isRegistered<AdminDashboardCubit>() &&
       getIt.isRegistered<AdminDoctorListCubit>() &&
       getIt.isRegistered<AdminDoctorDetailsCubit>() &&
@@ -364,6 +377,31 @@ Future<void> setupDependencies() async {
     );
   }
 
+  if (!getIt.isRegistered<DoctorProfileRemoteDataSource>()) {
+    getIt.registerLazySingleton<DoctorProfileRemoteDataSource>(
+      () => DoctorProfileRemoteDataSource(
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseAuth>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorProfileRepository>()) {
+    getIt.registerLazySingleton<DoctorProfileRepository>(
+      () => DoctorProfileRepositoryImpl(
+        getIt<DoctorProfileRemoteDataSource>(),
+        getIt<ProfileImagePickerDataSource>(),
+        getIt<ProfileRemoteDataSource>(),
+      ),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorProfileCubit>()) {
+    getIt.registerFactory<DoctorProfileCubit>(
+      () => DoctorProfileCubit(getIt<DoctorProfileRepository>()),
+    );
+  }
+
   if (!getIt.isRegistered<AppointmentCategoryPolicy>()) {
     getIt.registerLazySingleton<AppointmentCategoryPolicy>(
       () => const AppointmentCategoryPolicy(),
@@ -585,6 +623,39 @@ Future<void> setupDependencies() async {
   if (!getIt.isRegistered<AdminPatientDetailsCubit>()) {
     getIt.registerFactory<AdminPatientDetailsCubit>(
       () => AdminPatientDetailsCubit(getIt<AdminPatientRepository>()),
+    );
+  }
+
+  if (!getIt.isRegistered<DoctorApplicationRemoteDataSource>()) {
+    getIt.registerLazySingleton<DoctorApplicationRemoteDataSource>(
+      () => DoctorApplicationRemoteDataSource(
+        getIt<FirebaseFirestore>(),
+        getIt<FirebaseAuth>(),
+      ),
+    );
+  }
+  if (!getIt.isRegistered<DoctorApplicationRepository>()) {
+    getIt.registerLazySingleton<DoctorApplicationRepository>(
+      () => DoctorApplicationRepositoryImpl(
+        getIt<DoctorApplicationRemoteDataSource>(),
+      ),
+    );
+  }
+  if (!getIt.isRegistered<DoctorApplicationCubit>()) {
+    getIt.registerFactory<DoctorApplicationCubit>(
+      () => DoctorApplicationCubit(getIt<DoctorApplicationRepository>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorApplicationsCubit>()) {
+    getIt.registerFactory<AdminDoctorApplicationsCubit>(
+      () => AdminDoctorApplicationsCubit(getIt<DoctorApplicationRepository>()),
+    );
+  }
+  if (!getIt.isRegistered<AdminDoctorApplicationDetailsCubit>()) {
+    getIt.registerFactory<AdminDoctorApplicationDetailsCubit>(
+      () => AdminDoctorApplicationDetailsCubit(
+        getIt<DoctorApplicationRepository>(),
+      ),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:book_ease/app.dart';
+import 'package:book_ease/core/config/supabase_config.dart';
 import 'package:book_ease/core/localization/local_cubit.dart';
 import 'package:book_ease/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:book_ease/firebase_options.dart';
@@ -10,16 +11,16 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  String url = const String.fromEnvironment('URL');
-  String publishableKey = const String.fromEnvironment('PUBLISHABLE_KEY');
+  final supabaseConfig = await _loadSupabaseConfig();
   await Supabase.initialize(
-    url: url,
-    publishableKey: publishableKey,
+    url: supabaseConfig.url,
+    publishableKey: supabaseConfig.publishableKey,
     accessToken: _getFirebaseAccessToken,
   );
   await setupDependencies();
@@ -33,6 +34,11 @@ Future<void> main() async {
       child: const MyApp(),
     ),
   );
+}
+
+Future<SupabaseConfig> _loadSupabaseConfig() async {
+  final source = await rootBundle.loadString('env.json');
+  return parseSupabaseConfig(source);
 }
 
 Future<String?> _getFirebaseAccessToken() async {

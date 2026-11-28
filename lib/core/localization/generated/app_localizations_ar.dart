@@ -500,4 +500,194 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get doctorAccessUnavailableMessage =>
       'تعذر التحقق من صلاحية الوصول إلى حسابك. يرجى التواصل مع الدعم.';
+
+  @override
+  String get doctorProfileTitle => 'ملف الطبيب';
+
+  @override
+  String get doctorProfileEdit => 'تعديل الملف';
+
+  @override
+  String get doctorProfilePhoto => 'تغيير صورة الملف';
+
+  @override
+  String get doctorProfileSave => 'حفظ الملف';
+
+  @override
+  String get doctorProfileSpecialtyReadOnly =>
+      'تتطلب تغييرات التخصص مراجعة من الإدارة ولا يمكن تعديلها هنا.';
+
+  @override
+  String get doctorProfileCompleteness => 'اكتمال الملف';
+
+  @override
+  String get doctorProfileSaveSuccess => 'تم حفظ الملف.';
+
+  @override
+  String get doctorProfilePhotoSuccess => 'تم تحديث صورة الملف.';
+
+  @override
+  String get patientBecomeDoctor => 'التقديم كطبيب';
+
+  @override
+  String get patientBecomeDoctorSubtitle =>
+      'قدّم طلباً للانضمام إلى BookEase كأخصائي طبي.';
+
+  @override
+  String get doctorApplicationTitle => 'طلب الانضمام كطبيب';
+
+  @override
+  String get doctorApplicationStatus => 'حالة الطلب';
+
+  @override
+  String get doctorApplicationNoApplication =>
+      'لم تقدّم طلباً للانضمام كطبيب بعد.';
+
+  @override
+  String get doctorApplicationPending => 'طلبك قيد المراجعة.';
+
+  @override
+  String get doctorApplicationApproved => 'تمت الموافقة على طلبك.';
+
+  @override
+  String get doctorApplicationRejected => 'لم تتم الموافقة على طلبك.';
+
+  @override
+  String get doctorApplicationSubmittedOn => 'تاريخ التقديم';
+
+  @override
+  String get doctorApplicationReviewedOn => 'تاريخ المراجعة';
+
+  @override
+  String get doctorApplicationRejectionReason => 'ملاحظات المراجعة';
+
+  @override
+  String get doctorApplicationStart => 'بدء الطلب';
+
+  @override
+  String get doctorApplicationResubmit => 'إرسال طلب جديد';
+
+  @override
+  String get doctorApplicationFormTitle => 'التقديم كطبيب';
+
+  @override
+  String get doctorApplicationFullName => 'الاسم الكامل';
+
+  @override
+  String get doctorApplicationPhone => 'رقم الهاتف';
+
+  @override
+  String get doctorApplicationSpecialty => 'التخصص';
+
+  @override
+  String get doctorApplicationQualification => 'المؤهل الطبي';
+
+  @override
+  String get doctorApplicationExperience => 'سنوات الخبرة';
+
+  @override
+  String get doctorApplicationBio => 'نبذة مهنية';
+
+  @override
+  String get doctorApplicationFee => 'رسوم الاستشارة';
+
+  @override
+  String get doctorApplicationClinicAddress => 'عنوان العيادة';
+
+  @override
+  String get doctorApplicationCredentialNotice =>
+      'المعلومات المهنية مقدّمة من صاحب الطلب، وقد تطلب الإدارة التحقق منها قبل المراجعة أو بعدها.';
+
+  @override
+  String get doctorApplicationSubmit => 'إرسال للمراجعة';
+
+  @override
+  String get doctorApplicationSubmitted => 'تم إرسال الطلب للمراجعة.';
+
+  @override
+  String get doctorApplicationAlreadyPending => 'يوجد طلب قيد المراجعة بالفعل.';
+
+  @override
+  String get doctorApplicationValidationRequired => 'هذا الحقل مطلوب.';
+
+  @override
+  String get doctorApplicationValidationPhone => 'أدخل رقم هاتف صحيحاً.';
+
+  @override
+  String get doctorApplicationValidationFee => 'أدخل رسوماً صحيحة غير سالبة.';
+
+  @override
+  String get doctorApplicationValidationExperience => 'أدخل عدد سنوات صحيحاً.';
+
+  @override
+  String get doctorApplicationValidationBio => 'أدخل 30 حرفاً على الأقل.';
+
+  @override
+  String get doctorApplicationSpecialtiesUnavailable =>
+      'لا توجد تخصصات نشطة. يرجى التواصل مع الدعم.';
+
+  @override
+  String get doctorApplicationGoDashboard => 'فتح لوحة الطبيب';
+
+  @override
+  String get adminDoctorApplications => 'طلبات الأطباء';
+
+  @override
+  String get adminDoctorApplicationsSearch => 'ابحث بالاسم أو بداية البريد';
+
+  @override
+  String get adminDoctorApplicationsAll => 'كل الحالات';
+
+  @override
+  String get adminDoctorApplicationsPending => 'قيد الانتظار';
+
+  @override
+  String get adminDoctorApplicationsApproved => 'تمت الموافقة';
+
+  @override
+  String get adminDoctorApplicationsRejected => 'مرفوض';
+
+  @override
+  String get adminDoctorApplicationsAllSpecialties => 'كل التخصصات';
+
+  @override
+  String get adminDoctorApplicationsEmpty =>
+      'لا توجد طلبات تطابق عوامل التصفية.';
+
+  @override
+  String get adminDoctorApplicationsEnd => 'وصلت إلى نهاية الطلبات.';
+
+  @override
+  String get adminDoctorApplicationDetails => 'تفاصيل الطلب';
+
+  @override
+  String get adminDoctorApplicationAccount => 'حساب مقدم الطلب';
+
+  @override
+  String get adminDoctorApplicationHistory => 'سجل الطلبات';
+
+  @override
+  String get adminDoctorApplicationUid => 'معرّف مقدم الطلب';
+
+  @override
+  String get adminDoctorApplicationRole => 'دور الحساب الحالي';
+
+  @override
+  String get adminDoctorApplicationReviewer => 'معرّف المراجع';
+
+  @override
+  String get adminDoctorApplicationApprove => 'الموافقة وإنشاء ملف الطبيب';
+
+  @override
+  String get adminDoctorApplicationReject => 'رفض الطلب';
+
+  @override
+  String get adminDoctorApplicationReasonPrompt => 'أدخل سبب الرفض';
+
+  @override
+  String get adminDoctorApplicationReasonRequired => 'سبب الرفض مطلوب.';
+
+  @override
+  String get adminDoctorApplicationRetry =>
+      'تعذرت مراجعة الطلب. حاول مرة أخرى.';
 }

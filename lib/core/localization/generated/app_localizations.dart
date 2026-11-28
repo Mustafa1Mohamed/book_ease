@@ -1015,6 +1015,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We could not verify your account access. Please contact support.'**
   String get doctorAccessUnavailableMessage;
+
+  /// No description provided for @doctorProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor profile'**
+  String get doctorProfileTitle;
+
+  /// No description provided for @doctorProfileEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get doctorProfileEdit;
+
+  /// No description provided for @doctorProfilePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get doctorProfilePhoto;
+
+  /// No description provided for @doctorProfileSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save profile'**
+  String get doctorProfileSave;
+
+  /// No description provided for @doctorProfileSpecialtyReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty changes require admin review and are not editable here.'**
+  String get doctorProfileSpecialtyReadOnly;
+
+  /// No description provided for @doctorProfileCompleteness.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile completeness'**
+  String get doctorProfileCompleteness;
+
+  /// No description provided for @doctorProfileSaveSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved.'**
+  String get doctorProfileSaveSuccess;
+
+  /// No description provided for @doctorProfilePhotoSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile photo updated.'**
+  String get doctorProfilePhotoSuccess;
+
+  /// No description provided for @patientBecomeDoctor.
+  ///
+  /// In en, this message translates to:
+  /// **'Become a doctor'**
+  String get patientBecomeDoctor;
+
+  /// No description provided for @patientBecomeDoctorSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply to join BookEase as a medical professional.'**
+  String get patientBecomeDoctorSubtitle;
+
+  /// No description provided for @doctorApplicationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor application'**
+  String get doctorApplicationTitle;
+
+  /// No description provided for @doctorApplicationStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Application status'**
+  String get doctorApplicationStatus;
+
+  /// No description provided for @doctorApplicationNoApplication.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not submitted a doctor application yet.'**
+  String get doctorApplicationNoApplication;
+
+  /// No description provided for @doctorApplicationPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your application is under review.'**
+  String get doctorApplicationPending;
+
+  /// No description provided for @doctorApplicationApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Your application was approved.'**
+  String get doctorApplicationApproved;
+
+  /// No description provided for @doctorApplicationRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Your application was not approved.'**
+  String get doctorApplicationRejected;
+
+  /// No description provided for @doctorApplicationSubmittedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted'**
+  String get doctorApplicationSubmittedOn;
+
+  /// No description provided for @doctorApplicationReviewedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewed'**
+  String get doctorApplicationReviewedOn;
+
+  /// No description provided for @doctorApplicationRejectionReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Review notes'**
+  String get doctorApplicationRejectionReason;
+
+  /// No description provided for @doctorApplicationStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start application'**
+  String get doctorApplicationStart;
+
+  /// No description provided for @doctorApplicationResubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit a new application'**
+  String get doctorApplicationResubmit;
+
+  /// No description provided for @doctorApplicationFormTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply as a doctor'**
+  String get doctorApplicationFormTitle;
+
+  /// No description provided for @doctorApplicationFullName.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get doctorApplicationFullName;
+
+  /// No description provided for @doctorApplicationPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get doctorApplicationPhone;
+
+  /// No description provided for @doctorApplicationSpecialty.
+  ///
+  /// In en, this message translates to:
+  /// **'Specialty'**
+  String get doctorApplicationSpecialty;
+
+  /// No description provided for @doctorApplicationQualification.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical qualification'**
+  String get doctorApplicationQualification;
+
+  /// No description provided for @doctorApplicationExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Years of experience'**
+  String get doctorApplicationExperience;
+
+  /// No description provided for @doctorApplicationBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional biography'**
+  String get doctorApplicationBio;
+
+  /// No description provided for @doctorApplicationFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Consultation fee'**
+  String get doctorApplicationFee;
+
+  /// No description provided for @doctorApplicationClinicAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Clinic address'**
+  String get doctorApplicationClinicAddress;
+
+  /// No description provided for @doctorApplicationCredentialNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional details are self-reported. An administrator may request verification before or after review.'**
+  String get doctorApplicationCredentialNotice;
+
+  /// No description provided for @doctorApplicationSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for review'**
+  String get doctorApplicationSubmit;
+
+  /// No description provided for @doctorApplicationSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Application submitted for review.'**
+  String get doctorApplicationSubmitted;
+
+  /// No description provided for @doctorApplicationAlreadyPending.
+  ///
+  /// In en, this message translates to:
+  /// **'An application is already under review.'**
+  String get doctorApplicationAlreadyPending;
+
+  /// No description provided for @doctorApplicationValidationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required.'**
+  String get doctorApplicationValidationRequired;
+
+  /// No description provided for @doctorApplicationValidationPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid phone number.'**
+  String get doctorApplicationValidationPhone;
+
+  /// No description provided for @doctorApplicationValidationFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid non-negative fee.'**
+  String get doctorApplicationValidationFee;
+
+  /// No description provided for @doctorApplicationValidationExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid number of years.'**
+  String get doctorApplicationValidationExperience;
+
+  /// No description provided for @doctorApplicationValidationBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 30 characters.'**
+  String get doctorApplicationValidationBio;
+
+  /// No description provided for @doctorApplicationSpecialtiesUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No active specialties are available. Please contact support.'**
+  String get doctorApplicationSpecialtiesUnavailable;
+
+  /// No description provided for @doctorApplicationGoDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Open doctor dashboard'**
+  String get doctorApplicationGoDashboard;
+
+  /// No description provided for @adminDoctorApplications.
+  ///
+  /// In en, this message translates to:
+  /// **'Doctor applications'**
+  String get adminDoctorApplications;
+
+  /// No description provided for @adminDoctorApplicationsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or email prefix'**
+  String get adminDoctorApplicationsSearch;
+
+  /// No description provided for @adminDoctorApplicationsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All statuses'**
+  String get adminDoctorApplicationsAll;
+
+  /// No description provided for @adminDoctorApplicationsPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get adminDoctorApplicationsPending;
+
+  /// No description provided for @adminDoctorApplicationsApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminDoctorApplicationsApproved;
+
+  /// No description provided for @adminDoctorApplicationsRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejected'**
+  String get adminDoctorApplicationsRejected;
+
+  /// No description provided for @adminDoctorApplicationsAllSpecialties.
+  ///
+  /// In en, this message translates to:
+  /// **'All specialties'**
+  String get adminDoctorApplicationsAllSpecialties;
+
+  /// No description provided for @adminDoctorApplicationsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No applications match these filters.'**
+  String get adminDoctorApplicationsEmpty;
+
+  /// No description provided for @adminDoctorApplicationsEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'You have reached the end of the applications.'**
+  String get adminDoctorApplicationsEnd;
+
+  /// No description provided for @adminDoctorApplicationDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Application details'**
+  String get adminDoctorApplicationDetails;
+
+  /// No description provided for @adminDoctorApplicationAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Applicant account'**
+  String get adminDoctorApplicationAccount;
+
+  /// No description provided for @adminDoctorApplicationHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Application history'**
+  String get adminDoctorApplicationHistory;
+
+  /// No description provided for @adminDoctorApplicationUid.
+  ///
+  /// In en, this message translates to:
+  /// **'Applicant UID'**
+  String get adminDoctorApplicationUid;
+
+  /// No description provided for @adminDoctorApplicationRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Current account role'**
+  String get adminDoctorApplicationRole;
+
+  /// No description provided for @adminDoctorApplicationReviewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer UID'**
+  String get adminDoctorApplicationReviewer;
+
+  /// No description provided for @adminDoctorApplicationApprove.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve and create doctor profile'**
+  String get adminDoctorApplicationApprove;
+
+  /// No description provided for @adminDoctorApplicationReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject application'**
+  String get adminDoctorApplicationReject;
+
+  /// No description provided for @adminDoctorApplicationReasonPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a reason for rejection'**
+  String get adminDoctorApplicationReasonPrompt;
+
+  /// No description provided for @adminDoctorApplicationReasonRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'A reason is required.'**
+  String get adminDoctorApplicationReasonRequired;
+
+  /// No description provided for @adminDoctorApplicationRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not complete the review. Please retry.'**
+  String get adminDoctorApplicationRetry;
 }
 
 class _AppLocalizationsDelegate

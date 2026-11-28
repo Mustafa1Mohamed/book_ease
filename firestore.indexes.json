@@ -191,6 +191,89 @@
         { "fieldPath": "specialtyId", "order": "ASCENDING" },
         { "fieldPath": "name", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicantUid", "order": "ASCENDING" },
+        { "fieldPath": "submittedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "submittedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "submittedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "submittedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "applicantNameLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "applicantNameLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "applicantNameLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "applicantEmailLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "applicantEmailLower", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "doctor_applications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "applicationStatus", "order": "ASCENDING" },
+        { "fieldPath": "specialtyId", "order": "ASCENDING" },
+        { "fieldPath": "applicantEmailLower", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

@@ -127,6 +127,14 @@ void main() {
         );
 
         expect(AppRouter.redirectFor(state, '/appointments'), isNull);
+        expect(
+          AppRouter.redirectFor(state, '/profile/doctor-application'),
+          isNull,
+        );
+        expect(
+          AppRouter.redirectFor(state, '/profile/doctor-application/apply'),
+          isNull,
+        );
         expect(AppRouter.redirectFor(state, '/doctor-dashboard'), '/home');
         expect(AppRouter.redirectFor(state, '/admin'), '/home');
         expect(AppRouter.redirectFor(state, '/admin/appointments'), '/home');
@@ -198,6 +206,10 @@ void main() {
         AppRouter.redirectFor(approved, '/appointments'),
         '/doctor-dashboard',
       );
+      expect(
+        AppRouter.redirectFor(approved, '/profile/doctor-application'),
+        '/doctor-dashboard',
+      );
       expect(AppRouter.redirectFor(approved, '/admin'), '/doctor-dashboard');
       expect(AppRouter.redirectFor(approved, '/doctor-dashboard'), isNull);
     });
@@ -213,6 +225,24 @@ void main() {
         expect(AppRouter.redirectFor(admin, '/admin/dashboard'), isNull);
         expect(AppRouter.redirectFor(admin, '/admin/doctors'), isNull);
         expect(AppRouter.redirectFor(admin, '/admin/patients'), isNull);
+        expect(
+          AppRouter.redirectFor(admin, '/admin/doctor-applications'),
+          isNull,
+        );
+        expect(
+          AppRouter.redirectFor(
+            admin,
+            '/admin/doctor-applications/application-1',
+          ),
+          isNull,
+        );
+        expect(
+          AppRouter.redirectFor(
+            AuthAuthenticated(_user(UserRole.patient)),
+            '/admin/doctor-applications',
+          ),
+          '/home',
+        );
         expect(
           AppRouter.redirectFor(admin, '/admin/patients/patient-1'),
           isNull,

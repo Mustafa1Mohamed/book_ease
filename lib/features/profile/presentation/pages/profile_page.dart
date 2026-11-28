@@ -1,10 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../auth/domain/entities/app_user.dart';
+import '../../../auth/domain/entities/user_role.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../home/presentation/widgets/home_avatar.dart';
+import '../../../../core/localization/generated/app_localizations.dart';
+import '../../../../core/router/app_router.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
@@ -110,6 +114,7 @@ class _ProfileFormState extends State<_ProfileForm> {
   Widget build(BuildContext context) {
     final state = context.watch<ProfileCubit>().state as ProfileLoaded;
     final user = state.user;
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: EdgeInsets.fromLTRB(20.w, 24.h, 20.w, 32.h),
       children: [
@@ -217,6 +222,35 @@ class _ProfileFormState extends State<_ProfileForm> {
             ],
           ),
         ),
+        if (user.role == UserRole.patient) ...[
+          SizedBox(height: 24.h),
+          Card(
+            child: Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.patientBecomeDoctor,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  SizedBox(height: 6.h),
+                  Text(l10n.patientBecomeDoctorSubtitle),
+                  SizedBox(height: 12.h),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          context.pushNamed(AppRouter.doctorApplication),
+                      icon: const Icon(Icons.medical_services_outlined),
+                      label: Text(l10n.doctorApplicationTitle),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
         SizedBox(height: 24.h),
         OutlinedButton.icon(
           onPressed: () async {
