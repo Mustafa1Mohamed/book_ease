@@ -703,6 +703,34 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذرت مراجعة الطلب. حاول مرة أخرى.';
 
   @override
+  String get adminDoctorApplicationPermissionDenied =>
+      'ليس لديك صلاحية لمراجعة هذا الطلب.';
+
+  @override
+  String get adminDoctorApplicationAuthenticationRequired =>
+      'انتهت جلسة المسؤول. سجّل الدخول مرة أخرى ثم أعد المحاولة.';
+
+  @override
+  String get adminDoctorApplicationNotFound =>
+      'تعذر العثور على هذا الطلب. حدّث القائمة ثم أعد المحاولة.';
+
+  @override
+  String get adminDoctorApplicationConflict =>
+      'تغير الطلب أو حساب المتقدم، ولا يمكن مراجعته بالحالة الحالية.';
+
+  @override
+  String get adminDoctorApplicationSpecialtyUnavailable =>
+      'لم يعد التخصص المحدد نشطاً، ولا يمكن الموافقة على الطلب.';
+
+  @override
+  String get adminDoctorApplicationInvalidData =>
+      'يتضمن الطلب معلومات ملف شخصي ناقصة أو غير صالحة.';
+
+  @override
+  String get adminDoctorApplicationNetworkError =>
+      'انقطع الاتصال أثناء المراجعة. تحقق من حالة الطلب قبل إعادة المحاولة.';
+
+  @override
   String get adminSpecialtiesTitle => 'إدارة التخصصات';
 
   @override

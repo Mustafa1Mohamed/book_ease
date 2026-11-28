@@ -388,9 +388,9 @@ test('patients can submit valid applications but cannot forge or review them', a
     await assertSucceeds(resubmission.commit());
 
     const doctorProfileId = 'doctor_patient-1_2';
-    const makeApproval = () => {
-      const approval = writeBatch(adminDb);
-      approval.set(doc(adminDb, `doctors/${doctorProfileId}`), {
+    const makeApproval = (db = adminDb) => {
+      const approval = writeBatch(db);
+      approval.set(doc(db, `doctors/${doctorProfileId}`), {
         uid: 'patient-1',
         fullName: 'Patient One',
         email: 'patient@example.com',
@@ -409,21 +409,21 @@ test('patients can submit valid applications but cannot forge or review them', a
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-      approval.update(doc(adminDb, 'users/patient-1'), {
+      approval.update(doc(db, 'users/patient-1'), {
         role: 'doctor',
         doctorProfileId,
         fullName: 'Patient One',
         phoneNumber: '+1 555 0100',
         updatedAt: serverTimestamp(),
       });
-      approval.update(doc(adminDb, 'doctor_applications/patient-1_2'), {
+      approval.update(doc(db, 'doctor_applications/patient-1_2'), {
         applicationStatus: 'approved',
         reviewedBy: 'admin-1',
         reviewedAt: serverTimestamp(),
         doctorProfileId,
         updatedAt: serverTimestamp(),
       });
-      approval.set(doc(adminDb, 'doctor_application_audit/approve-test'), {
+      approval.set(doc(db, 'doctor_application_audit/approve-test'), {
         actorUid: 'admin-1',
         action: 'application_approve',
         applicationId: 'patient-1_2',
@@ -443,14 +443,119 @@ test('patients can submit valid applications but cannot forge or review them', a
         isActive: false,
       });
     });
-    await assertFails(makeApproval().commit());
+    await assertFails(makeApproval(patientDb).commit());
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
       await updateDoc(doc(context.firestore(), 'specialties/cardiology'), {
         isActive: true,
       });
     });
-    const approval = makeApproval();
-    await assertSucceeds(approval.commit());
+    const operationId = 'application_patient-1_2_approve';
+    const doctorProfile = {
+      uid: 'patient-1',
+      fullName: 'Patient One',
+      email: 'patient@example.com',
+      phoneNumber: '+1 555 0100',
+      profileImageUrl: '',
+      specialtyId: 'cardiology',
+      specialtyName: 'Cardiology',
+      qualifications: ['MD'],
+      yearsExperience: 8,
+      biography: 'A professional biography.',
+      consultationFee: 80,
+      clinicAddress: 'Main Street clinic',
+      approvalStatus: 'approved',
+      administrativeStatus: 'active',
+      applicationId: 'patient-1_2',
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    };
+    const userPromotion = {
+      role: 'doctor',
+      doctorProfileId,
+      fullName: 'Patient One',
+      phoneNumber: '+1 555 0100',
+      updatedAt: serverTimestamp(),
+    };
+    const applicationApproval = {
+      applicationStatus: 'approved',
+      reviewedBy: 'admin-1',
+      reviewedAt: serverTimestamp(),
+      doctorProfileId,
+      updatedAt: serverTimestamp(),
+    };
+    const auditRecord = {
+      actorUid: 'admin-1',
+      action: 'application_approve',
+      applicationId: 'patient-1_2',
+      applicantUid: 'patient-1',
+      operationId,
+      reason: '',
+      schemaVersion: 1,
+      createdAt: serverTimestamp(),
+      doctorProfileId,
+      newRole: 'doctor',
+    };
+
+    await assertFails(setDoc(
+      doc(patientDb, `doctors/${doctorProfileId}`),
+      doctorProfile,
+    ));
+    await assertFails(updateDoc(
+      doc(patientDb, 'users/patient-1'),
+      userPromotion,
+    ));
+    await assertFails(updateDoc(
+      doc(patientDb, 'doctor_applications/patient-1_2'),
+      applicationApproval,
+    ));
+    await assertFails(setDoc(
+      doc(patientDb, `doctor_application_audit/${operationId}`),
+      auditRecord,
+    ));
+
+    const commitApproval = ({
+      db = adminDb,
+      reviewedBy = 'admin-1',
+      auditActor = 'admin-1',
+    } = {}) => {
+      const transactionApplicationReference = doc(
+        db,
+        'doctor_applications/patient-1_2',
+      );
+      const transactionUserReference = doc(db, 'users/patient-1');
+      const transactionDoctorReference = doc(db, `doctors/${doctorProfileId}`);
+      const transactionAuditReference = doc(
+        db,
+        `doctor_application_audit/${operationId}`,
+      );
+      return db.runTransaction(async (transaction) => {
+        const approvalAudit = { ...auditRecord, actorUid: auditActor };
+        const approvedApplication = {
+          ...applicationApproval,
+          reviewedBy,
+        };
+
+        await transaction.get(transactionAuditReference);
+        await transaction.get(transactionApplicationReference);
+        await transaction.get(transactionUserReference);
+        await transaction.get(doc(db, 'doctor_application_state/patient-1'));
+        await transaction.get(doc(db, 'doctors/patient-1'));
+        await transaction.get(doc(db, 'specialties/cardiology'));
+        await transaction.get(transactionDoctorReference);
+
+        transaction.set(transactionDoctorReference, doctorProfile);
+        transaction.update(transactionUserReference, userPromotion);
+        transaction.update(transactionApplicationReference, approvedApplication);
+        transaction.set(transactionAuditReference, approvalAudit);
+      });
+    };
+
+    await assertFails(commitApproval({
+      db: patientDb,
+      reviewedBy: 'patient-1',
+      auditActor: 'patient-1',
+    }));
+    await assertSucceeds(commitApproval());
 
     await assertSucceeds(getDoc(doc(adminDb, `doctors/${doctorProfileId}`)));
     assert.equal(
@@ -470,16 +575,9 @@ test('patients can submit valid applications but cannot forge or review them', a
       doc(patientDb, 'doctor_application_state/patient-1'),
       { nextRevision: 100 },
     ));
-    await assertFails(updateDoc(doc(adminDb, 'doctor_applications/patient-1_2'), {
-      applicationStatus: 'approved',
-    }));
-    await assertFails(setDoc(
-      doc(dbFor('admin-1'), 'doctor_application_audit/forged-event'),
-      { actorUid: 'admin-1' },
-    ));
   });
 
-test('specialties are readable by authenticated users and writable by admins only', async () => {
+test('specialties are readable by authenticated users and admins can manage them', async () => {
     await seed();
     await testEnvironment.withSecurityRulesDisabled(async (context) => {
       const db = context.firestore();
@@ -560,13 +658,36 @@ test('specialties are readable by authenticated users and writable by admins onl
       isActive: false,
       updatedAt: serverTimestamp(),
     }));
-    await assertFails(setDoc(doc(adminDb, 'specialties/invalid'), {
+    await assertSucceeds(setDoc(doc(adminDb, 'specialties/invalid'), {
       name: 'Invalid',
       isActive: true,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }));
     await assertSucceeds(deleteDoc(doc(adminDb, 'specialties/created-by-admin')));
+});
+
+test('admins have full access to unmatched Firestore collections', async () => {
+  await seed();
+  const adminReference = doc(
+    dbFor('admin-1'),
+    'unmatched_collection/admin-record',
+  );
+  const patientReference = doc(
+    dbFor('patient-1'),
+    'unmatched_collection/admin-record',
+  );
+
+  await assertSucceeds(setDoc(adminReference, { value: 'admin-write' }));
+  assert.equal((await assertSucceeds(getDoc(adminReference))).data()?.value, 'admin-write');
+  await assertSucceeds(updateDoc(adminReference, { value: 'admin-update' }));
+
+  await assertFails(getDoc(patientReference));
+  await assertFails(setDoc(patientReference, { value: 'patient-write' }));
+  await assertFails(updateDoc(patientReference, { value: 'patient-update' }));
+  await assertFails(deleteDoc(patientReference));
+
+  await assertSucceeds(deleteDoc(adminReference));
 });
 
 test('admins can reject a legacy pending application without state metadata', async () => {
@@ -933,7 +1054,7 @@ test('keeps approved suspended doctor profile-image updates separate from operat
   );
 });
 
-test('prevents clients from writing audit records while allowing admin reads', async () => {
+test('admins can write audit records while non-admin clients cannot', async () => {
   await seed();
   const event = {
     actorUid: 'admin-1',
@@ -941,7 +1062,7 @@ test('prevents clients from writing audit records while allowing admin reads', a
     targetDoctorUid: 'doctor-1',
     operationId: 'forged-event',
   };
-  await assertFails(setDoc(
+  await assertSucceeds(setDoc(
     doc(dbFor('admin-1'), 'doctor_admin_audit/forged-event'),
     event,
   ));

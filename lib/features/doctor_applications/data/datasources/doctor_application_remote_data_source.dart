@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../../core/firebase/specialty_status.dart';
 import '../../domain/entities/doctor_application.dart';
@@ -315,6 +316,7 @@ class DoctorApplicationRemoteDataSource {
     if (!approve && (trimmedReason.length < 5 || trimmedReason.length > 500)) {
       throw const DoctorApplicationException(
         'Provide a rejection reason between 5 and 500 characters.',
+        code: 'invalid-argument',
       );
     }
 
@@ -326,7 +328,12 @@ class DoctorApplicationRemoteDataSource {
     final auditReference = _firestore
         .collection('doctor_application_audit')
         .doc(operationId);
-    final preflightAudit = await auditReference.get();
+    final preflightAudit = await _runReviewPreflight(
+      approve: approve,
+      operation: 'read_existing_audit',
+      path: 'doctor_application_audit/<audit>',
+      action: auditReference.get,
+    );
     if (preflightAudit.exists) {
       if (_isMatchingReviewOperation(
         preflightAudit.data(),
@@ -339,32 +346,53 @@ class DoctorApplicationRemoteDataSource {
       }
       throw const DoctorApplicationException(
         'This review operation could not be verified.',
+        code: 'failed-precondition',
       );
     }
 
-    final preflightApplication = await applicationReference.get();
+    final preflightApplication = await _runReviewPreflight(
+      approve: approve,
+      operation: 'read_application',
+      path: 'doctor_applications/<application>',
+      action: applicationReference.get,
+    );
     final preflightApplicantUid = preflightApplication.data()?['applicantUid'];
     if (!preflightApplication.exists ||
         preflightApplicantUid is! String ||
         preflightApplicantUid.isEmpty) {
       throw const DoctorApplicationException(
         'The requested application was not found.',
+        code: 'not-found',
       );
     }
     if (approve) {
-      final doctorMatches = await _firestore
-          .collection('doctors')
-          .where('uid', isEqualTo: preflightApplicantUid)
-          .limit(2)
-          .get();
+      final doctorMatches = await _runReviewPreflight(
+        approve: approve,
+        operation: 'query_existing_doctor_by_uid',
+        path: 'doctors',
+        action: () => _firestore
+            .collection('doctors')
+            .where('uid', isEqualTo: preflightApplicantUid)
+            .limit(2)
+            .get(),
+      );
       if (doctorMatches.docs.isNotEmpty) {
         throw const DoctorApplicationException(
           'The applicant already has a doctor profile.',
+          code: 'already-exists',
         );
       }
     }
 
-    await _firestore.runTransaction((transaction) async {
+    var transactionPhase = 'transaction_read';
+    var transactionOperation = 'start';
+    var transactionDocumentPath = 'not-exposed-by-firestore';
+    var transactionCallbackCompleted = false;
+    final reviewTransaction = _firestore.runTransaction((transaction) async {
+      transactionPhase = 'transaction_read';
+      transactionOperation = 'read_audit';
+      transactionDocumentPath = 'doctor_application_audit/<audit>';
+      transactionCallbackCompleted = false;
       final auditSnapshot = await transaction.get(auditReference);
       if (auditSnapshot.exists) {
         if (_isMatchingReviewOperation(
@@ -378,19 +406,24 @@ class DoctorApplicationRemoteDataSource {
         }
         throw const DoctorApplicationException(
           'This review operation could not be verified.',
+          code: 'failed-precondition',
         );
       }
 
+      transactionOperation = 'read_application';
+      transactionDocumentPath = 'doctor_applications/<application>';
       final applicationSnapshot = await transaction.get(applicationReference);
       final application = applicationSnapshot.data();
       if (!applicationSnapshot.exists || application == null) {
         throw const DoctorApplicationException(
           'The requested application was not found.',
+          code: 'not-found',
         );
       }
       if (application['applicationStatus'] != 'pending') {
         throw const DoctorApplicationException(
           'Only pending applications can be reviewed.',
+          code: 'failed-precondition',
         );
       }
 
@@ -401,6 +434,7 @@ class DoctorApplicationRemoteDataSource {
           application['applicationId'] != applicationId) {
         throw const DoctorApplicationException(
           'This application cannot be reviewed by this account.',
+          code: 'failed-precondition',
         );
       }
 
@@ -411,8 +445,14 @@ class DoctorApplicationRemoteDataSource {
       final legacyDoctorReference = _firestore
           .collection('doctors')
           .doc(applicantUid);
+      transactionOperation = 'read_applicant_user';
+      transactionDocumentPath = 'users/<applicant>';
       final userSnapshot = await transaction.get(userReference);
+      transactionOperation = 'read_application_state';
+      transactionDocumentPath = 'doctor_application_state/<applicant>';
       final stateSnapshot = await transaction.get(stateReference);
+      transactionOperation = 'read_legacy_doctor_profile';
+      transactionDocumentPath = 'doctors/<applicant-legacy-profile>';
       final legacyDoctorSnapshot = await transaction.get(legacyDoctorReference);
       final userData = userSnapshot.data();
       final stateData = stateSnapshot.data();
@@ -424,6 +464,7 @@ class DoctorApplicationRemoteDataSource {
               stateData?['nextRevision'] != revision + 1)) {
         throw const DoctorApplicationException(
           'The applicant or current application state could not be verified.',
+          code: 'failed-precondition',
         );
       }
       if (approve &&
@@ -434,6 +475,7 @@ class DoctorApplicationRemoteDataSource {
               legacyDoctorSnapshot.exists)) {
         throw const DoctorApplicationException(
           'The applicant already has a doctor profile or is not eligible.',
+          code: 'failed-precondition',
         );
       }
 
@@ -454,6 +496,8 @@ class DoctorApplicationRemoteDataSource {
         final specialtyReference = _firestore
             .collection('specialties')
             .doc(specialtyId);
+        transactionOperation = 'read_specialty';
+        transactionDocumentPath = 'specialties/<specialty>';
         final specialtySnapshot = await transaction.get(specialtyReference);
         final specialtyData = specialtySnapshot.data();
         if (!specialtySnapshot.exists ||
@@ -464,6 +508,7 @@ class DoctorApplicationRemoteDataSource {
             (specialtyData['name'] as String).trim().isEmpty) {
           throw const DoctorApplicationException(
             'The application specialty is no longer active.',
+            code: 'specialty-unavailable',
           );
         }
 
@@ -494,6 +539,7 @@ class DoctorApplicationRemoteDataSource {
             clinicAddress.length > 500) {
           throw const DoctorApplicationException(
             'The application contains invalid profile information.',
+            code: 'invalid-data',
           );
         }
 
@@ -501,10 +547,13 @@ class DoctorApplicationRemoteDataSource {
         final doctorReference = _firestore
             .collection('doctors')
             .doc(doctorProfileId);
+        transactionOperation = 'read_new_doctor_profile';
+        transactionDocumentPath = 'doctors/<new-profile>';
         final doctorSnapshot = await transaction.get(doctorReference);
         if (doctorSnapshot.exists) {
           throw const DoctorApplicationException(
             'The doctor profile ID is already in use.',
+            code: 'already-exists',
           );
         }
         final doctorProfile = <String, Object>{
@@ -526,7 +575,10 @@ class DoctorApplicationRemoteDataSource {
           'createdAt': now,
           'updatedAt': now,
         };
+        transactionPhase = 'transaction_write_queue';
+        transactionOperation = 'create_doctor_profile';
         transaction.set(doctorReference, doctorProfile);
+        transactionOperation = 'promote_applicant_user';
         transaction.update(userReference, {
           'role': 'doctor',
           'doctorProfileId': doctorProfileId,
@@ -534,6 +586,7 @@ class DoctorApplicationRemoteDataSource {
           'phoneNumber': applicantPhone,
           'updatedAt': now,
         });
+        transactionOperation = 'approve_application';
         transaction.update(applicationReference, {
           'applicationStatus': 'approved',
           'reviewedBy': actorUid,
@@ -544,6 +597,8 @@ class DoctorApplicationRemoteDataSource {
         event['doctorProfileId'] = doctorProfileId;
         event['newRole'] = 'doctor';
       } else {
+        transactionPhase = 'transaction_write_queue';
+        transactionOperation = 'reject_application';
         transaction.update(applicationReference, {
           'applicationStatus': 'rejected',
           'reviewedBy': actorUid,
@@ -553,14 +608,51 @@ class DoctorApplicationRemoteDataSource {
         });
       }
 
+      transactionOperation = 'create_audit_record';
       transaction.set(auditReference, event);
+      transactionPhase = 'commit';
+      transactionOperation = 'atomic_commit';
+      transactionCallbackCompleted = true;
     });
+    await reviewTransaction.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stackTrace) async {
+        if (error is! FirebaseException) {
+          Error.throwWithStackTrace(error, stackTrace);
+        }
+        final committed = await _reviewWasCommitted(
+          auditReference,
+          actorUid: actorUid,
+          applicationId: applicationId,
+          approve: approve,
+          reason: trimmedReason,
+        );
+        _logReviewFailure(
+          error,
+          stackTrace,
+          phase: transactionCallbackCompleted ? 'commit' : transactionPhase,
+          operation: transactionCallbackCompleted
+              ? 'atomic_commit'
+              : transactionOperation,
+          failedPath: transactionCallbackCompleted
+              ? 'not-exposed-by-firestore'
+              : transactionDocumentPath,
+          approve: approve,
+          transactionCallbackCompleted: transactionCallbackCompleted,
+          transactionCommitted: committed,
+        );
+        if (committed != true) Error.throwWithStackTrace(error, stackTrace);
+      },
+    );
   }
 
   String _currentUid() {
     final uid = _firebaseAuth.currentUser?.uid;
     if (uid == null || uid.isEmpty) {
-      throw const DoctorApplicationException('Sign in to view applications.');
+      throw const DoctorApplicationException(
+        'Sign in to view applications.',
+        code: 'unauthenticated',
+      );
     }
     return uid;
   }
@@ -586,6 +678,96 @@ class DoctorApplicationRemoteDataSource {
       audit?['applicationId'] == applicationId &&
       audit?['action'] == 'application_${approve ? 'approve' : 'reject'}' &&
       audit?['reason'] == reason;
+
+  Future<T> _runReviewPreflight<T>({
+    required bool approve,
+    required String operation,
+    required String path,
+    required Future<T> Function() action,
+  }) async {
+    try {
+      return await action();
+    } on FirebaseException catch (error, stackTrace) {
+      _logReviewFailure(
+        error,
+        stackTrace,
+        phase: 'preflight',
+        operation: operation,
+        failedPath: path,
+        approve: approve,
+        transactionCallbackCompleted: false,
+        transactionCommitted: null,
+      );
+      rethrow;
+    }
+  }
+
+  Future<bool?> _reviewWasCommitted(
+    DocumentReference<Map<String, dynamic>> auditReference, {
+    required String actorUid,
+    required String applicationId,
+    required bool approve,
+    required String reason,
+  }) async {
+    try {
+      final snapshot = await auditReference.get();
+      return snapshot.exists &&
+          _isMatchingReviewOperation(
+            snapshot.data(),
+            actorUid: actorUid,
+            applicationId: applicationId,
+            approve: approve,
+            reason: reason,
+          );
+    } on FirebaseException catch (error, stackTrace) {
+      _logReviewFailure(
+        error,
+        stackTrace,
+        phase: 'post_commit_verification',
+        operation: 'read_audit_record',
+        approve: approve,
+        transactionCallbackCompleted: true,
+        transactionCommitted: null,
+        failedPath: 'doctor_application_audit/<audit>',
+      );
+      return null;
+    }
+  }
+
+  void _logReviewFailure(
+    Object error,
+    StackTrace stackTrace, {
+    required String phase,
+    required String operation,
+    required bool approve,
+    required bool transactionCallbackCompleted,
+    required bool? transactionCommitted,
+    String? failedPath,
+  }) {
+    if (!kDebugMode) return;
+    final firebaseCode = error is FirebaseException
+        ? error.code
+        : 'not-applicable';
+    final transactionWritePaths = approve
+        ? 'doctors/<profile>,users/<applicant>,'
+              'doctor_applications/<application>,'
+              'doctor_application_audit/<audit>'
+        : 'doctor_applications/<application>,'
+              'doctor_application_audit/<audit>';
+    debugPrint(
+      '[DoctorApplicationReview] action=${approve ? 'approve' : 'reject'} '
+      'transaction_phase=$phase operation=$operation '
+      'failed_path=${failedPath ?? 'not-exposed-by-firestore'} '
+      'transaction_write_paths=$transactionWritePaths '
+      'transaction_callback_completed=$transactionCallbackCompleted '
+      'exception_type=${error.runtimeType} firebase_code=$firebaseCode '
+      'transaction_committed=${transactionCommitted?.toString() ?? 'unknown'}',
+    );
+    debugPrintStack(
+      label: '[DoctorApplicationReview] Diagnostic stack',
+      stackTrace: stackTrace,
+    );
+  }
 
   String _readRequiredUserString(
     Map<String, dynamic> userData,

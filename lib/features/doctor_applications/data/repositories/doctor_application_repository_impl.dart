@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/doctor_application.dart';
 import '../../domain/entities/doctor_application_page.dart';
@@ -32,7 +33,10 @@ class DoctorApplicationRepositoryImpl implements DoctorApplicationRepository {
           handleError: (error, stackTrace, sink) {
             if (error is FirebaseException) {
               sink.addError(
-                DoctorApplicationException(_messageForCode(error.code)),
+                DoctorApplicationException(
+                  _messageForCode(error.code),
+                  code: error.code,
+                ),
                 stackTrace,
               );
             } else {
@@ -93,13 +97,40 @@ class DoctorApplicationRepositoryImpl implements DoctorApplicationRepository {
     required String applicationId,
     required bool approve,
     String? reason,
-  }) => _guard(
-    () => _remoteDataSource.review(
-      applicationId: applicationId,
-      approve: approve,
-      reason: reason,
-    ),
-  );
+  }) async {
+    try {
+      await _remoteDataSource.review(
+        applicationId: applicationId,
+        approve: approve,
+        reason: reason,
+      );
+    } on DoctorApplicationException {
+      rethrow;
+    } on FirebaseException catch (error) {
+      throw DoctorApplicationException(
+        _messageForCode(error.code),
+        code: error.code,
+      );
+    } catch (error, stackTrace) {
+      if (kDebugMode) {
+        debugPrint(
+          '[DoctorApplicationReview] action=${approve ? 'approve' : 'reject'} '
+          'transaction_phase=repository operation=review_pipeline '
+          'failed_path=not-exposed-by-firestore '
+          'transaction_callback_completed=unknown '
+          'exception_type=${error.runtimeType} firebase_code=not-applicable '
+          'transaction_committed=unknown',
+        );
+        debugPrintStack(
+          label: '[DoctorApplicationReview] Diagnostic stack',
+          stackTrace: stackTrace,
+        );
+      }
+      throw const DoctorApplicationException(
+        'The application request could not be completed. Please retry.',
+      );
+    }
+  }
 
   Future<T> _guard<T>(Future<T> Function() action) async {
     try {
@@ -107,7 +138,10 @@ class DoctorApplicationRepositoryImpl implements DoctorApplicationRepository {
     } on DoctorApplicationException {
       rethrow;
     } on FirebaseException catch (error) {
-      throw DoctorApplicationException(_messageForCode(error.code));
+      throw DoctorApplicationException(
+        _messageForCode(error.code),
+        code: error.code,
+      );
     }
   }
 

@@ -219,7 +219,7 @@ class _DetailsContent extends StatelessWidget {
                 if (state.reviewError != null) ...[
                   SizedBox(height: 12.h),
                   Text(
-                    l10n.adminDoctorApplicationRetry,
+                    _reviewErrorLabel(l10n, state.reviewErrorCode),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
@@ -258,15 +258,10 @@ class _DetailsContent extends StatelessWidget {
                                 ],
                               ),
                             );
-                            if (confirm == true && context.mounted) {
-                              await cubit.review(approve: true);
-                              final current = cubit.state.application;
-                              if (context.mounted &&
-                                  current?.status ==
-                                      DoctorApplicationStatus.approved) {
-                                Navigator.of(context).pop(true);
-                              }
-                            }
+                            if (confirm != true || !context.mounted) return;
+                            final reviewed = await cubit.review(approve: true);
+                            if (!context.mounted) return;
+                            if (reviewed) Navigator.of(context).pop(true);
                           },
                           icon: const Icon(Icons.verified_outlined),
                           label: Text(l10n.adminDoctorApplicationApprove),
@@ -292,54 +287,14 @@ class _DetailsContent extends StatelessWidget {
     AdminDoctorApplicationDetailsCubit cubit,
     AppLocalizations l10n,
   ) async {
-    final controller = TextEditingController();
-    String? error;
     final reason = await showDialog<String>(
       context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) => AlertDialog(
-            title: Text(l10n.adminDoctorApplicationReject),
-            content: TextField(
-              controller: controller,
-              minLines: 2,
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: l10n.adminDoctorApplicationReasonPrompt,
-                errorText: error,
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext),
-                child: Text(l10n.cancel),
-              ),
-              FilledButton(
-                onPressed: () {
-                  final value = controller.text.trim();
-                  if (value.length < 5 || value.length > 500) {
-                    setDialogState(
-                      () => error =
-                          '${l10n.adminDoctorApplicationReasonRequired} (5-500)',
-                    );
-                    return;
-                  }
-                  Navigator.pop(dialogContext, value);
-                },
-                child: Text(l10n.adminDoctorApplicationReject),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (_) => _RejectApplicationDialog(l10n: l10n),
     );
-    controller.dispose();
     if (reason == null || !context.mounted) return;
-    await cubit.review(approve: false, reason: reason);
-    if (context.mounted &&
-        cubit.state.application?.status == DoctorApplicationStatus.rejected) {
-      Navigator.of(context).pop(true);
-    }
+    final reviewed = await cubit.review(approve: false, reason: reason);
+    if (!context.mounted) return;
+    if (reviewed) Navigator.of(context).pop(true);
   }
 
   static String _statusLabel(
@@ -355,6 +310,69 @@ class _DetailsContent extends StatelessWidget {
   static String _date(BuildContext context, DateTime? value) => value == null
       ? '—'
       : MaterialLocalizations.of(context).formatMediumDate(value);
+}
+
+class _RejectApplicationDialog extends StatefulWidget {
+  const _RejectApplicationDialog({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  State<_RejectApplicationDialog> createState() =>
+      _RejectApplicationDialogState();
+}
+
+class _RejectApplicationDialogState extends State<_RejectApplicationDialog> {
+  late final TextEditingController _reasonController;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _reasonController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!mounted) return;
+    final reason = _reasonController.text.trim();
+    if (reason.length < 5 || reason.length > 500) {
+      setState(() {
+        _errorMessage = widget.l10n.adminDoctorApplicationReasonRequired;
+      });
+      return;
+    }
+    Navigator.of(context).pop(reason);
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(widget.l10n.adminDoctorApplicationReject),
+    content: TextField(
+      controller: _reasonController,
+      minLines: 2,
+      maxLines: 5,
+      decoration: InputDecoration(
+        labelText: widget.l10n.adminDoctorApplicationReasonPrompt,
+        errorText: _errorMessage,
+      ),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context).pop(),
+        child: Text(widget.l10n.cancel),
+      ),
+      FilledButton(
+        onPressed: _submit,
+        child: Text(widget.l10n.adminDoctorApplicationReject),
+      ),
+    ],
+  );
 }
 
 class _Detail extends StatelessWidget {
@@ -401,3 +419,17 @@ class _Error extends StatelessWidget {
     ),
   );
 }
+
+String _reviewErrorLabel(AppLocalizations l10n, String? code) => switch (code) {
+  'permission-denied' => l10n.adminDoctorApplicationPermissionDenied,
+  'unauthenticated' => l10n.adminDoctorApplicationAuthenticationRequired,
+  'not-found' => l10n.adminDoctorApplicationNotFound,
+  'already-exists' ||
+  'failed-precondition' => l10n.adminDoctorApplicationConflict,
+  'specialty-unavailable' => l10n.adminDoctorApplicationSpecialtyUnavailable,
+  'invalid-argument' ||
+  'invalid-data' => l10n.adminDoctorApplicationInvalidData,
+  'unavailable' ||
+  'deadline-exceeded' => l10n.adminDoctorApplicationNetworkError,
+  _ => l10n.adminDoctorApplicationRetry,
+};

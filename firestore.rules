@@ -974,5 +974,10 @@ service cloud.firestore {
       );
       allow update, delete: if false;
     }
+
+    // Admin role grants full Firestore access by design.
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
   }
 }

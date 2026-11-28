@@ -717,6 +717,34 @@ class AppLocalizationsEn extends AppLocalizations {
       'Could not complete the review. Please retry.';
 
   @override
+  String get adminDoctorApplicationPermissionDenied =>
+      'You do not have permission to review this application.';
+
+  @override
+  String get adminDoctorApplicationAuthenticationRequired =>
+      'Your admin session has expired. Sign in again and retry.';
+
+  @override
+  String get adminDoctorApplicationNotFound =>
+      'This application could not be found. Refresh the list and try again.';
+
+  @override
+  String get adminDoctorApplicationConflict =>
+      'This application or applicant has changed and can no longer be reviewed in its current state.';
+
+  @override
+  String get adminDoctorApplicationSpecialtyUnavailable =>
+      'The selected specialty is no longer active. The application cannot be approved.';
+
+  @override
+  String get adminDoctorApplicationInvalidData =>
+      'The application contains incomplete or invalid profile information.';
+
+  @override
+  String get adminDoctorApplicationNetworkError =>
+      'A connection problem interrupted the review. Check the application status before retrying.';
+
+  @override
   String get adminSpecialtiesTitle => 'Specialty management';
 
   @override

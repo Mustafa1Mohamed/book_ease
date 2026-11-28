@@ -1,12 +1,47 @@
 import 'dart:async';
 
+import 'package:book_ease/core/localization/generated/app_localizations.dart';
 import 'package:book_ease/features/doctor_applications/domain/entities/doctor_application.dart';
 import 'package:book_ease/features/doctor_applications/domain/entities/doctor_application_page.dart';
 import 'package:book_ease/features/doctor_applications/domain/errors/doctor_application_exception.dart';
 import 'package:book_ease/features/doctor_applications/domain/repositories/doctor_application_repository.dart';
 import 'package:book_ease/features/doctor_applications/presentation/cubit/admin_doctor_applications_cubit.dart';
 import 'package:book_ease/features/doctor_applications/presentation/cubit/doctor_application_cubit.dart';
+import 'package:book_ease/features/doctor_applications/presentation/pages/admin_doctor_application_details_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
+import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show GlobalCupertinoLocalizations;
+
+Future<void> _pumpDetailsPage(
+  WidgetTester tester,
+  AdminDoctorApplicationDetailsCubit cubit,
+) async {
+  await tester.pumpWidget(
+    ScreenUtilPlusInit(
+      designSize: const Size(360, 690),
+      child: MaterialApp(
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BlocProvider.value(
+          value: cubit,
+          child: const AdminDoctorApplicationDetailsPage(
+            applicationId: 'application-1',
+          ),
+        ),
+      ),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
 
 DoctorApplication _application(String id, DoctorApplicationStatus status) =>
     DoctorApplication(
@@ -34,9 +69,14 @@ DoctorApplication _application(String id, DoctorApplicationStatus status) =>
 class _FakeDoctorApplicationRepository implements DoctorApplicationRepository {
   DoctorApplication? current;
   bool failLoad = false;
+  bool failGetApplication = false;
   bool failSubmit = false;
+  DoctorApplicationException? reviewError;
   Completer<void>? submitGate;
+  Completer<void>? reviewGate;
+  int getApplicationCalls = 0;
   int submitCalls = 0;
+  int reviewCalls = 0;
   StreamController<List<DoctorApplicationSpecialty>>? specialtyUpdates;
   final requests =
       <({String status, String specialty, String search, String? cursor})>[];
@@ -127,8 +167,14 @@ class _FakeDoctorApplicationRepository implements DoctorApplicationRepository {
   }
 
   @override
-  Future<DoctorApplication?> getApplication(String applicationId) async =>
-      current ?? _application(applicationId, DoctorApplicationStatus.pending);
+  Future<DoctorApplication?> getApplication(String applicationId) async {
+    getApplicationCalls++;
+    if (failGetApplication) {
+      throw const DoctorApplicationException('Could not reload application.');
+    }
+    return current ??
+        _application(applicationId, DoctorApplicationStatus.pending);
+  }
 
   @override
   Future<void> review({
@@ -136,6 +182,10 @@ class _FakeDoctorApplicationRepository implements DoctorApplicationRepository {
     required bool approve,
     String? reason,
   }) async {
+    reviewCalls++;
+    await reviewGate?.future;
+    final error = reviewError;
+    if (error != null) throw error;
     current = _application(
       applicationId,
       approve
@@ -280,5 +330,122 @@ void main() {
     await cubit.review(approve: true);
 
     expect(cubit.state.application?.status, DoctorApplicationStatus.approved);
+    await cubit.close();
+  });
+
+  test(
+    'reports review success when post-commit detail refresh fails',
+    () async {
+      final repository = _FakeDoctorApplicationRepository();
+      final cubit = AdminDoctorApplicationDetailsCubit(repository);
+      await cubit.load('application-1');
+      repository.failGetApplication = true;
+
+      final reviewed = await cubit.review(approve: true);
+
+      expect(reviewed, isTrue);
+      expect(cubit.state.errorMessage, 'Could not reload application.');
+      await cubit.close();
+    },
+  );
+
+  test('preserves review error code and reports failure', () async {
+    final repository = _FakeDoctorApplicationRepository()
+      ..reviewError = const DoctorApplicationException(
+        'Permission denied.',
+        code: 'permission-denied',
+      );
+    final cubit = AdminDoctorApplicationDetailsCubit(repository);
+    await cubit.load('application-1');
+
+    final reviewed = await cubit.review(approve: true);
+
+    expect(reviewed, isFalse);
+    expect(cubit.state.reviewErrorCode, 'permission-denied');
+    expect(cubit.state.application?.status, DoctorApplicationStatus.pending);
+    await cubit.close();
+  });
+
+  test('does not emit after closing during a pending review', () async {
+    final repository = _FakeDoctorApplicationRepository()
+      ..reviewGate = Completer<void>();
+    final cubit = AdminDoctorApplicationDetailsCubit(repository);
+    await cubit.load('application-1');
+
+    final review = cubit.review(approve: true);
+    await Future<void>.delayed(Duration.zero);
+    await cubit.close();
+    repository.reviewGate!.complete();
+
+    expect(await review, isTrue);
+  });
+
+  test('prevents concurrent reviews for the same application', () async {
+    final repository = _FakeDoctorApplicationRepository()
+      ..reviewGate = Completer<void>();
+    final cubit = AdminDoctorApplicationDetailsCubit(repository);
+    await cubit.load('application-1');
+
+    final firstReview = cubit.review(approve: true);
+    await Future<void>.delayed(Duration.zero);
+    final secondReview = await cubit.review(approve: true);
+    repository.reviewGate!.complete();
+
+    expect(secondReview, isFalse);
+    expect(await firstReview, isTrue);
+    expect(repository.reviewCalls, 1);
+    await cubit.close();
+  });
+
+  testWidgets('reject dialog survives validation and route transitions', (
+    tester,
+  ) async {
+    final repository = _FakeDoctorApplicationRepository();
+    final cubit = AdminDoctorApplicationDetailsCubit(repository);
+    addTearDown(cubit.close);
+    await cubit.load('application-1');
+    expect(cubit.state.application, isNotNull);
+    expect(cubit.state.isLoading, isFalse);
+    await _pumpDetailsPage(tester, cubit);
+    await tester.drag(find.byType(ListView), const Offset(0, -1200));
+    await tester.pumpAndSettle();
+    final pageContext = tester.element(
+      find.byType(AdminDoctorApplicationDetailsPage),
+    );
+    final l10n = AppLocalizations.of(pageContext);
+
+    await tester.tap(find.text(l10n.adminDoctorApplicationReject));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pump();
+    expect(
+      find.text(l10n.adminDoctorApplicationReasonRequired),
+      findsOneWidget,
+    );
+
+    await tester.enterText(find.byType(TextField), 'Review reason');
+    await tester.tap(find.text(l10n.cancel));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text(l10n.adminDoctorApplicationReject));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Incomplete credentials');
+    await tester.tap(
+      find.descendant(
+        of: find.byType(AlertDialog),
+        matching: find.byType(FilledButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(repository.current?.status, DoctorApplicationStatus.rejected);
   });
 }

@@ -1400,6 +1400,48 @@ abstract class AppLocalizations {
   /// **'Could not complete the review. Please retry.'**
   String get adminDoctorApplicationRetry;
 
+  /// No description provided for @adminDoctorApplicationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have permission to review this application.'**
+  String get adminDoctorApplicationPermissionDenied;
+
+  /// No description provided for @adminDoctorApplicationAuthenticationRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your admin session has expired. Sign in again and retry.'**
+  String get adminDoctorApplicationAuthenticationRequired;
+
+  /// No description provided for @adminDoctorApplicationNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This application could not be found. Refresh the list and try again.'**
+  String get adminDoctorApplicationNotFound;
+
+  /// No description provided for @adminDoctorApplicationConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This application or applicant has changed and can no longer be reviewed in its current state.'**
+  String get adminDoctorApplicationConflict;
+
+  /// No description provided for @adminDoctorApplicationSpecialtyUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'The selected specialty is no longer active. The application cannot be approved.'**
+  String get adminDoctorApplicationSpecialtyUnavailable;
+
+  /// No description provided for @adminDoctorApplicationInvalidData.
+  ///
+  /// In en, this message translates to:
+  /// **'The application contains incomplete or invalid profile information.'**
+  String get adminDoctorApplicationInvalidData;
+
+  /// No description provided for @adminDoctorApplicationNetworkError.
+  ///
+  /// In en, this message translates to:
+  /// **'A connection problem interrupted the review. Check the application status before retrying.'**
+  String get adminDoctorApplicationNetworkError;
+
   /// No description provided for @adminSpecialtiesTitle.
   ///
   /// In en, this message translates to:

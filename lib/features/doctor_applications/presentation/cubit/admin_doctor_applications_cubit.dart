@@ -149,6 +149,7 @@ class AdminDoctorApplicationDetailsState extends Equatable {
     this.isReviewing = false,
     this.errorMessage,
     this.reviewError,
+    this.reviewErrorCode,
   });
 
   final DoctorApplication? application;
@@ -158,6 +159,7 @@ class AdminDoctorApplicationDetailsState extends Equatable {
   final bool isReviewing;
   final String? errorMessage;
   final String? reviewError;
+  final String? reviewErrorCode;
 
   @override
   List<Object?> get props => [
@@ -168,6 +170,7 @@ class AdminDoctorApplicationDetailsState extends Equatable {
     isReviewing,
     errorMessage,
     reviewError,
+    reviewErrorCode,
   ];
 }
 
@@ -177,11 +180,15 @@ class AdminDoctorApplicationDetailsCubit
     : super(const AdminDoctorApplicationDetailsState());
 
   final DoctorApplicationRepository _repository;
+  int _loadRequest = 0;
 
   Future<void> load(String applicationId) async {
+    if (isClosed) return;
+    final request = ++_loadRequest;
     emit(const AdminDoctorApplicationDetailsState(isLoading: true));
     try {
       final application = await _repository.getApplication(applicationId);
+      if (isClosed || request != _loadRequest) return;
       if (application == null) {
         emit(
           const AdminDoctorApplicationDetailsState(
@@ -194,9 +201,11 @@ class AdminDoctorApplicationDetailsCubit
       final history = await _repository.getApplicantHistory(
         application.applicantUid,
       );
+      if (isClosed || request != _loadRequest) return;
       final applicantAccount = await _repository.getApplicantAccount(
         application.applicantUid,
       );
+      if (isClosed || request != _loadRequest) return;
       emit(
         AdminDoctorApplicationDetailsState(
           application: application,
@@ -206,6 +215,7 @@ class AdminDoctorApplicationDetailsCubit
         ),
       );
     } on DoctorApplicationException catch (error) {
+      if (isClosed || request != _loadRequest) return;
       emit(
         AdminDoctorApplicationDetailsState(
           isLoading: false,
@@ -215,12 +225,13 @@ class AdminDoctorApplicationDetailsCubit
     }
   }
 
-  Future<void> review({required bool approve, String? reason}) async {
+  Future<bool> review({required bool approve, String? reason}) async {
+    if (isClosed) return false;
     final application = state.application;
     if (application == null ||
         application.status != DoctorApplicationStatus.pending ||
         state.isReviewing) {
-      return;
+      return false;
     }
     emit(
       AdminDoctorApplicationDetailsState(
@@ -237,16 +248,22 @@ class AdminDoctorApplicationDetailsCubit
         approve: approve,
         reason: reason,
       );
+      if (isClosed) return true;
       await load(application.id);
+      return true;
     } on DoctorApplicationException catch (error) {
+      if (isClosed) return false;
       emit(
         AdminDoctorApplicationDetailsState(
           application: application,
+          applicantAccount: state.applicantAccount,
           history: state.history,
           isLoading: false,
           reviewError: error.message,
+          reviewErrorCode: error.code,
         ),
       );
+      return false;
     }
   }
 }
